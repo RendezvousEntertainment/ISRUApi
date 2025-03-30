@@ -9,14 +9,14 @@
                 FormulaLocalizationKey: "ISRU/Formulas/Mining";
                 InputResources: [
                     {
-                        Rate: 10,
+                        Rate: 100,
                         ResourceName: ElectricCharge,
                         AcceptanceThreshold: 0.00000001
                     }
                 ];
                 OutputResources: [
                     {
-                        Rate: 5,
+                        Rate: 1,
                         ResourceName: Ore,
                         AcceptanceThreshold: 0.00000001
                     }
@@ -31,7 +31,7 @@
     resourceContainers: [
         {
             name: "Ore",
-            capacityUnits: 10,
+            capacityUnits: 0.1,
             initialUnits: 0,
             NonStageable: true
         }
@@ -53,7 +53,7 @@
     resourceContainers: [
         {
             name: "Ore",
-            capacityUnits: 100,
+            capacityUnits: 10,
             initialUnits: 0,
             NonStageable: true
         }

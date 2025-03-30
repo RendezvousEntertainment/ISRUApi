@@ -1,5 +1,6 @@
-﻿using KSP.Game;
-using KSP.Messages;
+﻿using I2.Loc;
+using KSP.Game;
+using KSP.Modules;
 using KSP.Sim;
 using KSP.Sim.impl;
 using KSP.Sim.ResourceSystem;
@@ -22,6 +23,9 @@ public class PartComponentModule_Mining : PartComponentModule
 
     // Useful game objects
     private ResourceDefinitionDatabase _resourceDB;
+
+    private bool oufOfStorage;
+    private string outOfStorageProduct;
 
 
     public override void OnStart(double universalTime)
@@ -54,6 +58,24 @@ public class PartComponentModule_Mining : PartComponentModule
             UpdateIngredients();
             SendResourceRequest(deltaUniversalTime);
         }
+        SetStatus();
+    }
+
+    /**
+     * Compute the status for every frame.
+     **/
+    public void SetStatus()
+    {
+        if (_dataMining.EnabledToggle.GetValue())
+        {
+            _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceConversionState.Operational.Description())); // active
+        } else if (oufOfStorage)
+        {
+            _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceConversionState.InsufficientContainment.Description(), outOfStorageProduct)); // out of storage
+        } else
+        {
+            _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceConversionState.Inactive.Description())); // inactive
+        }
     }
 
     /**
@@ -65,7 +87,7 @@ public class PartComponentModule_Mining : PartComponentModule
         for (var i = 0; i < _currentIngredientUnits.Length; ++i)
         {
             var inputName = _dataMining.MiningFormulaDefinitions.InputResources[i].ResourceName;
-            System.Diagnostics.Debug.Write("ISRU " + inputName + " Remaining Capacity: " + _containerGroup.GetResourceCapacityUnits(_currentIngredientUnits[i].resourceID));
+            //System.Diagnostics.Debug.Write("ISRU " + inputName + " Remaining Capacity: " + _containerGroup.GetResourceCapacityUnits(_currentIngredientUnits[i].resourceID));
             System.Diagnostics.Debug.Write("ISRU Stored " + inputName + ": " + _containerGroup.GetResourceStoredUnits(_currentIngredientUnits[i].resourceID));
 
             // Remove ingredient from request if container empty
@@ -78,18 +100,27 @@ public class PartComponentModule_Mining : PartComponentModule
         }
 
         // Products
+        oufOfStorage = false;
+        outOfStorageProduct = null;
         for (var i = 0; i < _currentProductUnits.Length; ++i)
         {
             var outputName = _dataMining.MiningFormulaDefinitions.OutputResources[i].ResourceName;
-            System.Diagnostics.Debug.Write("ISRU " + outputName + " Remaining Capacity: " + _containerGroup.GetResourceCapacityUnits(_currentProductUnits[i].resourceID));
-            System.Diagnostics.Debug.Write("ISRU Stored " + outputName + ": " + _containerGroup.GetResourceStoredUnits(_currentProductUnits[i].resourceID));
+            double productCapacity = _containerGroup.GetResourceCapacityUnits(_currentProductUnits[i].resourceID);
+            double storedProduct = _containerGroup.GetResourceStoredUnits(_currentProductUnits[i].resourceID);
+            //System.Diagnostics.Debug.Write("ISRU " + outputName + " Remaining Capacity: " + _containerGroup.GetResourceCapacityUnits(_currentProductUnits[i].resourceID));
+            System.Diagnostics.Debug.Write("ISRU Stored " + outputName + ": " + storedProduct);
+
+            _currentProductUnits[i].units = _dataMining.MiningFormulaDefinitions.OutputResources[i].Rate;
 
             // Remove product from request if container full
-            _currentProductUnits[i].units =
-                _containerGroup.GetResourceCapacityUnits(_currentProductUnits[i].resourceID) <
-                _dataMining.MiningFormulaDefinitions.AcceptanceThreshold
-                    ? 0.0
-                    : _dataMining.MiningFormulaDefinitions.OutputResources[i].Rate;
+            if (productCapacity - storedProduct < _dataMining.MiningFormulaDefinitions.AcceptanceThreshold)
+            {
+                oufOfStorage = true;
+                outOfStorageProduct = outputName;
+                _dataMining.EnabledToggle.SetValue(false);
+                _currentProductUnits[i].units = 0.0;
+            }
+            
         }
     }
 

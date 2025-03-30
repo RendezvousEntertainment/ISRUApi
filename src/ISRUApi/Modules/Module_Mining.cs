@@ -1,7 +1,6 @@
 ﻿using I2.Loc;
 using KSP.Sim;
 using KSP.Sim.Definitions;
-using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
 namespace ISRUApi.Modules;
@@ -55,7 +54,6 @@ public class Module_Mining : PartBehaviourModule
     private void OnToggleChangedValue(bool newValue)
     {
         this.UpdatePAMVisibility(newValue);
-        _dataMining.statusTxt.SetValue(newValue?"Active":"Inactive");
     } 
 
     private void StartMining() => this._dataMining.EnabledToggle.SetValue(true);

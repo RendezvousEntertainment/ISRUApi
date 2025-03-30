@@ -25,7 +25,7 @@ public class Data_Mining: ModuleData
     [PAMDisplayControl(SortIndex = 2)]
     [JsonIgnore]
     [HideInInspector]
-    public ModuleProperty<string> statusTxt = new ModuleProperty<string>("Inactive", true, new ToStringDelegate(Data_Mining.GetConversionStatusString));
+    public ModuleProperty<string> statusTxt = new ModuleProperty<string>(null, true, new ToStringDelegate(Data_Mining.GetConversionStatusString));
 
     [LocalizedField("PartModules/Mining/OreRate")]
     [PAMDisplayControl(SortIndex = 3)]
@@ -34,7 +34,7 @@ public class Data_Mining: ModuleData
 
     [KSPState]
     [HideInInspector]
-    public ResourceConversionState conversionState = ResourceConversionState.Inactive;
+    //public ResourceConversionState conversionState = ResourceConversionState.Inactive;
 
     [KSPDefinition]
     public ResourceConverterFormulaDefinition MiningFormulaDefinitions;

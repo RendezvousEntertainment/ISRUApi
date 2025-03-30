@@ -55,8 +55,8 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         Instance = this;
 
         // Load the ISRUApi.AnotherModule project assembly
-        var currentFolder = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.FullName;
-        Assembly.LoadFrom(Path.Combine(currentFolder, "ISRUApi.AnotherModule.dll"));
+        //var currentFolder = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.FullName;
+        //Assembly.LoadFrom(Path.Combine(currentFolder, "ISRUApi.AnotherModule.dll"));
 
 
 

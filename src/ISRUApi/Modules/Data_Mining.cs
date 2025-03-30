@@ -51,7 +51,7 @@ public class Data_Mining: ModuleData
     [JsonIgnore]
     public PartComponentModule_Mining PartComponentModule;
 
-    public static string GetOreRateOutputString(object valueObj) => string.Format("{0:F1} / {1}", (object)Math.Abs((double)valueObj), (object)Units.SymbolSeconds);
+    public static string GetOreRateOutputString(object valueObj) => string.Format("{0:F1} {1}/{2}", (object)Math.Abs((double)valueObj), (object)Units.SymbolTonne, (object)Units.SymbolSeconds);
 
     protected override void InitProperties()
     {

@@ -1,0 +1,8 @@
+Key,Type,Desc,English
+
+PartModules/Mining/Enabled,Text,,Drill Enabled
+PartModules/Mining/Status,Text,,Status
+PartModules/Mining/OreRate,Text,,Ore Rate
+PartModules/Mining/StartMining,Text,,Start Mining
+PartModules/Mining/StopMining,Text,,Stop Mining
+PartModules/Mining/ToggleMining,Text,,Toggle Mining

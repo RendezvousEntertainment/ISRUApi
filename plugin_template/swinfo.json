@@ -18,6 +18,20 @@
         "min": "1.9.0",
         "max": "*"
       }
+    },
+    {
+      "id": "PatchManager",
+      "version": {
+        "min": "0.11.1",
+        "max": "*"
+      }
+    },
+    {
+      "id": "CommunityResources",
+      "version": {
+        "min": "0.2.1",
+        "max": "*"
+      }
     }
   ]
 }

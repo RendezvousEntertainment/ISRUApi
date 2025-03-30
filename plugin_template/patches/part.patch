@@ -1,0 +1,70 @@
+@use "builtin:debug";
+
+:parts #nosecone_1v_hemisphere {
+    +Module_Mining {
+        +Data_Mining {
+            $log: debug-log("ISRU module added");
+            +MiningFormulaDefinitions {
+                InternalName: MiningFormulaDefinitions;
+                FormulaLocalizationKey: "ISRU/Formulas/Mining";
+                InputResources: [
+                    {
+                        Rate: 1,
+                        ResourceName: ElectricCharge,
+                        AcceptanceThreshold: 0.00000001
+                    }
+                ];
+                OutputResources: [
+                    {
+                        Rate: 1,
+                        ResourceName: Ore,
+                        AcceptanceThreshold: 0.00000001
+                    }
+                ];
+                AcceptanceThreshold: 0.000001;
+            }
+        }
+    }
+    +Module_ResourceCapacities {
+        +Data_ResourceCapacities {}
+    }
+    resourceContainers: [
+        {
+            name: "Ore",
+            capacityUnits: 10,
+            initialUnits: 0,
+            NonStageable: true
+        }
+    ];
+    resourceSummary: {
+        Consumes: [
+            "ElectricCharge"
+        ],
+        Generates: [
+            "Ore"
+        ],
+        Contains: [
+            "Ore"
+        ]
+    };
+}
+
+:parts #fueltank_1v_inline_methalox_1x1 {
+    resourceContainers: [
+        {
+            name: "Ore",
+            capacityUnits: 100,
+            initialUnits: 0,
+            NonStageable: true
+        }
+    ];
+    $log: debug-log("ISRU Ore ressource added");
+    resourceSummary: {
+        Consumes: null,
+        Generates: null,
+        Contains: [
+            "Ore"
+        ]
+    };
+    $log: debug-log("ISRU Ore ressource added bis");
+}

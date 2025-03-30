@@ -9,14 +9,14 @@
                 FormulaLocalizationKey: "ISRU/Formulas/Mining";
                 InputResources: [
                     {
-                        Rate: 1,
+                        Rate: 10,
                         ResourceName: ElectricCharge,
                         AcceptanceThreshold: 0.00000001
                     }
                 ];
                 OutputResources: [
                     {
-                        Rate: 1,
+                        Rate: 5,
                         ResourceName: Ore,
                         AcceptanceThreshold: 0.00000001
                     }

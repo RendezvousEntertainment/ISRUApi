@@ -54,9 +54,9 @@ public class PartComponentModule_Mining : PartComponentModule
 
     public override void OnUpdate(double universalTime, double deltaUniversalTime)
     {
+        UpdateIngredients();
         if (this._dataMining.EnabledToggle.GetValue())
         {
-            UpdateIngredients();
             SendResourceRequest(deltaUniversalTime);
         }
         SetStatus();

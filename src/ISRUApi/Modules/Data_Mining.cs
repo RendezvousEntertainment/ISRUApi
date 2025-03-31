@@ -10,7 +10,7 @@ using UnityEngine;
 namespace ISRUApi.Modules;
 
 [Serializable]
-public class Data_Mining: ModuleData
+public class Data_Mining : ModuleData
 {
     public override Type ModuleType => typeof(Module_Mining);
 
@@ -31,10 +31,6 @@ public class Data_Mining: ModuleData
     [PAMDisplayControl(SortIndex = 3)]
     [JsonIgnore]
     public ModuleProperty<double> OreRateTxt = new ModuleProperty<double>(0.0, true, new ToStringDelegate(Data_Mining.GetOreRateOutputString));
-
-    [KSPState]
-    [HideInInspector]
-    //public ResourceConversionState conversionState = ResourceConversionState.Inactive;
 
     [KSPDefinition]
     public ResourceConverterFormulaDefinition MiningFormulaDefinitions;
@@ -68,4 +64,11 @@ public enum MiningState : byte
     None = 0,
     [Description("ISRUApi/Modules/Data_Mining/status/Mining")] Mining = 1,
     [Description("ISRUApi/Modules/Data_Mining/status/Stopped")] Stopped = 2,
+}
+
+[Serializable]
+public enum ResourceConversionStateMinig : byte
+{
+    None,
+    [Description("PartModules/ResourceConverter/TooHigh")] TooHigh,
 }

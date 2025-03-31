@@ -6,3 +6,5 @@ PartModules/Mining/OreRate,Text,,Ore Rate
 PartModules/Mining/StartMining,Text,,Start Mining
 PartModules/Mining/StopMining,Text,,Stop Mining
 PartModules/Mining/ToggleMining,Text,,Toggle Mining
+
+PartModules/ResourceConverter/TooHigh,Text,,Too Far From Ground

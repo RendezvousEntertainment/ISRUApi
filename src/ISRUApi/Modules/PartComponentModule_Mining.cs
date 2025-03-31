@@ -1,9 +1,12 @@
-﻿using I2.Loc;
+﻿using BepInEx;
+using I2.Loc;
 using KSP.Game;
+using KSP.Messages.PropertyWatchers;
 using KSP.Modules;
 using KSP.Sim;
 using KSP.Sim.impl;
 using KSP.Sim.ResourceSystem;
+using KSP.Tools;
 
 namespace ISRUApi.Modules;
 
@@ -28,6 +31,7 @@ public class PartComponentModule_Mining : PartComponentModule
     private string outOfStorageProduct;
     private bool outOfIngredient;
     private string missingIngredient;
+    private bool isTooHigh;
 
     public override void OnStart(double universalTime)
     {
@@ -49,16 +53,14 @@ public class PartComponentModule_Mining : PartComponentModule
 
             // Set up resource request
             SetupIngredientDataStructures();
+            System.Diagnostics.Debug.Write("ISRU OnStart success");
         }
     }
 
     public override void OnUpdate(double universalTime, double deltaUniversalTime)
     {
         UpdateIngredients();
-        if (this._dataMining.EnabledToggle.GetValue())
-        {
-            SendResourceRequest(deltaUniversalTime);
-        }
+        SendResourceRequest(deltaUniversalTime);
         SetStatus();
     }
 
@@ -67,7 +69,11 @@ public class PartComponentModule_Mining : PartComponentModule
      **/
     public void SetStatus()
     {
-        if (_dataMining.EnabledToggle.GetValue())
+        if (_dataMining.EnabledToggle.GetValue() && isTooHigh)
+        {
+            _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceConversionStateMinig.TooHigh.Description())); // too far from ground
+        }
+        else if (_dataMining.EnabledToggle.GetValue())
         {
             _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceConversionState.Operational.Description())); // active
         }
@@ -140,6 +146,8 @@ public class PartComponentModule_Mining : PartComponentModule
      **/
     private void SendResourceRequest(double deltaTime)
     {
+        if (!this._dataMining.EnabledToggle.GetValue()) return; // if drill is inactive, do nothing
+
         var inputCount = _dataMining.MiningFormulaDefinitions.InputResources.Count;
         var outputCount = _dataMining.MiningFormulaDefinitions.OutputResources.Count;
 
@@ -149,9 +157,31 @@ public class PartComponentModule_Mining : PartComponentModule
                 deltaTime);
 
         // Products
-        for (var i = 0; i < outputCount; ++i)
-            _containerGroup.AddResourceUnits(_currentProductUnits[i].resourceID, _currentProductUnits[i].units,
-                deltaTime);
+        double altitude = 0.0;
+        VesselSituations situation = new();
+        VesselComponent ActiveVessel = GameManager.Instance?.Game?.ViewController?.GetActiveVehicle(true)?.GetSimVessel(true);
+        if (ActiveVessel != null) {
+            altitude = ActiveVessel.AltitudeFromScenery;
+            situation = ActiveVessel.Situation;
+        } else
+        {
+            System.Diagnostics.Debug.Write("ISRU Ground Altitude not computable");
+        }
+        System.Diagnostics.Debug.Write("ISRU Ground Altitude = " + altitude);
+        //System.Diagnostics.Debug.Write("ISRU Ground AltitudeFromScenery = " + ActiveVessel.AltitudeFromScenery);
+        //System.Diagnostics.Debug.Write("ISRU Ground AltitudeFromSurface = " + ActiveVessel.AltitudeFromSurface);
+        //System.Diagnostics.Debug.Write("ISRU Ground AltitudeFromRadius = " + ActiveVessel.AltitudeFromRadius);
+        //System.Diagnostics.Debug.Write("ISRU Ground AltitudeFromSeaLevel = " + ActiveVessel.AltitudeFromSeaLevel);
+        //System.Diagnostics.Debug.Write("ISRU Situation = " + situation);
+        if (altitude > 5.0 || !VesselSituations.Landed.Equals(situation)) { // if drill is not on the ground, do nothing
+            isTooHigh = true;
+        } else
+        {
+            isTooHigh = false;
+            for (var i = 0; i < outputCount; ++i)
+                _containerGroup.AddResourceUnits(_currentProductUnits[i].resourceID, _currentProductUnits[i].units,
+                    deltaTime);
+        }
     }
 
     /**
@@ -159,14 +189,21 @@ public class PartComponentModule_Mining : PartComponentModule
      **/
     private void SetupIngredientDataStructures()
     {
+        System.Diagnostics.Debug.Write("ISRU 1");
+        if (_dataMining.MiningFormulaDefinitions == null)
+        {
+            System.Diagnostics.Debug.Write("[ISRU] ERROR Unable to find MiningFormulaDefinitions.");
+            return;
+        }
         var inputCount = _dataMining.MiningFormulaDefinitions.InputResources.Count;
+        //System.Diagnostics.Debug.Write("ISRU 2");
         var outputCount = _dataMining.MiningFormulaDefinitions.OutputResources.Count;
-        
+        //System.Diagnostics.Debug.Write("ISRU 3");
         _currentIngredientUnits = new ResourceUnitsPair[inputCount];
         _currentProductUnits = new ResourceUnitsPair[outputCount];
         
         var resourceUnitsPair = new ResourceUnitsPair();
-
+        //System.Diagnostics.Debug.Write("ISRU 4");
         // Initializing the ingredients data
         for (var i = 0; i < inputCount; ++i)
         {
@@ -182,7 +219,7 @@ public class PartComponentModule_Mining : PartComponentModule
             resourceUnitsPair.units = rate;
             _currentIngredientUnits[i] = resourceUnitsPair;
         }
-
+        //System.Diagnostics.Debug.Write("ISRU 5");
         // Initializing the products data
         for (var i = 0; i < outputCount; ++i)
         {

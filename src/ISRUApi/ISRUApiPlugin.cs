@@ -12,11 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System.Reflection;
 using BepInEx;
 using JetBrains.Annotations;
+using KSP.UI.Binding;
 using SpaceWarp;
+using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
+using SpaceWarp.API.UI;
+using SpaceWarp.API.UI.Appbar;
+using UnityEngine;
 
 namespace ISRUApi;
 
@@ -45,6 +49,18 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
     /// </summary>
     [PublicAPI] public static ISRUApiPlugin Instance { get; set; }
 
+    // AppBar button IDs
+    public const string ToolbarFlightButtonID = "BTN-ISRUFlight";
+    
+    private string iconLabel = "Resource Gathering";
+
+    // UI window state
+    private bool _isWindowOpen;
+    private Rect _windowRect;
+    private bool _resourceOverlayToggle     = false;
+    private const int Height = 60;
+    private const int Width = 350;
+
     /// <summary>
     /// Runs when the mod is first initialized.
     /// </summary>
@@ -54,12 +70,64 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
 
         Instance = this;
 
-        // Load the ISRUApi.AnotherModule project assembly
-        //var currentFolder = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.FullName;
-        //Assembly.LoadFrom(Path.Combine(currentFolder, "ISRUApi.AnotherModule.dll"));
+        // Register Flight AppBar button
+        Appbar.RegisterAppButton(
+            iconLabel,
+            ToolbarFlightButtonID,
+            AssetManager.GetAsset<Texture2D>($"{Info.Metadata.GUID}/images/icon.png"),
+            isOpen =>
+            {
+                _isWindowOpen = isOpen;
+                GameObject.Find(ToolbarFlightButtonID)?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(isOpen);
+            }
+        );
+    }
 
+    void Awake()
+    {
+        // Set initial position for window
+        _windowRect = new Rect((Screen.width * 0.7f) - (Width / 2), (Screen.height / 2) - (Height / 2), 0, 0);
+    }
 
+    /// <summary>
+    /// Draws a simple UI window when <code>this._isWindowOpen</code> is set to <code>true</code>.
+    /// </summary>
+    private void OnGUI()
+    {
+        // Set the UI
+        GUI.skin = Skins.ConsoleSkin;
 
+        if (_isWindowOpen)
+        {
+            _windowRect = GUILayout.Window(
+                GUIUtility.GetControlID(FocusType.Passive),
+                _windowRect,
+                FillWindow,
+                "RESOURCE GATHERING--------",
+                GUILayout.Height(Height),
+                GUILayout.Width(Width)
+            );
+        }
+    }
+
+    /// <summary>
+    /// Defines the content of the UI window drawn in the <code>OnGui</code> method.
+    /// </summary>
+    /// <param name="windowID"></param>
+    private void FillWindow(int windowID)
+    {
+        GUILayout.BeginHorizontal();
+        _resourceOverlayToggle = GUILayout.Toggle(_resourceOverlayToggle, "Resource Overlay"); // Toggle button
+        GUILayout.EndHorizontal();
+
+        // Close button (X)
+        if (GUI.Button(new Rect(_windowRect.width - 25, 5, 20, 20), "X"))
+        {
+            _isWindowOpen = false;
+            GameObject.Find(ToolbarFlightButtonID)?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(false);
+        }
+
+        GUI.DragWindow(new Rect(0, 0, Width, 40)); // dragable part of the window
     }
 }
 

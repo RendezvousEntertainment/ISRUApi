@@ -24,7 +24,7 @@ public class PartComponentModule_Mining : PartComponentModule
     // Useful game objects
     private ResourceDefinitionDatabase _resourceDB;
 
-    private bool oufOfStorage;
+    private bool outOfStorage;
     private string outOfStorageProduct;
 
 
@@ -69,7 +69,9 @@ public class PartComponentModule_Mining : PartComponentModule
         if (_dataMining.EnabledToggle.GetValue())
         {
             _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceConversionState.Operational.Description())); // active
-        } else if (oufOfStorage)
+        }
+        else if (outOfStorage)
+        {
         {
             _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceConversionState.InsufficientContainment.Description(), outOfStorageProduct)); // out of storage
         } else
@@ -100,7 +102,7 @@ public class PartComponentModule_Mining : PartComponentModule
         }
 
         // Products
-        oufOfStorage = false;
+        outOfStorage = false;
         outOfStorageProduct = null;
         for (var i = 0; i < _currentProductUnits.Length; ++i)
         {
@@ -115,7 +117,7 @@ public class PartComponentModule_Mining : PartComponentModule
             // Remove product from request if container full
             if (productCapacity - storedProduct < _dataMining.MiningFormulaDefinitions.AcceptanceThreshold)
             {
-                oufOfStorage = true;
+                outOfStorage = true;
                 outOfStorageProduct = outputName;
                 _dataMining.EnabledToggle.SetValue(false);
                 _currentProductUnits[i].units = 0.0;

@@ -23,6 +23,7 @@
                 ];
                 AcceptanceThreshold: 0.000001;
             }
+            $log: debug-log("ISRU MiningFormulaDefinitions added");
         }
     }
     +Module_ResourceCapacities {

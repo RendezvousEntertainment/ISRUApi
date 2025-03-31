@@ -26,7 +26,8 @@ public class PartComponentModule_Mining : PartComponentModule
 
     private bool outOfStorage;
     private string outOfStorageProduct;
-
+    private bool outOfIngredient;
+    private string missingIngredient;
 
     public override void OnStart(double universalTime)
     {
@@ -72,8 +73,11 @@ public class PartComponentModule_Mining : PartComponentModule
         }
         else if (outOfStorage)
         {
-        {
             _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceConversionState.InsufficientContainment.Description(), outOfStorageProduct)); // out of storage
+        }
+        else if (outOfIngredient)
+        {
+            _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceConversionState.InsufficientResource.Description(), missingIngredient)); // out of input resource
         } else
         {
             _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceConversionState.Inactive.Description())); // inactive
@@ -86,19 +90,24 @@ public class PartComponentModule_Mining : PartComponentModule
     private void UpdateIngredients()
     {
         // Ingredients
+        outOfIngredient = false;
+        missingIngredient = null;
         for (var i = 0; i < _currentIngredientUnits.Length; ++i)
         {
             var inputName = _dataMining.MiningFormulaDefinitions.InputResources[i].ResourceName;
             //System.Diagnostics.Debug.Write("ISRU " + inputName + " Remaining Capacity: " + _containerGroup.GetResourceCapacityUnits(_currentIngredientUnits[i].resourceID));
-            System.Diagnostics.Debug.Write("ISRU Stored " + inputName + ": " + _containerGroup.GetResourceStoredUnits(_currentIngredientUnits[i].resourceID));
+            //System.Diagnostics.Debug.Write("ISRU Stored " + inputName + ": " + _containerGroup.GetResourceStoredUnits(_currentIngredientUnits[i].resourceID));
+
+            _currentIngredientUnits[i].units = _dataMining.MiningFormulaDefinitions.InputResources[i].Rate;
 
             // Remove ingredient from request if container empty
-            _currentIngredientUnits[i].units =
-                _containerGroup.GetResourceStoredUnits(_currentIngredientUnits[i].resourceID) <
-                _dataMining.MiningFormulaDefinitions.AcceptanceThreshold
-                    ? 0.0
-                    : _currentIngredientUnits[i].units =
-                        _dataMining.MiningFormulaDefinitions.InputResources[i].Rate;
+            if (_containerGroup.GetResourceStoredUnits(_currentIngredientUnits[i].resourceID) < _dataMining.MiningFormulaDefinitions.AcceptanceThreshold)
+            {
+                outOfIngredient = true;
+                missingIngredient = inputName;
+                _dataMining.EnabledToggle.SetValue(false);
+                _currentIngredientUnits[i].units = 0.0;
+            }
         }
 
         // Products
@@ -110,7 +119,7 @@ public class PartComponentModule_Mining : PartComponentModule
             double productCapacity = _containerGroup.GetResourceCapacityUnits(_currentProductUnits[i].resourceID);
             double storedProduct = _containerGroup.GetResourceStoredUnits(_currentProductUnits[i].resourceID);
             //System.Diagnostics.Debug.Write("ISRU " + outputName + " Remaining Capacity: " + _containerGroup.GetResourceCapacityUnits(_currentProductUnits[i].resourceID));
-            System.Diagnostics.Debug.Write("ISRU Stored " + outputName + ": " + storedProduct);
+            //System.Diagnostics.Debug.Write("ISRU Stored " + outputName + ": " + storedProduct);
 
             _currentProductUnits[i].units = _dataMining.MiningFormulaDefinitions.OutputResources[i].Rate;
 
@@ -143,8 +152,6 @@ public class PartComponentModule_Mining : PartComponentModule
         for (var i = 0; i < outputCount; ++i)
             _containerGroup.AddResourceUnits(_currentProductUnits[i].resourceID, _currentProductUnits[i].units,
                 deltaTime);
-        
-        
     }
 
     /**
@@ -154,10 +161,10 @@ public class PartComponentModule_Mining : PartComponentModule
     {
         var inputCount = _dataMining.MiningFormulaDefinitions.InputResources.Count;
         var outputCount = _dataMining.MiningFormulaDefinitions.OutputResources.Count;
-
+        
         _currentIngredientUnits = new ResourceUnitsPair[inputCount];
         _currentProductUnits = new ResourceUnitsPair[outputCount];
-
+        
         var resourceUnitsPair = new ResourceUnitsPair();
 
         // Initializing the ingredients data
@@ -168,7 +175,7 @@ public class PartComponentModule_Mining : PartComponentModule
 
             // Rate
             var rate = _dataMining.MiningFormulaDefinitions.InputResources[i].Rate;
-            _dataMining.OreRateTxt.SetValue(rate);
+            _dataMining.OreRateTxt.SetValue(rate/100);
 
             // Setup the resource
             resourceUnitsPair.resourceID = _resourceDB.GetResourceIDFromName(inputName);

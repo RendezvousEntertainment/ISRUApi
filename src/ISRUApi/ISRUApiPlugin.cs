@@ -14,6 +14,11 @@
  */
 using BepInEx;
 using JetBrains.Annotations;
+using KSP.Game;
+using KSP.Game.Science;
+using KSP.Messages.PropertyWatchers;
+using KSP.Rendering.Planets;
+using KSP.Sim.impl;
 using KSP.UI.Binding;
 using SpaceWarp;
 using SpaceWarp.API.Assets;
@@ -57,9 +62,20 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
     // UI window state
     private bool _isWindowOpen;
     private Rect _windowRect;
-    private bool _resourceOverlayToggle     = false;
+    private bool _resourceOverlayToggle = false;
     private const int Height = 60;
     private const int Width = 350;
+
+    // Overlay
+    private PQSScienceOverlay _scienceOverlay;
+    private Material _regionBoundsMaterial;
+    private Transform _celestialBody;
+
+    void Awake()
+    {      
+        // Set initial position for window
+        _windowRect = new Rect((Screen.width * 0.7f) - (Width / 2), (Screen.height / 2) - (Height / 2), 0, 0);
+    }
 
     /// <summary>
     /// Runs when the mod is first initialized.
@@ -71,6 +87,7 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         Instance = this;
 
         // Register Flight AppBar button
+        System.Diagnostics.Debug.Write("ISRU " + $"{Info.Metadata.GUID}/images/icon.png");
         Appbar.RegisterAppButton(
             iconLabel,
             ToolbarFlightButtonID,
@@ -83,11 +100,7 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         );
     }
 
-    void Awake()
-    {
-        // Set initial position for window
-        _windowRect = new Rect((Screen.width * 0.7f) - (Width / 2), (Screen.height / 2) - (Height / 2), 0, 0);
-    }
+
 
     /// <summary>
     /// Draws a simple UI window when <code>this._isWindowOpen</code> is set to <code>true</code>.
@@ -117,7 +130,15 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
     private void FillWindow(int windowID)
     {
         GUILayout.BeginHorizontal();
-        _resourceOverlayToggle = GUILayout.Toggle(_resourceOverlayToggle, "Resource Overlay"); // Toggle button
+
+        bool newToggleState = GUILayout.Toggle(_resourceOverlayToggle, "Resource Overlay");
+        if (newToggleState != _resourceOverlayToggle)
+        {
+            _resourceOverlayToggle = newToggleState;
+            System.Diagnostics.Debug.Write("ISRU newToggleState=" + newToggleState);
+            UpdateResourceOverlay();
+        }
+
         GUILayout.EndHorizontal();
 
         // Close button (X)
@@ -129,5 +150,57 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
 
         GUI.DragWindow(new Rect(0, 0, Width, 40)); // dragable part of the window
     }
+
+    /// <summary>
+    /// Adds an overlay to the current celestial body.
+    /// </summary>
+    private void UpdateResourceOverlay()
+    {
+        System.Diagnostics.Debug.Write("ISRU UpdateResourceOverlay begin");
+        string pathToAssets = "Assets/";
+
+        GameManager.Instance.Assets.Load<Material>(pathToAssets + "PhysXBubbleMat.mat", mat => _regionBoundsMaterial = mat); // TODO : move to Awake()?
+        if (_regionBoundsMaterial == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR no _regionBoundsMaterial");
+        }
+
+        GameManager.Instance.Assets.Load<PQSScienceOverlay>(pathToAssets + "PqsOverlayPrefab.prefab", overlay =>  // TODO : move to Awake()?
+        {
+            _scienceOverlay = Instantiate(overlay, transform, false);
+            _scienceOverlay.enabled = false;
+        });
+        if (_scienceOverlay == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR no PqsOverlayPrefab");
+        }
+
+        if (_scienceOverlay == null || _regionBoundsMaterial == null)
+        {
+            return;
+        }
+        System.Diagnostics.Debug.Write("ISRU overlay loaded");
+
+        if (Game?.ScienceManager?.ScienceRegionsDataProvider != null)
+        {
+            _scienceOverlay.SetScienceRegionsDataProvider(Game.ScienceManager.ScienceRegionsDataProvider);
+            VesselComponent vessel = Game.ViewController.GetActiveSimVessel();
+            var celestialBodyBehavior = vessel!.mainBody.SurfaceProvider as CelestialBodyBehavior;
+            var celestialBody = (celestialBodyBehavior != null) ? celestialBodyBehavior.PqsController : null;
+            
+            if (celestialBody != null)
+            {
+                System.Diagnostics.Debug.Write("ISRU CelestialBodyName=" + celestialBody.name);
+                _scienceOverlay.SetCelestialBody(celestialBody);
+            }
+        } else
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR ScienceRegionsDataProvider is null");
+        }
+        PQSObject.RegionBoundingSphereMaterial = _regionBoundsMaterial;
+        PQSObject.ShowScienceRegionInfo = true;
+        System.Diagnostics.Debug.Write("ISRU UpdateResourceOverlay end");
+    }
+
 }
 

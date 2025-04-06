@@ -70,9 +70,6 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
     private const int Width = 350;
 
     // Overlay
-    private PQSScienceOverlay _scienceOverlay;
-    private Material _regionBoundsMaterial;
-    private Transform _celestialBody;
     Texture _originalTexture;
 
     void Awake()
@@ -140,7 +137,6 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         {
             _resourceOverlayToggle = newToggleState;
             System.Diagnostics.Debug.Write("ISRU newToggleState=" + newToggleState);
-            //UpdateResourceOverlay();
             DisplayResourceShader(newToggleState);
         }
 
@@ -163,8 +159,8 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         if (File.Exists(filePath))
         {
             byte[] fileData = File.ReadAllBytes(filePath);
-            texture = new Texture2D(2, 2); // Crée une texture vide. La taille sera redimensionnée par LoadImage.
-            if (texture.LoadImage(fileData)) // Charge les données de l'image dans la texture.
+            texture = new Texture2D(2, 2);
+            if (texture.LoadImage(fileData))
             {
                 return texture;
             }
@@ -203,58 +199,6 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
             material.mainTexture = _originalTexture;
         }
         System.Diagnostics.Debug.Write("ISRU end DisplayResourceShader");
-    }
-
-    /// <summary>
-    /// Adds an overlay to the current celestial body.
-    /// </summary>
-    private void UpdateResourceOverlay()
-    {
-        System.Diagnostics.Debug.Write("ISRU UpdateResourceOverlay begin");
-        string pathToAssets = "Assets/";
-
-        GameManager.Instance.Assets.Load<Material>(pathToAssets + "PhysXBubbleMat.mat", mat => _regionBoundsMaterial = mat); // TODO : move to Awake()?
-        if (_regionBoundsMaterial == null)
-        {
-            System.Diagnostics.Debug.Write("ISRU ERROR no _regionBoundsMaterial");
-        }
-
-        GameManager.Instance.Assets.Load<PQSScienceOverlay>(pathToAssets + "PqsOverlayPrefab.prefab", overlay =>  // TODO : move to Awake()?
-        {
-            _scienceOverlay = Instantiate(overlay, transform, false);
-            _scienceOverlay.enabled = false;
-        });
-        if (_scienceOverlay == null)
-        {
-            System.Diagnostics.Debug.Write("ISRU ERROR no PqsOverlayPrefab");
-        }
-
-        if (_scienceOverlay == null || _regionBoundsMaterial == null)
-        {
-            return;
-        }
-        System.Diagnostics.Debug.Write("ISRU overlay loaded");
-
-        if (Game?.ScienceManager?.ScienceRegionsDataProvider != null)
-        {
-            _scienceOverlay.SetScienceRegionsDataProvider(Game.ScienceManager.ScienceRegionsDataProvider);
-            VesselComponent vessel = Game.ViewController.GetActiveSimVessel();
-            var celestialBodyBehavior = vessel!.mainBody.SurfaceProvider as CelestialBodyBehavior;
-            var celestialBody = (celestialBodyBehavior != null) ? celestialBodyBehavior.PqsController : null;
-            
-            if (celestialBody != null)
-            {
-                System.Diagnostics.Debug.Write("ISRU CelestialBodyName=" + celestialBody.name);
-                _scienceOverlay.SetCelestialBody(celestialBody);
-            }
-            _scienceOverlay.Strength = 1.0F;
-        } else
-        {
-            System.Diagnostics.Debug.Write("ISRU ERROR ScienceRegionsDataProvider is null");
-        }
-        PQSObject.RegionBoundingSphereMaterial = _regionBoundsMaterial;
-        PQSObject.ShowScienceRegionInfo = true;
-        System.Diagnostics.Debug.Write("ISRU UpdateResourceOverlay end");
     }
 
 }

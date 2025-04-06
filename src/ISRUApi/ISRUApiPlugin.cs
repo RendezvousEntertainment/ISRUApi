@@ -73,6 +73,7 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
     private PQSScienceOverlay _scienceOverlay;
     private Material _regionBoundsMaterial;
     private Transform _celestialBody;
+    Texture _originalTexture;
 
     void Awake()
     {      
@@ -140,7 +141,7 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
             _resourceOverlayToggle = newToggleState;
             System.Diagnostics.Debug.Write("ISRU newToggleState=" + newToggleState);
             //UpdateResourceOverlay();
-            DisplayResourceShader();
+            DisplayResourceShader(newToggleState);
         }
 
         GUILayout.EndHorizontal();
@@ -171,7 +172,7 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         return null;
     }
 
-    private void DisplayResourceShader()
+    private void DisplayResourceShader(bool state)
     {
         GameObject gameObject = GameObject.Find("Map3D(Clone)/Map-Kerbin/Celestial.Kerbin.Scaled(Clone)");
         if (gameObject == null)
@@ -179,35 +180,28 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
             System.Diagnostics.Debug.Write("ISRU ERROR Kerbin Map nowhere to be found");
             return;
         }
-        System.Diagnostics.Debug.Write("ISRU Kerbin Map found");
 
-        Renderer renderer = gameObject.GetComponent<Renderer>();
-        if (renderer == null)
-        {
-            System.Diagnostics.Debug.Write("ISRU ERROR Renderer not found");
-            return;
-        }
-        System.Diagnostics.Debug.Write("ISRU Renderer found");
-
-        Material material = renderer.material;       
+        Material material = gameObject.GetComponent<Renderer>()?.material;
         if (material == null)
         {
-            System.Diagnostics.Debug.Write("ISRU material not found");
+            System.Diagnostics.Debug.Write("ISRU ERROR material not found");
             return;
         }
-        System.Diagnostics.Debug.Write("ISRU material found: " + material.name);
 
-        Texture texture = material.mainTexture;
-        System.Diagnostics.Debug.Write("ISRU mainTexture=" + material.mainTexture.name);
-
-        Texture2D newTexture = LoadTextureFromFile("./BepInEx/plugins/ISRU/assets/images/texture.png");
-        if (newTexture == null)
+        if (state) // displays the resource overlay
         {
-            System.Diagnostics.Debug.Write("ISRU newTexture not found: " + material.name);
-            return;
+            _originalTexture = material.mainTexture;
+            Texture2D newTexture = LoadTextureFromFile("./BepInEx/plugins/ISRU/assets/images/texture.png");
+            if (newTexture == null)
+            {
+                System.Diagnostics.Debug.Write("ISRU ERROR newTexture not found");
+                return;
+            }
+            material.mainTexture = newTexture;
+        } else // displays back the original texture
+        {
+            material.mainTexture = _originalTexture;
         }
-
-        material.mainTexture = newTexture;
         System.Diagnostics.Debug.Write("ISRU end DisplayResourceShader");
     }
 

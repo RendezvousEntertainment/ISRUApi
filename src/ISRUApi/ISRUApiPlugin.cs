@@ -12,11 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System.Diagnostics;
 using BepInEx;
 using JetBrains.Annotations;
 using KSP.Game;
 using KSP.Game.Science;
 using KSP.Messages.PropertyWatchers;
+using KSP.OAB;
 using KSP.Rendering.Planets;
 using KSP.Sim.impl;
 using KSP.UI.Binding;
@@ -26,6 +28,7 @@ using SpaceWarp.API.Mods;
 using SpaceWarp.API.UI;
 using SpaceWarp.API.UI.Appbar;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace ISRUApi;
 
@@ -136,7 +139,8 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         {
             _resourceOverlayToggle = newToggleState;
             System.Diagnostics.Debug.Write("ISRU newToggleState=" + newToggleState);
-            UpdateResourceOverlay();
+            //UpdateResourceOverlay();
+            DisplayResourceShader();
         }
 
         GUILayout.EndHorizontal();
@@ -149,6 +153,62 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         }
 
         GUI.DragWindow(new Rect(0, 0, Width, 40)); // dragable part of the window
+    }
+
+    Texture2D LoadTextureFromFile(string filePath)
+    {
+        Texture2D texture = null;
+
+        if (File.Exists(filePath))
+        {
+            byte[] fileData = File.ReadAllBytes(filePath);
+            texture = new Texture2D(2, 2); // Crée une texture vide. La taille sera redimensionnée par LoadImage.
+            if (texture.LoadImage(fileData)) // Charge les données de l'image dans la texture.
+            {
+                return texture;
+            }
+        }
+        return null;
+    }
+
+    private void DisplayResourceShader()
+    {
+        GameObject gameObject = GameObject.Find("Map3D(Clone)/Map-Kerbin/Celestial.Kerbin.Scaled(Clone)");
+        if (gameObject == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR Kerbin Map nowhere to be found");
+            return;
+        }
+        System.Diagnostics.Debug.Write("ISRU Kerbin Map found");
+
+        Renderer renderer = gameObject.GetComponent<Renderer>();
+        if (renderer == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR Renderer not found");
+            return;
+        }
+        System.Diagnostics.Debug.Write("ISRU Renderer found");
+
+        Material material = renderer.material;       
+        if (material == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU material not found");
+            return;
+        }
+        System.Diagnostics.Debug.Write("ISRU material found: " + material.name);
+
+        Texture texture = material.mainTexture;
+        System.Diagnostics.Debug.Write("ISRU mainTexture=" + material.mainTexture.name);
+
+        Texture2D newTexture = LoadTextureFromFile("./BepInEx/plugins/ISRU/assets/images/texture.png");
+        if (newTexture == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU newTexture not found: " + material.name);
+            return;
+        }
+
+        material.mainTexture = newTexture;
+        System.Diagnostics.Debug.Write("ISRU end DisplayResourceShader");
     }
 
     /// <summary>
@@ -193,6 +253,7 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
                 System.Diagnostics.Debug.Write("ISRU CelestialBodyName=" + celestialBody.name);
                 _scienceOverlay.SetCelestialBody(celestialBody);
             }
+            _scienceOverlay.Strength = 1.0F;
         } else
         {
             System.Diagnostics.Debug.Write("ISRU ERROR ScienceRegionsDataProvider is null");

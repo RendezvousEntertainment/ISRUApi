@@ -66,8 +66,8 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
     private bool _isWindowOpen;
     private Rect _windowRect;
     private bool _resourceOverlayToggle = false;
-    private const int Height = 60;
-    private const int Width = 350;
+    private const int Height = 60; // height of window
+    private const int Width = 350; // width of window
 
     // Overlay
     Texture _originalTexture;
@@ -168,12 +168,21 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         return null;
     }
 
+    /// <summary>
+    /// Returns the path of the current celestial body game object where the material is applied.
+    /// </summary>
+    private string GetCelestialBodyPath()
+    {
+        VesselComponent vessel = Game.ViewController.GetActiveSimVessel();
+        return "Map3D(Clone)/Map-" + vessel.mainBody.Name + "/Celestial." + vessel.mainBody.Name + ".Scaled(Clone)";
+    }
+
     private void DisplayResourceShader(bool state)
     {
-        GameObject gameObject = GameObject.Find("Map3D(Clone)/Map-Kerbin/Celestial.Kerbin.Scaled(Clone)");
+        GameObject gameObject = GameObject.Find(GetCelestialBodyPath());
         if (gameObject == null)
         {
-            System.Diagnostics.Debug.Write("ISRU ERROR Kerbin Map nowhere to be found");
+            System.Diagnostics.Debug.Write("ISRU ERROR Celestial Body Map not found");
             return;
         }
 

@@ -29,6 +29,7 @@ using SpaceWarp.API.UI;
 using SpaceWarp.API.UI.Appbar;
 using UnityEngine;
 using UnityEngine.Assertions;
+using static KSP.Api.UIDataPropertyStrings.View;
 
 namespace ISRUApi;
 
@@ -68,9 +69,12 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
     private bool _resourceOverlayToggle = false;
     private const int Height = 60; // height of window
     private const int Width = 350; // width of window
+    private float _densityValue = 1.0f;
 
     // Overlay
     Texture _originalTexture;
+    Texture2D _newTexture;
+    private const int OverlaySideSize = 500;
 
     void Awake()
     {      
@@ -142,6 +146,11 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
 
         GUILayout.EndHorizontal();
 
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Density:" + _densityValue.ToString("F2")); // display value with 2 decimals
+        //GUILayout.TextField(); // display value with 2 decimals
+        GUILayout.EndHorizontal();
+
         // Close button (X)
         if (GUI.Button(new Rect(_windowRect.width - 25, 5, 20, 20), "X"))
         {
@@ -150,6 +159,29 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         }
 
         GUI.DragWindow(new Rect(0, 0, Width, 40)); // dragable part of the window
+    }
+
+    private void SetDensity()
+    {
+        VesselComponent vessel = Game.ViewController.GetActiveSimVessel();
+        double longitude = vessel.Longitude;
+        double latitude = vessel.Latitude;
+        double long_norm = (180 - longitude) / 360;
+        double lat_norm = (90 - latitude) / 180;
+        int x = (int)Math.Round(long_norm * OverlaySideSize);
+        int y = (int)Math.Round(lat_norm * OverlaySideSize);
+        if (x < 0 || x > _newTexture.width || y < 0 || y < _newTexture.height)
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR coordinates out of bound");
+            _densityValue = 0.0f;
+        }
+        Color pixelColor = _newTexture.GetPixel(x, y);
+        _densityValue = pixelColor.r; // we assume the texture is grayscale and only use the red value
+    }
+
+    private void Update()
+    {
+        SetDensity();
     }
 
     Texture2D LoadTextureFromFile(string filePath)
@@ -196,13 +228,13 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         if (state) // displays the resource overlay
         {
             _originalTexture = material.mainTexture;
-            Texture2D newTexture = LoadTextureFromFile("./BepInEx/plugins/ISRU/assets/images/texture.png");
-            if (newTexture == null)
+            _newTexture = LoadTextureFromFile("./BepInEx/plugins/ISRU/assets/images/cross.png");
+            if (_newTexture == null)
             {
                 System.Diagnostics.Debug.Write("ISRU ERROR newTexture not found");
                 return;
             }
-            material.mainTexture = newTexture;
+            material.mainTexture = _newTexture;
         } else // displays back the original texture
         {
             material.mainTexture = _originalTexture;

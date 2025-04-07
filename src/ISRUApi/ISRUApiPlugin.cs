@@ -147,7 +147,7 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
-        GUILayout.Label("Density:" + _densityValue.ToString("F2")); // display value with 2 decimals
+        GUILayout.Label("Density: " + _densityValue.ToString("F2")); // display value with 2 decimals
         //GUILayout.TextField(); // display value with 2 decimals
         GUILayout.EndHorizontal();
 
@@ -229,7 +229,7 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         if (state) // displays the resource overlay
         {
             _originalTexture = material.mainTexture;
-            _newTexture = LoadTextureFromFile("./BepInEx/plugins/ISRU/assets/images/cross.png");
+            _newTexture = LoadTextureFromFile("./BepInEx/plugins/ISRU/assets/images/noise.png");
             if (_newTexture == null)
             {
                 System.Diagnostics.Debug.Write("ISRU ERROR newTexture not found");

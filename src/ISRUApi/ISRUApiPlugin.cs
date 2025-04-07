@@ -170,10 +170,11 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         double lat_norm = (90 - latitude) / 180;
         int x = (int)Math.Round(long_norm * OverlaySideSize);
         int y = (int)Math.Round(lat_norm * OverlaySideSize);
-        if (x < 0 || x > _newTexture.width || y < 0 || y < _newTexture.height)
+        if (x < 0 || x > _newTexture.width || y < 0 || y > _newTexture.height)
         {
-            System.Diagnostics.Debug.Write("ISRU ERROR coordinates out of bound");
+            System.Diagnostics.Debug.Write("ISRU ERROR coordinates out of bound: x=" + x + "; y=" + y);
             _densityValue = 0.0f;
+            return;
         }
         Color pixelColor = _newTexture.GetPixel(x, y);
         _densityValue = pixelColor.r; // we assume the texture is grayscale and only use the red value

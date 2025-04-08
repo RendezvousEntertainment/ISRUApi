@@ -58,7 +58,9 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
     /// </summary>
     [PublicAPI] public static ISRUApiPlugin Instance { get; set; }
 
-    // AppBar button IDs
+    /// <summary>
+    /// AppBar button IDs
+    /// </summary>
     public const string ToolbarFlightButtonID = "BTN-ISRUFlight";
     
     private string iconLabel = "Resource Gathering";

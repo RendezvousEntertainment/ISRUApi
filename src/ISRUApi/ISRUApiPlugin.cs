@@ -184,7 +184,8 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
 
     private void Update()
     {
-        SetDensity();
+        if (_isWindowOpen)
+            SetDensity();
     }
 
     Texture2D LoadTextureFromFile(string filePath)

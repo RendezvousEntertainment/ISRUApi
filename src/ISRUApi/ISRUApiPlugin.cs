@@ -71,7 +71,7 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
     private bool _resourceOverlayToggle = false;
     private const int Height = 60; // height of window
     private const int Width = 350; // width of window
-    private float _densityValue = 1.0f;
+    private static float _densityValue = 1.0f;
 
     // Overlay
     Texture _originalTexture;
@@ -244,6 +244,14 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
             material.mainTexture = _originalTexture;
         }
         System.Diagnostics.Debug.Write("ISRU end DisplayResourceShader");
+    }
+
+    /// <summary>
+    /// Returns the density at the current vessel location.
+    /// </summary>
+    public static double GetDensity()
+    {
+        return _densityValue;
     }
 
 }

@@ -23,6 +23,7 @@ public class PartComponentModule_Mining : PartComponentModule
     // Ingredient & products units
     private ResourceUnitsPair[] _currentIngredientUnits;
     private ResourceUnitsPair[] _currentProductUnits;
+    private double _oreStandardRate;
 
     // Useful game objects
     private ResourceDefinitionDatabase _resourceDB;
@@ -62,6 +63,8 @@ public class PartComponentModule_Mining : PartComponentModule
         UpdateIngredients();
         SendResourceRequest(deltaUniversalTime);
         SetStatus();
+
+        _dataMining.OreRateTxt.SetValue(_oreStandardRate * ISRUApiPlugin.GetDensity());
     }
 
     /**
@@ -222,7 +225,7 @@ public class PartComponentModule_Mining : PartComponentModule
 
             // Rate
             var rate = _dataMining.MiningFormulaDefinitions.OutputResources[i].Rate;
-            _dataMining.OreRateTxt.SetValue(rate); // TODO only works when there is one product
+            _oreStandardRate = rate; // TODO only works when there is one product
 
             // Setup resource
             resourceUnitsPair.resourceID = _resourceDB.GetResourceIDFromName(outputName);

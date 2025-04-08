@@ -212,8 +212,7 @@ public class PartComponentModule_Mining : PartComponentModule
 
             // Rate
             var rate = _dataMining.MiningFormulaDefinitions.InputResources[i].Rate;
-            _dataMining.OreRateTxt.SetValue(rate/100);
-
+            
             // Setup the resource
             resourceUnitsPair.resourceID = _resourceDB.GetResourceIDFromName(inputName);
             resourceUnitsPair.units = rate;
@@ -228,6 +227,7 @@ public class PartComponentModule_Mining : PartComponentModule
 
             // Rate
             var rate = _dataMining.MiningFormulaDefinitions.OutputResources[i].Rate;
+            _dataMining.OreRateTxt.SetValue(rate); // TODO only works when there is one product
 
             // Setup resource
             resourceUnitsPair.resourceID = _resourceDB.GetResourceIDFromName(outputName);

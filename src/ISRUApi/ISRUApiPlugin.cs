@@ -71,12 +71,12 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
     private bool _resourceOverlayToggle = false;
     private const int Height = 60; // height of window
     private const int Width = 350; // width of window
-    private static float _densityValue = 1.0f;
+    private static float _densityValue;
 
     // Overlay
     Texture _originalTexture;
-    Texture2D _newTexture;
     private const int OverlaySideSize = 500;
+    readonly Texture2D _newTexture = new(OverlaySideSize, OverlaySideSize);
 
     void Awake()
     {      
@@ -107,6 +107,16 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         );
     }
 
+    private void LoadResourceImage()
+    {
+        string filePath = "./BepInEx/plugins/ISRU/assets/images/noise.png";
+        if (!File.Exists(filePath))
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR File not found: " + filePath);
+            return;
+        }
+        _newTexture.LoadImage(File.ReadAllBytes(filePath));
+    }
 
 
     /// <summary>
@@ -119,6 +129,7 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
 
         if (_isWindowOpen)
         {
+            LoadResourceImage();
             _windowRect = GUILayout.Window(
                 GUIUtility.GetControlID(FocusType.Passive),
                 _windowRect,
@@ -165,6 +176,7 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
 
     private void SetDensity()
     {
+        if (_newTexture == null) return;
         VesselComponent vessel = Game.ViewController.GetActiveSimVessel();
         double longitude = vessel.Longitude;
         double latitude = vessel.Latitude;
@@ -188,21 +200,6 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
             SetDensity();
     }
 
-    Texture2D LoadTextureFromFile(string filePath)
-    {
-        Texture2D texture = null;
-
-        if (File.Exists(filePath))
-        {
-            byte[] fileData = File.ReadAllBytes(filePath);
-            texture = new Texture2D(2, 2);
-            if (texture.LoadImage(fileData))
-            {
-                return texture;
-            }
-        }
-        return null;
-    }
 
     /// <summary>
     /// Returns the path of the current celestial body game object where the material is applied.
@@ -232,7 +229,7 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         if (state) // displays the resource overlay
         {
             _originalTexture = material.mainTexture;
-            _newTexture = LoadTextureFromFile("./BepInEx/plugins/ISRU/assets/images/noise.png");
+            
             if (_newTexture == null)
             {
                 System.Diagnostics.Debug.Write("ISRU ERROR newTexture not found");

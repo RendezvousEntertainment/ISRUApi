@@ -170,7 +170,7 @@ public class PartComponentModule_Mining : PartComponentModule
         {
             System.Diagnostics.Debug.Write("ISRU Ground Altitude not computable");
         }
-        System.Diagnostics.Debug.Write("ISRU Ground Altitude = " + altitude);
+        //System.Diagnostics.Debug.Write("ISRU Ground Altitude = " + altitude);
         if (altitude > 5.0 || !VesselSituations.Landed.Equals(situation)) { // if drill is not on the ground, do nothing
             isTooHigh = true;
         } else

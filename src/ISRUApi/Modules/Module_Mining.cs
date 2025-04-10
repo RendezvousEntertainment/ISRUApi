@@ -13,14 +13,14 @@ public class Module_Mining : PartBehaviourModule
     [SerializeField]
     protected Data_Mining _dataMining;
 
-    protected override void AddDataModules()
+    public override void AddDataModules()
     {
         base.AddDataModules();
         _dataMining ??= new Data_Mining();
         DataModules.TryAddUnique(_dataMining, out _dataMining);
     }
 
-    protected override void OnInitialize()
+    public override void OnInitialize()
     {
         base.OnInitialize();
         if (this.PartBackingMode == PartBehaviourModule.PartBackingModes.Flight)
@@ -33,13 +33,13 @@ public class Module_Mining : PartBehaviourModule
         this.AddActionGroupAction(new Action(this.ToggleMining), KSPActionGroup.None, LocalizationManager.GetTermTranslation(this._dataMining.ToggleActionName));
         this.UpdatePAMVisibility(this._dataMining.EnabledToggle.GetValue());
     }
-    protected override void OnShutdown()
+    public override void OnShutdown()
     {
         base.OnShutdown();
         this._dataMining.EnabledToggle.OnChangedValue -= new Action<bool>(this.OnToggleChangedValue);
     }
 
-    protected override void OnModuleFixedUpdate(float fixedDeltaTime)
+    public override void OnModuleFixedUpdate(float fixedDeltaTime)
     {
         //this._dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(this._dataMining.conversionState.Description(), (object)LocalizationManager.GetTermTranslation("Resource/DisplayName/Resource")));
     }

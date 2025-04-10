@@ -17,12 +17,12 @@
         <ProjectReference Include="$(SolutionDir)/src/ISRUApi.PreloadPatcher/ISRUApi.PreloadPatcher.csproj" Private="false" />
     </ItemGroup>
     <!-- Use Assembly-CSharp from the game as a reference locally to enable debugging in Deploy and DeployAndRun -->
-    <ItemGroup Condition="$(ConfigurationName) != 'Release'">
+    <!--<ItemGroup Condition="$(ConfigurationName) != 'Release'">
         <Reference Include="Assembly-CSharp">
             <HintPath>$(KSP2DIR)\KSP2_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
         </Reference>
-    </ItemGroup>
-    <ItemGroup Condition="$(ConfigurationName) == 'Release'">
+    </ItemGroup>-->
+    <ItemGroup>
         <PackageReference Include="KerbalSpaceProgram2.GameLibs" Version="0.2.1" PrivateAssets="all" Publicize="true" />
     </ItemGroup>
 </Project>

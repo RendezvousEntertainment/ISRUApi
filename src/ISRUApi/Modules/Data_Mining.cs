@@ -9,18 +9,29 @@ using UnityEngine;
 
 namespace ISRUApi.Modules;
 
+/// <summary>
+/// This class defines the properties of the mining module.
+/// </summary>
 [Serializable]
 public class Data_Mining : ModuleData
 {
+    /// <summary>
+    /// The module type.
+    /// </summary>
     public override Type ModuleType => typeof(Module_Mining);
 
-    
+    /// <summary>
+    /// Boolean toggle describing on the PAM if the mining device is enabled.
+    /// </summary>
     [LocalizedField("PartModules/Mining/Enabled")]
     [KSPState]
     [HideInInspector]
     [PAMDisplayControl(SortIndex = 1)]
     public ModuleProperty<bool> EnabledToggle = new ModuleProperty<bool>(false);
 
+    /// <summary>
+    /// The status of the mining device, displayed on the PAM
+    /// </summary>
     [LocalizedField("PartModules/Mining/Status")]
     [PAMDisplayControl(SortIndex = 2)]
     [JsonIgnore]

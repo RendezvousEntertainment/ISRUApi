@@ -1,6 +1,13 @@
 .root {
     max-width: 600px;
     max-height: 400px;
+    opacity: 1;
+    width: 350px;
+    display: flex;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 #title-bar {
@@ -23,4 +30,3 @@
     -unity-background-image-tint-color: rgb(100, 141, 250);
     margin-bottom: 16px;
 }
-

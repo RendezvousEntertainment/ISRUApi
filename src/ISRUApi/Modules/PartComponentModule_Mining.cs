@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using I2.Loc;
+using ISRUApi.UI;
 using KSP.Game;
 using KSP.Messages.PropertyWatchers;
 using KSP.Modules;
@@ -64,7 +65,7 @@ public class PartComponentModule_Mining : PartComponentModule
         SendResourceRequest(deltaUniversalTime);
         SetStatus();
 
-        _dataMining.OreRateTxt.SetValue(_oreStandardRate * ISRUApiPlugin.GetDensity());
+        _dataMining.OreRateTxt.SetValue(_oreStandardRate * MyFirstWindowController.GetDensity());
     }
 
     /**

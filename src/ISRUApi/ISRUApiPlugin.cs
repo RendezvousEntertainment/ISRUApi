@@ -76,6 +76,7 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
             // - The name of the asset bundle:
             "ISRUApi_ui/" +
             // - The path to the asset in your Unity project (without the "Assets/" part)
+            "ui/myfirstwindow/myfirstwindow.uxml"
         );
 
         // Create the window options object

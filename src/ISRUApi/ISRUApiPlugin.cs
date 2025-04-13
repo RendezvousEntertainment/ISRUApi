@@ -1,25 +1,6 @@
-/* Copyright 2024 Verox;NexusHelium;The Space Peacock
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-using System.Diagnostics;
+using System.Reflection;
 using BepInEx;
 using JetBrains.Annotations;
-using KSP.Game;
-using KSP.Game.Science;
-using KSP.Messages.PropertyWatchers;
-using KSP.OAB;
-using KSP.Rendering.Planets;
 using KSP.Sim.impl;
 using KSP.UI.Binding;
 using SpaceWarp;
@@ -27,9 +8,10 @@ using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
 using SpaceWarp.API.UI;
 using SpaceWarp.API.UI.Appbar;
+using ISRUApi.UI;
+using UitkForKsp2.API;
 using UnityEngine;
-using UnityEngine.Assertions;
-using static KSP.Api.UIDataPropertyStrings.View;
+using UnityEngine.UIElements;
 
 namespace ISRUApi;
 
@@ -40,22 +22,12 @@ namespace ISRUApi;
 [BepInDependency(SpaceWarpPlugin.ModGuid, SpaceWarpPlugin.ModVer)]
 public class ISRUApiPlugin : BaseSpaceWarpPlugin
 {
-    /// <summary>
-    /// The GUID of the mod.
-    /// </summary>
+    // Useful in case some other mod wants to use this mod a dependency
     [PublicAPI] public const string ModGuid = MyPluginInfo.PLUGIN_GUID;
-    /// <summary>
-    /// The name of the mod.
-    /// </summary>
     [PublicAPI] public const string ModName = MyPluginInfo.PLUGIN_NAME;
-    /// <summary>
-    /// The version of the mod.
-    /// </summary>
     [PublicAPI] public const string ModVer = MyPluginInfo.PLUGIN_VERSION;
 
-    /// <summary>
-    /// Singleton instance of the mod.
-    /// </summary>
+    /// Singleton instance of the plugin class
     [PublicAPI] public static ISRUApiPlugin Instance { get; set; }
 
     /// <summary>
@@ -93,8 +65,55 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
 
         Instance = this;
 
+        // Load all the other assemblies used by this mod
+        LoadAssemblies();
+
+        // Load the UI from the asset bundle
+        var myFirstWindowUxml = AssetManager.GetAsset<VisualTreeAsset>(
+            // The case-insensitive path to the asset in the bundle is composed of:
+            // - The mod GUID:
+            $"{ModGuid}/" +
+            // - The name of the asset bundle:
+            "ISRUApi_ui/" +
+            // - The path to the asset in your Unity project (without the "Assets/" part)
+        );
+
+        // Create the window options object
+        var windowOptions = new WindowOptions
+        {
+            // The ID of the window. It should be unique to your mod.
+            WindowId = "ISRUApi_MyFirstWindow",
+            // The transform of parent game object of the window.
+            // If null, it will be created under the main canvas.
+            Parent = null,
+            // Whether or not the window can be hidden with F2.
+            IsHidingEnabled = true,
+            // Whether to disable game input when typing into text fields.
+            DisableGameInputForTextFields = true,
+            MoveOptions = new MoveOptions
+            {
+                // Whether or not the window can be moved by dragging.
+                IsMovingEnabled = true,
+                // Whether or not the window can only be moved within the screen bounds.
+                CheckScreenBounds = true
+            }
+        };
+
+        // Create the window
+        var myFirstWindow = Window.Create(windowOptions, myFirstWindowUxml);
+        // Add a controller for the UI to the window's game object
+        var myFirstWindowController = myFirstWindow.gameObject.AddComponent<MyFirstWindowController>();
+
         // Register Flight AppBar button
-        System.Diagnostics.Debug.Write("ISRU " + $"{Info.Metadata.GUID}/images/icon.png");
+        Appbar.RegisterAppButton(
+            ModName,
+            ToolbarFlightButtonID,
+            AssetManager.GetAsset<Texture2D>($"{ModGuid}/images/icon.png"),
+            isOpen => myFirstWindowController.IsWindowOpen = isOpen
+        );
+
+        // Register Flight AppBar button
+        //System.Diagnostics.Debug.Write("ISRU " + $"{Info.Metadata.GUID}/images/icon.png");
         Appbar.RegisterAppButton(
             iconLabel,
             ToolbarFlightButtonID,
@@ -251,5 +270,16 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         return _densityValue;
     }
 
+    /// <summary>
+    /// Loads all the assemblies for the mod.
+    /// </summary>
+    private static void LoadAssemblies()
+    {
+        
+        // Load the Unity project assembly
+        var currentFolder = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.FullName;
+        var unityAssembly = Assembly.LoadFrom(Path.Combine(currentFolder, "ISRUApi.Unity.dll"));
+        // Register any custom UI controls from the loaded assembly
+        CustomControls.RegisterFromAssembly(unityAssembly);
+    }
 }
-

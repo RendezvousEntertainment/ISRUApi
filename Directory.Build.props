@@ -5,7 +5,6 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>true</ImplicitUsings>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Label="Game folder configuration">
@@ -17,8 +16,6 @@
         <SolutionDir Condition="'$(SolutionDir)'==''">$(MSBuildThisFileDirectory)</SolutionDir>
         <PluginBinPath>$(SolutionDir)build/bin/plugin/$(Configuration)</PluginBinPath>
         <PluginObjPath>$(SolutionDir)build/obj/plugin/$(Configuration)</PluginObjPath>
-        <PatcherBinPath>$(SolutionDir)build/bin/patcher/$(Configuration)</PatcherBinPath>
-        <PatcherObjPath>$(SolutionDir)build/obj/patcher/$(Configuration)</PatcherObjPath>
         <BaseOutputPath>$(PluginBinPath)/$(MSBuildProjectName)</BaseOutputPath>
         <BaseIntermediateOutputPath>$(PluginObjPath)/$(MSBuildProjectName)</BaseIntermediateOutputPath>
         <AssemblyName>$(MSBuildProjectName)</AssemblyName>

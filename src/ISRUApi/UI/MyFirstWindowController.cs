@@ -55,6 +55,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
         // Get the toggle from the window
         _overlayToggle = _rootElement.Q<Toggle>("overlay-toggle");
+        // Add a click event handler to the toggle
+        _overlayToggle.RegisterValueChangedCallback(evt => DisplayResourceShader(evt.newValue));
+
         // Get the greeting label from the window
         _densityValueField = _rootElement.Q<Label>("density-value");
         _messageField = _rootElement.Q<Label>("label-message");
@@ -63,9 +66,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _resourceDropdown = _rootElement.Q<DropdownField>("resource-dropdown");
         _resourceDropdown.choices = _options; // Populate the dropdown elements
         _resourceDropdown.value = _options[0]; // Select the first element by default
-        //_selectedResource = _resourceDropdown.value;
         _resourceDropdown.RegisterValueChangedCallback(evt => OnSelectResource());
-
 
         // Center the window by default
         _rootElement.CenterByDefault();
@@ -74,8 +75,14 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         var closeButton = _rootElement.Q<Button>("close-button");
         // Add a click event handler to the close button
         closeButton.clicked += () => IsWindowOpen = false;
-        // Add a click event handler to the toggle
-        _overlayToggle.RegisterValueChangedCallback(evt => DisplayResourceShader(evt.newValue));
+    }
+
+    // Save the celestial body original texture
+    private void SaveOriginalTexture()
+    {
+        if (_originalTexture != null) return;
+        Material material = GetCelestialBodyMaterial();
+        if (material != null) _originalTexture = material.mainTexture;
     }
 
     /// <summary>
@@ -88,7 +95,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         {
             _isWindowOpen = value;
 
-            SetCelestialBodyName();
+            SaveOriginalTexture();
+
+            // Set the Resource Gathering UI window status
             GameState gameState = Game.GlobalGameState.GetState();
             if (gameState != GameState.Map3DView)
             {
@@ -182,18 +191,15 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         string filePath = "./BepInEx/plugins/ISRU/assets/images/" + _celestialBodyName + "_" + _resourceDropdown.value + ".png";
         if (!File.Exists(filePath))
         {
-            //SetUserMessage("This body is bare of this resource.", true);
-            System.Diagnostics.Debug.Write("ISRU ERROR File not found: " + filePath);
-            _newTexture.Reinitialize(OverlaySideSize, OverlaySideSize);
-            System.Diagnostics.Debug.Write("ISRU Texture reinitialized. isReadable=" + _newTexture.isReadable);
-            //_overlayToggle.focusable = false; // does not work?
-            _overlayToggle.SetEnabled(false);
+            System.Diagnostics.Debug.Write("ISRU File not found: " + filePath + ", switching to black texture");
             _uiWindowStatus = UIResourceWindowStatus.NoSuchResource;
-            return;
+            filePath = "./BepInEx/plugins/ISRU/assets/images/black.png";
         }
-        _overlayToggle.SetEnabled(true);
+        else
+        {
+            _uiWindowStatus = UIResourceWindowStatus.DisplayingResources;
+        }
         _newTexture.LoadImage(File.ReadAllBytes(filePath));
-        _uiWindowStatus = UIResourceWindowStatus.DisplayingResources;
     }
 
     private void SetCelestialBodyName()
@@ -206,62 +212,55 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     /// </summary>
     private string GetCelestialBodyPath()
     {
-        //VesselComponent vessel = Game.ViewController.GetActiveSimVessel();
         return "Map3D(Clone)/Map-" + _celestialBodyName + "/Celestial." + _celestialBodyName + ".Scaled(Clone)";
     }
 
 
-
-    private void DisplayResourceShader(bool state)
+    private Material GetCelestialBodyMaterial()
     {
-        // if there's either nothing to display or the overlay toggle is not enabled
-        if (_uiWindowStatus != UIResourceWindowStatus.DisplayingResources || _overlayToggle.value == false)
-        {
-            return;
-        }
         SetCelestialBodyName();
         GameObject gameObject = GameObject.Find(GetCelestialBodyPath());
         if (gameObject == null)
         {
             System.Diagnostics.Debug.Write("ISRU ERROR Celestial Body Map not found");
             _uiWindowStatus = UIResourceWindowStatus.NotInMapView;
-            return;
+            return null;
         }
 
         Material material = gameObject.GetComponent<Renderer>()?.material;
         if (material == null)
         {
             System.Diagnostics.Debug.Write("ISRU ERROR material not found");
+            return null;
+        }
+        return material;
+    }
+
+    private void DisplayResourceShader(bool state)
+    {
+        if (!state) // displays back the original texture
+        {
+            Material materialCB = GetCelestialBodyMaterial();
+            materialCB.mainTexture = _originalTexture;
             return;
         }
 
-        if (state) // displays the resource overlay
-        {
-            _originalTexture = material.mainTexture;
+        SaveOriginalTexture();
 
-            if (!_newTexture.isReadable)
-            {
-                //SetUserMessage("This body is bare of this resource.", true);
-                System.Diagnostics.Debug.Write("ISRU ERROR newTexture not found");
-                return;
-            }
-            material.mainTexture = _newTexture;
-            //string[] list = material.GetTexturePropertyNames();
-            //for (int i = 0; i < list.Length; i++)
-           // {
-             //   System.Diagnostics.Debug.Write("ISRU list texture property name." + i + "=" + list[i]);
-            //}
-            
-            material.SetTexture("_EmissionTex", _newTexture);
-            //material.SetColor("_EmissionColor", Color.black);
-            //SetUserMessage("Hmm, " + _resourceDropdown.value + "!", false);
-        }
-        else // displays back the original texture
+        // if the overlay toggle is not enabled
+        if (_overlayToggle.value == false) return;
+
+        Material material = GetCelestialBodyMaterial();
+        material.mainTexture = _newTexture;
+        string[] list = material.GetTexturePropertyNames();
+        for (int i = 0; i < list.Length; i++)
         {
-            material.mainTexture = _originalTexture;
-            //SetUserMessage("", false);
+            System.Diagnostics.Debug.Write("ISRU list texture property name." + i + "=" + list[i]);
         }
-        //System.Diagnostics.Debug.Write("ISRU end DisplayResourceShader");
+        
+        // doesn't work
+        material.SetTexture("_EmissionTex", _newTexture);
+        material.SetColor("_EmissionColor", Color.white);
     }
 
     /// <summary>
@@ -275,7 +274,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     // Called when the player select a resource on the dropdown list.
     private void OnSelectResource()
     {
-        //_selectedResource = selectedResource;
+        SaveOriginalTexture();
         LoadResourceImage();
         DisplayResourceShader(_overlayToggle.value);
     }

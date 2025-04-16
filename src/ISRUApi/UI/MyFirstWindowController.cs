@@ -33,6 +33,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     Texture _originalTexture;
     private const int OverlaySideSize = 500;
     readonly Texture2D _newTexture = new(OverlaySideSize, OverlaySideSize);
+    readonly Texture2D _newLevels = new(OverlaySideSize, OverlaySideSize);
 
     private static float _densityValue;
     private string _celestialBodyName;
@@ -170,33 +171,37 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         double lat_norm = (90 - latitude) / 180;
         int x = (int)Math.Round(long_norm * OverlaySideSize);
         int y = (int)Math.Round(lat_norm * OverlaySideSize);
-        if (x < 0 || x > _newTexture.width || y < 0 || y > _newTexture.height)
+        if (x < 0 || x > _newLevels.width || y < 0 || y > _newLevels.height)
         {
             System.Diagnostics.Debug.Write("ISRU ERROR coordinates out of bound: x=" + x + "; y=" + y);
             _densityValue = 0.0f;
             return;
         }
-        Color pixelColor = _newTexture.GetPixel(x, y);
+        Color pixelColor = _newLevels.GetPixel(x, y);
         _densityValue = pixelColor.r; // we assume the texture is grayscale and only use the red value
-        //System.Diagnostics.Debug.Write("ISRU density=" + _densityValue);
     }
 
     private void LoadResourceImage()
     {
-        System.Diagnostics.Debug.Write("ISRU Attempting to load " + _celestialBodyName + "_" + _resourceDropdown.value + ".png");
-        string filePath = "./BepInEx/plugins/ISRU/assets/images/" + _celestialBodyName + "_" + _resourceDropdown.value + ".png";
+        System.Diagnostics.Debug.Write("ISRU Attempting to load " + _celestialBodyName + "_" + _resourceDropdown.value + "_Tex.png");
+        string filePathStart = "./BepInEx/plugins/ISRU/assets/images/" + _celestialBodyName + "_" + _resourceDropdown.value;
+        string filePathTexture = String.Concat(filePathStart, "_Tex.png");
+        string filePathLevels = String.Concat(filePathStart, "_Lev.png");
         //filePath = "./BepInEx/plugins/ISRU/assets/images/gradient.png"; // for testing
-        if (!File.Exists(filePath))
+        if (!File.Exists(filePathTexture))
         {
-            System.Diagnostics.Debug.Write("ISRU File not found: " + filePath + ", switching to black texture");
+            System.Diagnostics.Debug.Write("ISRU File not found: " + filePathTexture + ", switching to black texture");
             _uiWindowStatus = UIResourceWindowStatus.NoSuchResource;
-            filePath = "./BepInEx/plugins/ISRU/assets/images/black.png";
+            string filePathBlack = "./BepInEx/plugins/ISRU/assets/images/black.png";
+            filePathTexture = filePathBlack;
+            filePathLevels = filePathBlack;
         }
         else
         {
             _uiWindowStatus = UIResourceWindowStatus.DisplayingResources;
         }
-        _newTexture.LoadImage(File.ReadAllBytes(filePath));
+        _newTexture.LoadImage(File.ReadAllBytes(filePathTexture));
+        _newLevels.LoadImage(File.ReadAllBytes(filePathLevels));
     }
 
     private void SetCelestialBodyName()

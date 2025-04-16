@@ -22,7 +22,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private Label _densityValueField;
     private Label _messageField;
     private readonly List<string> _options = ["Aluminium", "Carbon", "H2", "Iron", "Nitrogen", "O2"];
-    private string _selectedResource;
+    //private string _selectedResource;
+    private UIResourceWindowStatus _uiWindowStatus;
 
 
     // The backing field for the IsWindowOpen property
@@ -52,8 +53,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         // Hide the window
         _rootElement.style.display = DisplayStyle.None;
 
-        // Get the text field from the window
-        //_densityValueField = _rootElement.Q<TextField>("density-label");
         // Get the toggle from the window
         _overlayToggle = _rootElement.Q<Toggle>("overlay-toggle");
         // Get the greeting label from the window
@@ -62,9 +61,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         SetUserMessage("", false);
         // Get the dropdown list from the window
         _resourceDropdown = _rootElement.Q<DropdownField>("resource-dropdown");
-        _resourceDropdown.choices = _options;
-        _resourceDropdown.value = _options[0];
-        _resourceDropdown.RegisterValueChangedCallback(evt => OnSelectResource(evt.newValue));
+        _resourceDropdown.choices = _options; // Populate the dropdown elements
+        _resourceDropdown.value = _options[0]; // Select the first element by default
+        //_selectedResource = _resourceDropdown.value;
+        _resourceDropdown.RegisterValueChangedCallback(evt => OnSelectResource());
 
 
         // Center the window by default
@@ -74,11 +74,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         var closeButton = _rootElement.Q<Button>("close-button");
         // Add a click event handler to the close button
         closeButton.clicked += () => IsWindowOpen = false;
-
-        // Get the "Say hello!" button from the window
-        //var sayHelloButton = _rootElement.Q<Button>("say-hello-button");
-        // Add a click event handler to the button
-        //_overlayToggle.clicked += SayHelloButtonClicked;
+        // Add a click event handler to the toggle
         _overlayToggle.RegisterValueChangedCallback(evt => DisplayResourceShader(evt.newValue));
     }
 
@@ -93,7 +89,19 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             _isWindowOpen = value;
 
             SetCelestialBodyName();
-            LoadResourceImage();
+            GameState gameState = Game.GlobalGameState.GetState();
+            if (gameState != GameState.Map3DView)
+            {
+                _uiWindowStatus = UIResourceWindowStatus.NotInMapView;
+                //SetUserMessage("Switch to map view.", true);
+            } else
+            {
+                _uiWindowStatus = UIResourceWindowStatus.DisplayingResources;
+                LoadResourceImage();
+            }
+            //System.Diagnostics.Debug.Write("ISRU gameState=" + gameState);
+            // TODO check if map view and if so, load the image
+            
 
             // Set the display style of the root element to show or hide the window
             _rootElement.style.display = value ? DisplayStyle.Flex : DisplayStyle.None;
@@ -105,19 +113,52 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
     }
 
+    private void SetUserMessage(string message, bool isWarning)
+    {
+        _messageField.text = message;
+        if (isWarning)
+        {
+            _messageField.style.color = new Color(0.89f, 0.56f, 0.31f);
+        }
+        else
+        {
+            _messageField.style.color = Color.white;
+        }
+    }
+
     private void Update()
     {
         if (_isWindowOpen)
         {
             SetDensity();
             _densityValueField.text = _densityValue.ToString("F2"); // display value with 2 decimals
+            switch (_uiWindowStatus)
+            {
+                case UIResourceWindowStatus.DisplayingResources:
+                    SetUserMessage("Hmm, " + _resourceDropdown.value + "!", false);
+                    break;
+                case UIResourceWindowStatus.TurnedOff:
+                    SetUserMessage("", false);
+                    break;
+                case UIResourceWindowStatus.NotInMapView:
+                    SetUserMessage("Switch to map view.", true);
+                    break;
+                case UIResourceWindowStatus.NoSuchResource:
+                    SetUserMessage("This body is bare of this resource.", true);
+                    break;
+            }
         }
             
     }
 
     private void SetDensity()
     {
-        if (_newTexture == null) return;
+        //if (_newTexture == null) return;
+        if (_uiWindowStatus == UIResourceWindowStatus.NoSuchResource)
+        {
+            _densityValue = 0;
+            return;
+        }
         VesselComponent vessel = Game.ViewController.GetActiveSimVessel();
         double longitude = vessel.Longitude;
         double latitude = vessel.Latitude;
@@ -137,14 +178,22 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private void LoadResourceImage()
     {
-        string filePath = "./BepInEx/plugins/ISRU/assets/images/" + _celestialBodyName + "_" + _selectedResource + ".png";
+        System.Diagnostics.Debug.Write("ISRU Attempting to load " + _celestialBodyName + "_" + _resourceDropdown.value + ".png");
+        string filePath = "./BepInEx/plugins/ISRU/assets/images/" + _celestialBodyName + "_" + _resourceDropdown.value + ".png";
         if (!File.Exists(filePath))
         {
+            //SetUserMessage("This body is bare of this resource.", true);
             System.Diagnostics.Debug.Write("ISRU ERROR File not found: " + filePath);
             _newTexture.Reinitialize(OverlaySideSize, OverlaySideSize);
+            System.Diagnostics.Debug.Write("ISRU Texture reinitialized. isReadable=" + _newTexture.isReadable);
+            //_overlayToggle.focusable = false; // does not work?
+            _overlayToggle.SetEnabled(false);
+            _uiWindowStatus = UIResourceWindowStatus.NoSuchResource;
             return;
         }
+        _overlayToggle.SetEnabled(true);
         _newTexture.LoadImage(File.ReadAllBytes(filePath));
+        _uiWindowStatus = UIResourceWindowStatus.DisplayingResources;
     }
 
     private void SetCelestialBodyName()
@@ -161,26 +210,21 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         return "Map3D(Clone)/Map-" + _celestialBodyName + "/Celestial." + _celestialBodyName + ".Scaled(Clone)";
     }
 
-    private void SetUserMessage(string message, bool isWarning)
-    {
-        _messageField.text = message;
-        if (isWarning)
-        {
-            _messageField.style.color = new Color(0.89f, 0.56f, 0.31f);
-        } else
-        {
-            _messageField.style.color = Color.white;
-        }
-    } 
+
 
     private void DisplayResourceShader(bool state)
     {
+        // if there's either nothing to display or the overlay toggle is not enabled
+        if (_uiWindowStatus != UIResourceWindowStatus.DisplayingResources || _overlayToggle.value == false)
+        {
+            return;
+        }
         SetCelestialBodyName();
         GameObject gameObject = GameObject.Find(GetCelestialBodyPath());
         if (gameObject == null)
         {
             System.Diagnostics.Debug.Write("ISRU ERROR Celestial Body Map not found");
-            SetUserMessage("Switch to map view.", true);
+            _uiWindowStatus = UIResourceWindowStatus.NotInMapView;
             return;
         }
 
@@ -195,26 +239,27 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         {
             _originalTexture = material.mainTexture;
 
-            if (_newTexture.dimension == 0)
+            if (!_newTexture.isReadable)
             {
-                SetUserMessage("This body is bare of this resource.", true);
+                //SetUserMessage("This body is bare of this resource.", true);
                 System.Diagnostics.Debug.Write("ISRU ERROR newTexture not found");
                 return;
             }
             material.mainTexture = _newTexture;
-            string[] list = material.GetTexturePropertyNames();
-            for (int i = 0; i < list.Length; i++)
-            {
-                System.Diagnostics.Debug.Write("ISRU list texture property name." + i + "=" + list[i]);
-            }
+            //string[] list = material.GetTexturePropertyNames();
+            //for (int i = 0; i < list.Length; i++)
+           // {
+             //   System.Diagnostics.Debug.Write("ISRU list texture property name." + i + "=" + list[i]);
+            //}
             
             material.SetTexture("_EmissionTex", _newTexture);
-            material.SetColor("_EmissionColor", Color.black);
-            SetUserMessage("Hmm, " +_selectedResource + "!", false);
+            //material.SetColor("_EmissionColor", Color.black);
+            //SetUserMessage("Hmm, " + _resourceDropdown.value + "!", false);
         }
         else // displays back the original texture
         {
             material.mainTexture = _originalTexture;
+            //SetUserMessage("", false);
         }
         //System.Diagnostics.Debug.Write("ISRU end DisplayResourceShader");
     }
@@ -228,9 +273,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     }
 
     // Called when the player select a resource on the dropdown list.
-    private void OnSelectResource(string selectedResource)
+    private void OnSelectResource()
     {
-        _selectedResource = selectedResource;
+        //_selectedResource = selectedResource;
+        LoadResourceImage();
         DisplayResourceShader(_overlayToggle.value);
     }
 }

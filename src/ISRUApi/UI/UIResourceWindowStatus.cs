@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Text;
+
+namespace ISRUApi.UI
+{
+    public enum UIResourceWindowStatus : byte
+    {
+        None,
+        [Description("Displaying resources")] DisplayingResources,
+        [Description("Turned off")] TurnedOff,
+        [Description("Not in Map View")] NotInMapView,
+        [Description("The resource is not available")] NoSuchResource,
+    }
+}

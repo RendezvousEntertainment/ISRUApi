@@ -102,15 +102,11 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             if (gameState != GameState.Map3DView)
             {
                 _uiWindowStatus = UIResourceWindowStatus.NotInMapView;
-                //SetUserMessage("Switch to map view.", true);
             } else
             {
                 _uiWindowStatus = UIResourceWindowStatus.DisplayingResources;
                 LoadResourceImage();
-            }
-            //System.Diagnostics.Debug.Write("ISRU gameState=" + gameState);
-            // TODO check if map view and if so, load the image
-            
+            }            
 
             // Set the display style of the root element to show or hide the window
             _rootElement.style.display = value ? DisplayStyle.Flex : DisplayStyle.None;
@@ -162,7 +158,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private void SetDensity()
     {
-        //if (_newTexture == null) return;
         if (_uiWindowStatus == UIResourceWindowStatus.NoSuchResource)
         {
             _densityValue = 0;

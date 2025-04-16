@@ -166,7 +166,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         VesselComponent vessel = Game.ViewController.GetActiveSimVessel();
         double longitude = vessel.Longitude;
         double latitude = vessel.Latitude;
-        double long_norm = (180 - longitude) / 360;
+        double long_norm = (180 + longitude) / 360;
         double lat_norm = (90 - latitude) / 180;
         int x = (int)Math.Round(long_norm * OverlaySideSize);
         int y = (int)Math.Round(lat_norm * OverlaySideSize);
@@ -178,12 +178,14 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
         Color pixelColor = _newTexture.GetPixel(x, y);
         _densityValue = pixelColor.r; // we assume the texture is grayscale and only use the red value
+        //System.Diagnostics.Debug.Write("ISRU density=" + _densityValue);
     }
 
     private void LoadResourceImage()
     {
         System.Diagnostics.Debug.Write("ISRU Attempting to load " + _celestialBodyName + "_" + _resourceDropdown.value + ".png");
         string filePath = "./BepInEx/plugins/ISRU/assets/images/" + _celestialBodyName + "_" + _resourceDropdown.value + ".png";
+        //filePath = "./BepInEx/plugins/ISRU/assets/images/gradient.png"; // for testing
         if (!File.Exists(filePath))
         {
             System.Diagnostics.Debug.Write("ISRU File not found: " + filePath + ", switching to black texture");
@@ -247,11 +249,11 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
         Material material = GetCelestialBodyMaterial();
         material.mainTexture = _newTexture;
-        string[] list = material.GetTexturePropertyNames();
-        for (int i = 0; i < list.Length; i++)
-        {
-            System.Diagnostics.Debug.Write("ISRU list texture property name." + i + "=" + list[i]);
-        }
+        //string[] list = material.GetTexturePropertyNames();
+        //for (int i = 0; i < list.Length; i++)
+        //{
+        //    System.Diagnostics.Debug.Write("ISRU list texture property name." + i + "=" + list[i]);
+        //}
         
         // doesn't work
         material.SetTexture("_EmissionTex", _newTexture);

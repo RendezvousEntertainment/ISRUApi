@@ -30,3 +30,7 @@
     -unity-background-image-tint-color: rgb(100, 141, 250);
     margin-bottom: 16px;
 }
+
+.dropdown-custom {
+    color: rgb(193, 203, 221);
+}

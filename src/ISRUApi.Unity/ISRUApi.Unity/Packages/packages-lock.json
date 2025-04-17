@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "com.passivepicasso.thunderkit": {
+      "version": "https://github.com/PassivePicasso/ThunderKit.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.scriptablebuildpipeline": "1.16.1"
+      },
+      "hash": "450171d64287ebd49764e40a45dc2a2eaeebd053"
+    },
     "com.unity.addressables": {
       "version": "1.21.21",
       "depth": 0,
@@ -108,6 +117,21 @@
         "com.unity.settings-manager": "1.0.1"
       },
       "url": "https://packages.unity.com"
+    },
+    "ksp2_x64": {
+      "version": "file:KSP2_x64",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "ksp2community.ksp2unitytools": {
+      "version": "https://github.com/KSP2Community/KSP2UnityTools.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.addressables": "1.21.18"
+      },
+      "hash": "bc61e6a86a7003bbedb8ca4872a5376a7d2534b0"
     },
     "uitkforksp2.controls": {
       "version": "https://github.com/UitkForKsp2/UitkForKsp2.Unity.git",

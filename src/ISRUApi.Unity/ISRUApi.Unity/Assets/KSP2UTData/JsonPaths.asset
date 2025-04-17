@@ -16,7 +16,11 @@ MonoBehaviour:
   - isru_tank_inline_1v_regolith
   - isru_tank_inline_1v_regolith (1)
   - isru_tank_inline_2v_regolith
+  - isru_tank_inline_2v_regolith (1)
+  - isru_tank_radial_1v_regolith
   Values:
+  - '%NAME%.json'
+  - '%NAME%.json'
   - '%NAME%.json'
   - '%NAME%.json'
   - '%NAME%.json'

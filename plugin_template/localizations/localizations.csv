@@ -8,3 +8,8 @@ PartModules/Mining/StopMining,Text,,Stop Mining
 PartModules/Mining/ToggleMining,Text,,Toggle Mining
 
 PartModules/ResourceConverter/TooHigh,Text,,Too Far From Ground
+
+Parts/Title/isru_tank_inline_1v_regolith,Text,,RHT-500 "Gouda"
+Parts/Subtitle/isru_tank_inline_1v_regolith,Text,,Medium Regolith Holding Tank
+Parts/Manufacturer/isru_tank_inline_1v_regolith,Text,,Jebediah Kerman’s Junkyard And Spacecraft Parts Co.
+Parts/Description/isru_tank_inline_1v_regolith,Text,,"TODO"

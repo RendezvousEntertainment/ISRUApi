@@ -17,7 +17,7 @@
                 OutputResources: [
                     {
                         Rate: 0.1,
-                        ResourceName: Ore,
+                        ResourceName: Regolith,
                         AcceptanceThreshold: 0.00000001
                     }
                 ];
@@ -31,7 +31,7 @@
     }
     resourceContainers: [
         {
-            name: "Ore",
+            name: "Regolith",
             capacityUnits: 0.1,
             initialUnits: 0,
             NonStageable: true
@@ -42,10 +42,10 @@
             "ElectricCharge"
         ],
         Generates: [
-            "Ore"
+            "Regolith"
         ],
         Contains: [
-            "Ore"
+            "Regolith"
         ]
     };
 }

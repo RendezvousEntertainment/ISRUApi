@@ -272,32 +272,6 @@ MonoBehaviour:
         allowRotate: 0
         allowRoot: 0
       attachNodes:
-      - nodeID: top
-        NodeSymmetryGroupID: 
-        nodeType: 0
-        attachMethod: 0
-        IsMultiJoint: 1
-        MultiJointMaxJoint: 3
-        MultiJointRadiusOffset: 0.63
-        MultiJointOnSingleAxis: 0
-        SingleJointAxis: 0
-        MultiJointFullBreakStrength: 0
-        position:
-          x: 0
-          y: 0
-          z: -1.2
-        orientation:
-          x: 0
-          y: 0
-          z: -1
-        size: 1
-        visualSize: 1
-        isResourceCrossfeed: 1
-        isRigid: 0
-        angularStrengthMultiplier: 1
-        contactArea: 0
-        overrideDragArea: 0
-        isCompoundJoint: 0
       - nodeID: bottom
         NodeSymmetryGroupID: 
         nodeType: 0
@@ -310,12 +284,38 @@ MonoBehaviour:
         MultiJointFullBreakStrength: 0
         position:
           x: 0
-          y: 0
-          z: 1.2
+          y: -1.19
+          z: 0
         orientation:
           x: 0
-          y: 0
-          z: 1
+          y: -1
+          z: 0
+        size: 1
+        visualSize: 1
+        isResourceCrossfeed: 1
+        isRigid: 0
+        angularStrengthMultiplier: 1
+        contactArea: 0
+        overrideDragArea: 0
+        isCompoundJoint: 0
+      - nodeID: top
+        NodeSymmetryGroupID: 
+        nodeType: 0
+        attachMethod: 0
+        IsMultiJoint: 1
+        MultiJointMaxJoint: 3
+        MultiJointRadiusOffset: 0.63
+        MultiJointOnSingleAxis: 0
+        SingleJointAxis: 0
+        MultiJointFullBreakStrength: 0
+        position:
+          x: 0
+          y: 1.2
+          z: 0
+        orientation:
+          x: 0
+          y: 1
+          z: 0
         size: 1
         visualSize: 1
         isResourceCrossfeed: 1

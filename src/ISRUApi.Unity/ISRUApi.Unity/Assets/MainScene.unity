@@ -175,10 +175,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: isru_tank_inline_1v_regolith
       objectReference: {fileID: 0}
-    - target: {fileID: 7368960383715969299, guid: a0510383da37ff6439835952a94af300, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 90
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -192,18 +188,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3689696409392499937, guid: 8593216109e2d4e46bc0ec4361c5b83c, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 3689696409392499937, guid: 8593216109e2d4e46bc0ec4361c5b83c, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 3689696409392499937, guid: 8593216109e2d4e46bc0ec4361c5b83c, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 90
-      objectReference: {fileID: 0}
     - target: {fileID: 4101868724012688835, guid: 8593216109e2d4e46bc0ec4361c5b83c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -261,18 +245,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2718112166115045550, guid: 18e5c49602acd924b8d02215ad10abef, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 2718112166115045550, guid: 18e5c49602acd924b8d02215ad10abef, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 2718112166115045550, guid: 18e5c49602acd924b8d02215ad10abef, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 90
-      objectReference: {fileID: 0}
     - target: {fileID: 6311675627803727681, guid: 18e5c49602acd924b8d02215ad10abef, type: 3}
       propertyPath: m_Name
       value: isru_tank_radial_1v_regolith

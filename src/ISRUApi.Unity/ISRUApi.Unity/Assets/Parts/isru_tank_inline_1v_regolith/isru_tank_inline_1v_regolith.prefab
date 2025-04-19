@@ -87,14 +87,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4710643087194705936}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 90, y: 0, z: 0}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2239306808975252215}
   m_Father: {fileID: 5234811888257263132}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1 &5974312677228739275
 GameObject:
   m_ObjectHideFlags: 0
@@ -122,7 +122,7 @@ Transform:
   m_GameObject: {fileID: 5974312677228739275}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -272,32 +272,6 @@ MonoBehaviour:
         allowRotate: 0
         allowRoot: 0
       attachNodes:
-      - nodeID: top
-        NodeSymmetryGroupID: 
-        nodeType: 0
-        attachMethod: 0
-        IsMultiJoint: 1
-        MultiJointMaxJoint: 3
-        MultiJointRadiusOffset: 0.63
-        MultiJointOnSingleAxis: 0
-        SingleJointAxis: 0
-        MultiJointFullBreakStrength: 0
-        position:
-          x: 0
-          y: 0
-          z: -0.63
-        orientation:
-          x: 0
-          y: 0
-          z: -1
-        size: 1
-        visualSize: 1
-        isResourceCrossfeed: 1
-        isRigid: 0
-        angularStrengthMultiplier: 1
-        contactArea: 0
-        overrideDragArea: 0
-        isCompoundJoint: 0
       - nodeID: bottom
         NodeSymmetryGroupID: 
         nodeType: 0
@@ -310,12 +284,38 @@ MonoBehaviour:
         MultiJointFullBreakStrength: 0
         position:
           x: 0
-          y: 0
-          z: 0.65
+          y: -0.65
+          z: 0
         orientation:
           x: 0
-          y: 0
-          z: 1
+          y: -1
+          z: 0
+        size: 1
+        visualSize: 1
+        isResourceCrossfeed: 1
+        isRigid: 0
+        angularStrengthMultiplier: 1
+        contactArea: 0
+        overrideDragArea: 0
+        isCompoundJoint: 0
+      - nodeID: top
+        NodeSymmetryGroupID: 
+        nodeType: 0
+        attachMethod: 0
+        IsMultiJoint: 1
+        MultiJointMaxJoint: 3
+        MultiJointRadiusOffset: 0.63
+        MultiJointOnSingleAxis: 0
+        SingleJointAxis: 0
+        MultiJointFullBreakStrength: 0
+        position:
+          x: 0
+          y: 0.63
+          z: 0
+        orientation:
+          x: 0
+          y: 1
+          z: 0
         size: 1
         visualSize: 1
         isResourceCrossfeed: 1

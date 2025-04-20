@@ -1,6 +1,6 @@
 @use "builtin:debug";
 
-:parts #nosecone_1v_hemisphere {
+:parts #isru_drill_1v {
     +Module_Mining {
         +Data_Mining {
             $log: debug-log("ISRU module added");
@@ -9,14 +9,14 @@
                 FormulaLocalizationKey: "ISRU/Formulas/Mining";
                 InputResources: [
                     {
-                        Rate: 0.98,
+                        Rate: 5,
                         ResourceName: ElectricCharge,
                         AcceptanceThreshold: 0.00000001
                     }
                 ];
                 OutputResources: [
                     {
-                        Rate: 0.1,
+                        Rate: 0.05,
                         ResourceName: Regolith,
                         AcceptanceThreshold: 0.00000001
                     }

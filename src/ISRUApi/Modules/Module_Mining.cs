@@ -13,6 +13,8 @@ public class Module_Mining : PartBehaviourModule
     [SerializeField]
     protected Data_Mining _dataMining;
 
+    public Animator Animator;
+
     public override void AddDataModules()
     {
         base.AddDataModules();
@@ -32,6 +34,9 @@ public class Module_Mining : PartBehaviourModule
         this.AddActionGroupAction(new Action(this.StopMining), KSPActionGroup.None, LocalizationManager.GetTermTranslation(this._dataMining.StopActionName));
         this.AddActionGroupAction(new Action(this.ToggleMining), KSPActionGroup.None, LocalizationManager.GetTermTranslation(this._dataMining.ToggleActionName));
         this.UpdatePAMVisibility(this._dataMining.EnabledToggle.GetValue());
+
+        //get the animator
+        PartUtil.TryGetComponentInPart<Animator>(part.transform, out Animator);
     }
     public override void OnShutdown()
     {
@@ -41,7 +46,10 @@ public class Module_Mining : PartBehaviourModule
 
     public override void OnModuleFixedUpdate(float fixedDeltaTime)
     {
-        //this._dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(this._dataMining.conversionState.Description(), (object)LocalizationManager.GetTermTranslation("Resource/DisplayName/Resource")));
+        if (Animator.GetCurrentAnimatorStateInfo(0).IsName("isru_drill_1v_deployed"))
+        {
+            _dataMining.PartIsDeployed = true;
+        }
     }
 
     private void UpdatePAMVisibility(bool state)

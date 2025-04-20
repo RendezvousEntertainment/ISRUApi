@@ -1,13 +1,10 @@
-﻿using BepInEx;
-using I2.Loc;
+﻿using I2.Loc;
 using ISRUApi.UI;
 using KSP.Game;
-using KSP.Messages.PropertyWatchers;
 using KSP.Modules;
 using KSP.Sim;
 using KSP.Sim.impl;
 using KSP.Sim.ResourceSystem;
-using KSP.Tools;
 
 namespace ISRUApi.Modules;
 
@@ -29,11 +26,10 @@ public class PartComponentModule_Mining : PartComponentModule
     // Useful game objects
     private ResourceDefinitionDatabase _resourceDB;
 
-    private bool outOfStorage;
     private string outOfStorageProduct;
-    private bool outOfIngredient;
     private string missingIngredient;
-    private bool isTooHigh;
+
+    protected Data_Deployable dataDeployable;
 
     public override void OnStart(double universalTime)
     {
@@ -63,34 +59,42 @@ public class PartComponentModule_Mining : PartComponentModule
     {
         UpdateIngredients();
         SendResourceRequest(deltaUniversalTime);
-        SetStatus();
+        SetStatusTxt();
 
         _dataMining.OreRateTxt.SetValue(_oreStandardRate * MyFirstWindowController.GetDensity());
     }
 
     /**
-     * Compute the status for every frame.
-     **/
-    public void SetStatus()
+    * Compute the status for every frame.
+    **/
+    public void SetStatusTxt()
     {
-        if (_dataMining.EnabledToggle.GetValue() && isTooHigh)
+        if (_dataMining.status == ResourceConversionState.InsufficientContainment.Description())
         {
-            _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceConversionStateMinig.TooHigh.Description())); // too far from ground
+            _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(_dataMining.status, outOfStorageProduct)); // out of storage
         }
-        else if (_dataMining.EnabledToggle.GetValue())
+        else if (_dataMining.status == ResourceConversionState.InsufficientResource.Description())
         {
-            _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceConversionState.Operational.Description())); // active
-        }
-        else if (outOfStorage)
+            _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(_dataMining.status, missingIngredient)); // out of input resource
+        } else if (_dataMining.EnabledToggle.GetValue())
         {
-            _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceConversionState.InsufficientContainment.Description(), outOfStorageProduct)); // out of storage
-        }
-        else if (outOfIngredient)
-        {
-            _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceConversionState.InsufficientResource.Description(), missingIngredient)); // out of input resource
+            if (!_dataMining.PartIsDeployed)
+            {
+                _dataMining.status = ResourceConversionStateMinig.NotDeployed.Description(); // not deployed
+                _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(_dataMining.status));
+            } else if (_dataMining.status == ResourceConversionStateMinig.TooHigh.Description())
+            {
+                _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(_dataMining.status)); // too high
+            }
+            else {
+                _dataMining.status = ResourceConversionState.Operational.Description(); // active
+                _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(_dataMining.status));
+            }
+
         } else
         {
-            _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceConversionState.Inactive.Description())); // inactive
+            _dataMining.status = ResourceConversionState.Inactive.Description(); // inactive
+            _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(_dataMining.status));
         }
     }
 
@@ -100,7 +104,6 @@ public class PartComponentModule_Mining : PartComponentModule
     private void UpdateIngredients()
     {
         // Ingredients
-        outOfIngredient = false;
         missingIngredient = null;
         for (var i = 0; i < _currentIngredientUnits.Length; ++i)
         {
@@ -113,7 +116,6 @@ public class PartComponentModule_Mining : PartComponentModule
             // Remove ingredient from request if container empty
             if (_containerGroup.GetResourceStoredUnits(_currentIngredientUnits[i].resourceID) < _dataMining.MiningFormulaDefinitions.AcceptanceThreshold)
             {
-                outOfIngredient = true;
                 missingIngredient = inputName;
                 _dataMining.EnabledToggle.SetValue(false);
                 _currentIngredientUnits[i].units = 0.0;
@@ -121,7 +123,6 @@ public class PartComponentModule_Mining : PartComponentModule
         }
 
         // Products
-        outOfStorage = false;
         outOfStorageProduct = null;
         for (var i = 0; i < _currentProductUnits.Length; ++i)
         {
@@ -136,7 +137,6 @@ public class PartComponentModule_Mining : PartComponentModule
             // Remove product from request if container full
             if (productCapacity - storedProduct < _dataMining.MiningFormulaDefinitions.AcceptanceThreshold)
             {
-                outOfStorage = true;
                 outOfStorageProduct = outputName;
                 _dataMining.EnabledToggle.SetValue(false);
                 _currentProductUnits[i].units = 0.0;
@@ -156,9 +156,12 @@ public class PartComponentModule_Mining : PartComponentModule
         var outputCount = _dataMining.MiningFormulaDefinitions.OutputResources.Count;
 
         // Ingredients
-        for (var i = 0; i < inputCount; ++i)
-            _containerGroup.RemoveResourceUnits(_currentIngredientUnits[i].resourceID, _currentIngredientUnits[i].units,
-                deltaTime);
+        if (_dataMining.status == ResourceConversionState.Operational.Description())
+        {
+            for (var i = 0; i < inputCount; ++i)
+                _containerGroup.RemoveResourceUnits(_currentIngredientUnits[i].resourceID, _currentIngredientUnits[i].units,
+                    deltaTime);
+        }
 
         // Products
         double altitude = 0.0;
@@ -171,12 +174,10 @@ public class PartComponentModule_Mining : PartComponentModule
         {
             System.Diagnostics.Debug.Write("ISRU Ground Altitude not computable");
         }
-        //System.Diagnostics.Debug.Write("ISRU Ground Altitude = " + altitude);
         if (altitude > 5.0 || !VesselSituations.Landed.Equals(situation)) { // if drill is not on the ground, do nothing
-            isTooHigh = true;
-        } else
-        {
-            isTooHigh = false;
+            _dataMining.status = ResourceConversionStateMinig.TooHigh.Description();
+        }
+        if (_dataMining.status == ResourceConversionState.Operational.Description()) {
             for (var i = 0; i < outputCount; ++i)
                 _containerGroup.AddResourceUnits(_currentProductUnits[i].resourceID, _currentProductUnits[i].units,
                     deltaTime);

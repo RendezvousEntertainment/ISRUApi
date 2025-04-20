@@ -57,6 +57,14 @@ public class Data_Mining : ModuleData
     [KSPDefinition]
     public string ToggleActionName = "PartModules/Mining/ToggleMining";
 
+    [KSPDefinition]
+    public string status;
+
+    [KSPDefinition]
+    [HideInInspector]
+    [JsonIgnore]
+    public bool PartIsDeployed;
+
     [JsonIgnore]
     public PartComponentModule_Mining PartComponentModule;
 
@@ -132,5 +140,6 @@ public enum ResourceConversionStateMinig : byte
 {
     None,
     [Description("PartModules/ResourceConverter/TooHigh")] TooHigh,
+    [Description("PartModules/ResourceConverter/NotDeployed")] NotDeployed,
 }
 

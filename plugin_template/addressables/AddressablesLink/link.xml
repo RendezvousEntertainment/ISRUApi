@@ -2,9 +2,15 @@
   <assembly fullname="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
     <type fullname="KSP.CorePartData" preserve="all" />
     <type fullname="KSP.Modules.Module_Color" preserve="all" />
+    <type fullname="KSP.Modules.Module_Deployable" preserve="all" />
     <type fullname="KSP.Modules.Module_Drag" preserve="all" />
     <type fullname="KSP.Modules.Module_ResourceCapacities" preserve="all" />
+    <type fullname="Module_AnimStateInformer" preserve="all" />
     <type fullname="KSP.Modules.Data_Color" preserve="nothing" serialized="true" />
+    <type fullname="KSP.Modules.Data_Deployable" preserve="nothing" serialized="true" />
+    <type fullname="KSP.Modules.Data_Deployable/DeployState" preserve="nothing" serialized="true" />
+    <type fullname="KSP.Modules.Data_Deployable/RotationMode" preserve="nothing" serialized="true" />
+    <type fullname="KSP.Modules.Data_Deployable/TrackingMode" preserve="nothing" serialized="true" />
     <type fullname="KSP.Modules.Data_Drag" preserve="nothing" serialized="true" />
     <type fullname="KSP.Modules.Data_ResourceCapacities" preserve="nothing" serialized="true" />
     <type fullname="KSP.OAB.MirrorTechnique" preserve="nothing" serialized="true" />
@@ -30,6 +36,11 @@
     <type fullname="UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider" preserve="all" />
     <type fullname="UnityEngine.ResourceManagement.ResourceProviders.InstanceProvider" preserve="all" />
     <type fullname="UnityEngine.ResourceManagement.ResourceProviders.SceneProvider" preserve="all" />
+  </assembly>
+  <assembly fullname="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="UnityEngine.AnimationClip" preserve="all" />
+    <type fullname="UnityEngine.Animator" preserve="all" />
+    <type fullname="UnityEngine.RuntimeAnimatorController" preserve="all" />
   </assembly>
   <assembly fullname="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
     <type fullname="UnityEngine.GameObject" preserve="all" />

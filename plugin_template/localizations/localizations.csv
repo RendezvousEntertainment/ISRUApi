@@ -23,3 +23,8 @@ Parts/Title/isru_tank_radial_1v_regolith,Text,,RHT-100-R
 Parts/Subtitle/isru_tank_radial_1v_regolith,Text,,Radial Regolith Holding Tank
 Parts/Manufacturer/isru_tank_radial_1v_regolith,Text,,Jebediah Kerman’s Junkyard And Spacecraft Parts Co.
 Parts/Description/isru_tank_radial_1v_regolith,Text,,"TODO"
+
+Parts/Title/isru_drill_1v,Text,,Drill-O-Matic
+Parts/Subtitle/isru_drill_1v,Text,,Mining Excavator
+Parts/Manufacturer/isru_drill_1v,Text,,Kerbodyne
+Parts/Description/isru_drill_1v,Text,,"TODO"

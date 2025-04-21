@@ -171,7 +171,7 @@ MonoBehaviour:
       partName: isru_tank_radial_1v_regolith
       author: The Space Peacock;Polo
       category: 7
-      family: 0085-Regolith
+      family: 0085-Ore
       childStageOffset: 0
       cost: 100
       crewCapacity: 0
@@ -236,7 +236,7 @@ MonoBehaviour:
         overrideDragArea: 0
         isCompoundJoint: 0
       resourceContainers:
-      - name: Regolith
+      - name: Aluminium
         capacityUnits: 0.2
         initialUnits: 0
         NonStageable: 0

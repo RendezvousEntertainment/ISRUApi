@@ -5,7 +5,7 @@
     "partName": "isru_tank_inline_2v_regolith",
     "author": "The Space Peacock;Polo",
     "category": "FuelTank",
-    "family": "0085-Regolith",
+    "family": "0085-Ore",
     "childStageOffset": 0,
     "cost": 100,
     "crewCapacity": 0,
@@ -157,7 +157,7 @@
     ],
     "resourceContainers": [
       {
-        "name": "Regolith",
+        "name": "Aluminium",
         "capacityUnits": 4.0,
         "initialUnits": 0.0,
         "NonStageable": false

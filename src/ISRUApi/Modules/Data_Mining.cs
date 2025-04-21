@@ -151,22 +151,8 @@ public class Data_Mining : ModuleData
 
     public static string GetOreRateOutputString(object valueObj) => string.Format("{0:F3} {1}/{2}", (object)Math.Abs((double)valueObj), (object)Units.SymbolTonne, (object)Units.SymbolSeconds);
 
-    public override void InitProperties()
-    {
-        base.InitProperties();
-
-        //controlStatus.SetValue(deployed.GetValue() ? MiningState.Mining : MiningState.Stopped);
-    }
-
     private static string GetConversionStatusString(object valueObj) => (string)valueObj;
 
-}
-
-public enum MiningState : byte
-{
-    None = 0,
-    [Description("ISRUApi/Modules/Data_Mining/status/Mining")] Mining = 1,
-    [Description("ISRUApi/Modules/Data_Mining/status/Stopped")] Stopped = 2,
 }
 
 [Serializable]

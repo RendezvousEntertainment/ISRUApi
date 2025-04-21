@@ -50,9 +50,7 @@ public class PartComponentModule_Mining : PartComponentModule
         {
             // Initialize useful objects
             _containerGroup = Part.PartOwner.ContainerGroup;
-            //_notificationManager = GameManager.Instance.Game.Notifications;
             _resourceDB = GameManager.Instance.Game.ResourceDefinitionDatabase;
-            //_rosterManager = GameManager.Instance.Game.SessionManager.KerbalRosterManager;
 
             // Set up resource request
             SetupIngredientDataStructures();
@@ -67,7 +65,6 @@ public class PartComponentModule_Mining : PartComponentModule
         {
             UpdateIngredients();
             SendResourceRequest(deltaUniversalTime);
-            //System.Diagnostics.Debug.Write("ISRU _localDensity=" + _localDensity + " IsVesselLanded=" + IsVesselLanded());
             if (_localDensity == -1 || !IsVesselLanded())
             {
                 _localDensity = MyFirstWindowController.GetDensity(_dataMining.MiningFormulaDefinitions.OutputResources[0].ResourceName, Game.ViewController.GetActiveSimVessel()); // TODO : only works with one product
@@ -121,8 +118,6 @@ public class PartComponentModule_Mining : PartComponentModule
         for (var i = 0; i < _currentIngredientUnits.Length; ++i)
         {
             var inputName = _dataMining.MiningFormulaDefinitions.InputResources[i].ResourceName;
-            //System.Diagnostics.Debug.Write("ISRU " + inputName + " Remaining Capacity: " + _containerGroup.GetResourceCapacityUnits(_currentIngredientUnits[i].resourceID));
-            //System.Diagnostics.Debug.Write("ISRU Stored " + inputName + ": " + _containerGroup.GetResourceStoredUnits(_currentIngredientUnits[i].resourceID));
 
             _currentIngredientUnits[i].units = _dataMining.MiningFormulaDefinitions.InputResources[i].Rate;
 
@@ -143,8 +138,6 @@ public class PartComponentModule_Mining : PartComponentModule
             var outputName = _dataMining.MiningFormulaDefinitions.OutputResources[i].ResourceName;
             double productCapacity = _containerGroup.GetResourceCapacityUnits(_currentProductUnits[i].resourceID);
             double storedProduct = _containerGroup.GetResourceStoredUnits(_currentProductUnits[i].resourceID);
-            //System.Diagnostics.Debug.Write("ISRU " + outputName + " Remaining Capacity: " + _containerGroup.GetResourceCapacityUnits(_currentProductUnits[i].resourceID));
-            //System.Diagnostics.Debug.Write("ISRU Stored " + outputName + ": " + storedProduct);
 
             _currentProductUnits[i].units = _dataMining.MiningFormulaDefinitions.OutputResources[i].Rate;
 
@@ -186,11 +179,8 @@ public class PartComponentModule_Mining : PartComponentModule
 
         // Products
         double altitude = 0.0;
-        //VesselSituations situation = new();
-        //VesselComponent ActiveVessel = GameManager.Instance?.Game?.ViewController?.GetActiveVehicle(true)?.GetSimVessel(true);
         if (_activeVessel != null) {
             altitude = _activeVessel.AltitudeFromScenery;
-            //situation = _activeVessel.Situation;
         } else
         {
             System.Diagnostics.Debug.Write("ISRU Ground Altitude not computable");
@@ -210,21 +200,17 @@ public class PartComponentModule_Mining : PartComponentModule
      **/
     private void SetupIngredientDataStructures()
     {
-        System.Diagnostics.Debug.Write("ISRU 1");
         if (_dataMining.MiningFormulaDefinitions == null)
         {
             System.Diagnostics.Debug.Write("[ISRU] ERROR Unable to find MiningFormulaDefinitions.");
             return;
         }
         var inputCount = _dataMining.MiningFormulaDefinitions.InputResources.Count;
-        //System.Diagnostics.Debug.Write("ISRU 2");
         var outputCount = _dataMining.MiningFormulaDefinitions.OutputResources.Count;
-        //System.Diagnostics.Debug.Write("ISRU 3");
         _currentIngredientUnits = new ResourceUnitsPair[inputCount];
         _currentProductUnits = new ResourceUnitsPair[outputCount];
         
         var resourceUnitsPair = new ResourceUnitsPair();
-        //System.Diagnostics.Debug.Write("ISRU 4");
         // Initializing the ingredients data
         for (var i = 0; i < inputCount; ++i)
         {
@@ -239,7 +225,6 @@ public class PartComponentModule_Mining : PartComponentModule
             resourceUnitsPair.units = rate;
             _currentIngredientUnits[i] = resourceUnitsPair;
         }
-        //System.Diagnostics.Debug.Write("ISRU 5");
         // Initializing the products data
         for (var i = 0; i < outputCount; ++i)
         {

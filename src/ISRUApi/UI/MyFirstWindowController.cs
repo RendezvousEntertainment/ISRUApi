@@ -62,7 +62,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         // Add a click event handler to the toggle
         _overlayToggle.RegisterValueChangedCallback(evt => DisplayResourceShader(evt.newValue));
 
-        // Get the greeting label from the window
         _densityValueField = _rootElement.Q<Label>("density-value");
         _messageField = _rootElement.Q<Label>("label-message");
         SetUserMessage("", false);

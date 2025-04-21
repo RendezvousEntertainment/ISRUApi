@@ -119,6 +119,7 @@ public class PartComponentModule_Mining : PartComponentModule
                 missingIngredient = inputName;
                 _dataMining.EnabledToggle.SetValue(false);
                 _currentIngredientUnits[i].units = 0.0;
+                _dataMining.status = ResourceConversionState.InsufficientResource.Description();
             }
         }
 
@@ -140,6 +141,7 @@ public class PartComponentModule_Mining : PartComponentModule
                 outOfStorageProduct = outputName;
                 _dataMining.EnabledToggle.SetValue(false);
                 _currentProductUnits[i].units = 0.0;
+                _dataMining.status = ResourceConversionState.InsufficientContainment.Description();
             }
             
         }

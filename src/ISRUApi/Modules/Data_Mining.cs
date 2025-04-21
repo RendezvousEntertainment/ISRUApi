@@ -159,7 +159,8 @@ public class Data_Mining : ModuleData
 public enum ResourceConversionStateMinig : byte
 {
     None,
-    [Description("PartModules/ResourceConverter/TooHigh")] TooHigh,
-    [Description("PartModules/ResourceConverter/NotDeployed")] NotDeployed,
+    [Description("PartModules/Mining/TooHigh")] TooHigh,
+    [Description("PartModules/Mining/NotDeployed")] NotDeployed,
+    [Description("PartModules/Mining/InsufficientContainment")] InsufficientContainment,
 }
 

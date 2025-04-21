@@ -1,4 +1,5 @@
-﻿using Backtrace.Unity.Extensions;
+﻿using System.ComponentModel.Design;
+using Backtrace.Unity.Extensions;
 using I2.Loc;
 using ISRUApi.UI;
 using KSP.Game;
@@ -29,7 +30,7 @@ public class PartComponentModule_Mining : PartComponentModule
     // Useful game objects
     private ResourceDefinitionDatabase _resourceDB;
 
-    private string outOfStorageProduct;
+    //private string outOfStorageProduct;
     private string missingIngredient;
 
     private float _localDensity = -1;
@@ -81,7 +82,7 @@ public class PartComponentModule_Mining : PartComponentModule
     {
         if (_dataMining.status == ResourceConversionState.InsufficientContainment.Description())
         {
-            _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(_dataMining.status, outOfStorageProduct)); // out of storage
+            _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(_dataMining.status)); // out of storage
         }
         else if (_dataMining.status == ResourceConversionState.InsufficientResource.Description())
         {
@@ -132,10 +133,11 @@ public class PartComponentModule_Mining : PartComponentModule
         }
 
         // Products
-        outOfStorageProduct = null;
+        //outOfStorageProduct = null;
+        bool isEachProductOutOfStorage = true;
         for (var i = 0; i < _currentProductUnits.Length; ++i)
         {
-            var outputName = _dataMining.MiningFormulaDefinitions.OutputResources[i].ResourceName;
+            //var outputName = _dataMining.MiningFormulaDefinitions.OutputResources[i].ResourceName;
             double productCapacity = _containerGroup.GetResourceCapacityUnits(_currentProductUnits[i].resourceID);
             double storedProduct = _containerGroup.GetResourceStoredUnits(_currentProductUnits[i].resourceID);
 
@@ -144,12 +146,18 @@ public class PartComponentModule_Mining : PartComponentModule
             // Remove product from request if container full
             if (productCapacity - storedProduct < _dataMining.MiningFormulaDefinitions.AcceptanceThreshold)
             {
-                outOfStorageProduct = outputName;
+                //outOfStorageProduct = outputName;
                 _dataMining.EnabledToggle.SetValue(false);
                 _currentProductUnits[i].units = 0.0;
-                _dataMining.status = ResourceConversionState.InsufficientContainment.Description();
             }
-            
+            else
+            {
+                isEachProductOutOfStorage = false;
+            }
+        }
+        if (isEachProductOutOfStorage)
+        {
+            _dataMining.status = ResourceConversionStateMinig.InsufficientContainment.Description();
         }
     }
 
@@ -190,8 +198,9 @@ public class PartComponentModule_Mining : PartComponentModule
         }
         if (_dataMining.status == ResourceConversionState.Operational.Description()) {
             for (var i = 0; i < outputCount; ++i)
-                _containerGroup.AddResourceUnits(_currentProductUnits[i].resourceID, _currentProductUnits[i].units,
-                    deltaTime);
+            {
+                _containerGroup.AddResourceUnits(_currentProductUnits[i].resourceID, _currentProductUnits[i].units, deltaTime);
+            }
         }
     }
 

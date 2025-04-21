@@ -3,13 +3,10 @@ Key,Type,Desc,English
 PartModules/Mining/Enabled,Text,,Drill Enabled
 PartModules/Mining/Status,Text,,Status
 PartModules/Mining/OreRate,Text,,Local Rate
-PartModules/Mining/StartMining,Text,,Start Mining
-PartModules/Mining/StopMining,Text,,Stop Mining
-PartModules/Mining/ToggleMining,Text,,Toggle Mining
 PartModules/Mining/OutputResource,Text,,Output Resource
-
-PartModules/ResourceConverter/TooHigh,Text,,Too Far From Ground
-PartModules/ResourceConverter/NotDeployed,Text,,Not Deployed
+PartModules/Mining/TooHigh,Text,,Too Far From Ground
+PartModules/Mining/NotDeployed,Text,,Not Deployed
+PartModules/Mining/InsufficientContainment,Text,,All storages are full
 
 Parts/Title/isru_tank_inline_1v_regolith,Text,,RHT-200
 Parts/Subtitle/isru_tank_inline_1v_regolith,Text,,Small Regolith Holding Tank

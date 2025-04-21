@@ -23,7 +23,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private Toggle _overlayToggle;
     private Label _densityValueField;
     private Label _messageField;
-    private readonly List<string> _options = ["Aluminium", "Carbon", "H2", "Iron", "Nitrogen", "O2", "Regolith"];
+    //private readonly List<string> _options = ["Aluminium", "Carbon", "H2", "Iron", "Nitrogen", "O2", "Regolith"];
+    private readonly List<string> _options = ["Nickel", "Regolith"];
     //private string _selectedResource;
     private UIResourceWindowStatus _uiWindowStatus;
 

@@ -1,15 +1,24 @@
-﻿using System.ComponentModel.Design;
-using Backtrace.Unity.Extensions;
-using I2.Loc;
+﻿using I2.Loc;
 using ISRUApi.UI;
 using KSP.Game;
 using KSP.Modules;
 using KSP.Sim;
 using KSP.Sim.impl;
 using KSP.Sim.ResourceSystem;
-using static KSP.Api.UIDataPropertyStrings.View;
 
 namespace ISRUApi.Modules;
+
+public struct OutputResource
+{
+    public double Rate { get; }
+    public float Density { get; }
+
+    public OutputResource(double rate, float density)
+    {
+        Rate = rate;
+        Density = density;
+    }
+}
 
 public class PartComponentModule_Mining : PartComponentModule
 {
@@ -25,7 +34,7 @@ public class PartComponentModule_Mining : PartComponentModule
     // Ingredient & products units
     private ResourceUnitsPair[] _currentIngredientUnits;
     private ResourceUnitsPair[] _currentProductUnits;
-    private double _oreStandardRate;
+    //private double _oreStandardRate;
 
     // Useful game objects
     private ResourceDefinitionDatabase _resourceDB;
@@ -33,7 +42,8 @@ public class PartComponentModule_Mining : PartComponentModule
     //private string outOfStorageProduct;
     private string missingIngredient;
 
-    private float _localDensity = -1;
+    //private float _localDensity = -1;
+    Dictionary<string, OutputResource> _localDensities = new Dictionary<string, OutputResource>();
 
     protected Data_Deployable dataDeployable;
 
@@ -66,12 +76,25 @@ public class PartComponentModule_Mining : PartComponentModule
         {
             UpdateIngredients();
             SendResourceRequest(deltaUniversalTime);
-            if (_localDensity == -1 || !IsVesselLanded())
+
+            for (var i = 0; i < _currentProductUnits.Length; ++i)
             {
-                _localDensity = MyFirstWindowController.GetDensity(_dataMining.MiningFormulaDefinitions.OutputResources[0].ResourceName, Game.ViewController.GetActiveSimVessel()); // TODO : only works with one product
+                var outputName = _dataMining.MiningFormulaDefinitions.OutputResources[i].ResourceName;
+                if (!_localDensities.ContainsKey(outputName) || !IsVesselLanded())
+                {
+                    double rate = _dataMining.MiningFormulaDefinitions.OutputResources[i].Rate;
+                    float density = MyFirstWindowController.GetDensity(outputName, Game.ViewController.GetActiveSimVessel());
+                    _localDensities[outputName] = new OutputResource(rate, density);
+                }
             }
-            _dataMining.NickelRateTxt.SetValue(_oreStandardRate * _localDensity);
-            _dataMining.RegolithRateTxt.SetValue(_oreStandardRate * _localDensity);
+
+            if (_localDensities.ContainsKey("Nickel")) {
+                _dataMining.NickelRateTxt.SetValue(_localDensities["Nickel"].Rate * _localDensities["Nickel"].Density);
+            }
+            if (_localDensities.ContainsKey("Regolith"))
+            {
+                _dataMining.RegolithRateTxt.SetValue(_localDensities["Regolith"].Rate * _localDensities["Regolith"].Density);
+            }
         }
         SetStatusTxt();
     }
@@ -243,7 +266,7 @@ public class PartComponentModule_Mining : PartComponentModule
 
             // Rate
             var rate = _dataMining.MiningFormulaDefinitions.OutputResources[i].Rate;
-            _oreStandardRate = rate; // TODO only works when there is one product
+            //_oreStandardRate = rate; // TODO only works when there is one product
 
             // Setup resource
             resourceUnitsPair.resourceID = _resourceDB.GetResourceIDFromName(outputName);

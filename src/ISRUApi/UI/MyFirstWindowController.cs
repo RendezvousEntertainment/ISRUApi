@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using KSP.Sim.impl;
 using KSP.Game;
+using static Texture2DArrayConfig;
+using static KSP.Api.UIDataPropertyStrings.View;
 
 namespace ISRUApi.UI;
 
@@ -181,8 +183,26 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _densityValue = pixelColor.r; // we assume the texture is grayscale and only use the red value
     }
 
+    private static float GetLocalDensity(VesselComponent vessel, Texture2D levelTex)
+    {
+        double longitude = vessel.Longitude;
+        double latitude = vessel.Latitude;
+        double long_norm = (180 + longitude) / 360;
+        double lat_norm = (90 - latitude) / 180;
+        int x = (int)Math.Round(long_norm * OverlaySideSize);
+        int y = (int)Math.Round(lat_norm * OverlaySideSize);
+        if (x < 0 || x > levelTex.width || y < 0 || y > levelTex.height)
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR coordinates out of bound: x=" + x + "; y=" + y);
+            return 0.0f;
+        }
+        Color pixelColor = levelTex.GetPixel(x, y);
+        return pixelColor.r; // we assume the texture is grayscale and only use the red value
+    }
+
     private void LoadResourceImage()
     {
+
         System.Diagnostics.Debug.Write("ISRU Attempting to load " + _celestialBodyName + "_" + _resourceDropdown.value + "_Tex.png");
         string filePathStart = "./BepInEx/plugins/ISRU/assets/images/" + _celestialBodyName + "_" + _resourceDropdown.value;
         string filePathTexture = String.Concat(filePathStart, "_Tex.png");
@@ -202,6 +222,23 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
         _newTexture.LoadImage(File.ReadAllBytes(filePathTexture));
         _newLevels.LoadImage(File.ReadAllBytes(filePathLevels));
+    }
+
+    private static Texture2D GetLevelsImage(string celestialBodyName, string resourceName)
+    {
+
+        //System.Diagnostics.Debug.Write("ISRU Attempting to load " + celestialBodyName + "_" + resourceName + "_Lev.png");
+        string filePathStart = "./BepInEx/plugins/ISRU/assets/images/" + celestialBodyName + "_" + resourceName;
+        //string filePathTexture = String.Concat(filePathStart, "_Tex.png");
+        string filePathLevels = String.Concat(filePathStart, "_Lev.png");
+        if (!File.Exists(filePathLevels))
+        {
+            System.Diagnostics.Debug.Write("ISRU File not found: " + filePathLevels + ", switching to black texture");
+            return null;
+        }
+        Texture2D texture = new(OverlaySideSize, OverlaySideSize);
+        texture.LoadImage(File.ReadAllBytes(filePathLevels));
+        return texture;
     }
 
     private void SetCelestialBodyName()
@@ -268,9 +305,20 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     /// <summary>
     /// Returns the density at the current vessel location.
     /// </summary>
-    public static double GetDensity()
+    public static float GetDensity(string resourceName, VesselComponent vessel)
     {
-        return _densityValue;
+        if (vessel == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR GetDensity vessel is null");
+            return 0.0f;
+        }
+        if (resourceName == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR GetDensity resourceName is null");
+            return 0.0f;
+        }
+        Texture2D texture = GetLevelsImage(vessel.mainBody.Name, resourceName);
+        return GetLocalDensity(vessel, texture);
     }
 
     // Called when the player select a resource on the dropdown list.

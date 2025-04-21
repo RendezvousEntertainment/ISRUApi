@@ -1,10 +1,12 @@
-﻿using I2.Loc;
+﻿using Backtrace.Unity.Extensions;
+using I2.Loc;
 using ISRUApi.UI;
 using KSP.Game;
 using KSP.Modules;
 using KSP.Sim;
 using KSP.Sim.impl;
 using KSP.Sim.ResourceSystem;
+using static KSP.Api.UIDataPropertyStrings.View;
 
 namespace ISRUApi.Modules;
 
@@ -14,6 +16,7 @@ public class PartComponentModule_Mining : PartComponentModule
 
     // Module data
     private Data_Mining _dataMining;
+    private VesselComponent _activeVessel;
 
     // Container group for the vessel
     private ResourceContainerGroup _containerGroup;
@@ -28,6 +31,8 @@ public class PartComponentModule_Mining : PartComponentModule
 
     private string outOfStorageProduct;
     private string missingIngredient;
+
+    private float _localDensity = -1;
 
     protected Data_Deployable dataDeployable;
 
@@ -57,11 +62,19 @@ public class PartComponentModule_Mining : PartComponentModule
 
     public override void OnUpdate(double universalTime, double deltaUniversalTime)
     {
-        UpdateIngredients();
-        SendResourceRequest(deltaUniversalTime);
+        if (_activeVessel == null) _activeVessel = GameManager.Instance?.Game?.ViewController?.GetActiveVehicle(true)?.GetSimVessel(true);
+        if (_dataMining.EnabledToggle.GetValue())
+        {
+            UpdateIngredients();
+            SendResourceRequest(deltaUniversalTime);
+            //System.Diagnostics.Debug.Write("ISRU _localDensity=" + _localDensity + " IsVesselLanded=" + IsVesselLanded());
+            if (_localDensity == -1 || !IsVesselLanded())
+            {
+                _localDensity = MyFirstWindowController.GetDensity(_dataMining.MiningFormulaDefinitions.OutputResources[0].ResourceName, Game.ViewController.GetActiveSimVessel()); // TODO : only works with one product
+            }
+            _dataMining.OreRateTxt.SetValue(_oreStandardRate * _localDensity);
+        }
         SetStatusTxt();
-
-        _dataMining.OreRateTxt.SetValue(_oreStandardRate * MyFirstWindowController.GetDensity());
     }
 
     /**
@@ -147,6 +160,12 @@ public class PartComponentModule_Mining : PartComponentModule
         }
     }
 
+    private bool IsVesselLanded()
+    {
+        if (_activeVessel == null) return false;
+        return VesselSituations.Landed.Equals(_activeVessel.Situation);
+    }
+
     /**
      * Consume ingredients and produce products based on the current consumption data structures and elapsed time
      **/
@@ -167,16 +186,16 @@ public class PartComponentModule_Mining : PartComponentModule
 
         // Products
         double altitude = 0.0;
-        VesselSituations situation = new();
-        VesselComponent ActiveVessel = GameManager.Instance?.Game?.ViewController?.GetActiveVehicle(true)?.GetSimVessel(true);
-        if (ActiveVessel != null) {
-            altitude = ActiveVessel.AltitudeFromScenery;
-            situation = ActiveVessel.Situation;
+        //VesselSituations situation = new();
+        //VesselComponent ActiveVessel = GameManager.Instance?.Game?.ViewController?.GetActiveVehicle(true)?.GetSimVessel(true);
+        if (_activeVessel != null) {
+            altitude = _activeVessel.AltitudeFromScenery;
+            //situation = _activeVessel.Situation;
         } else
         {
             System.Diagnostics.Debug.Write("ISRU Ground Altitude not computable");
         }
-        if (altitude > 5.0 || !VesselSituations.Landed.Equals(situation)) { // if drill is not on the ground, do nothing
+        if (altitude > 5.0 || !IsVesselLanded()) { // if drill is not on the ground, do nothing
             _dataMining.status = ResourceConversionStateMinig.TooHigh.Description();
         }
         if (_dataMining.status == ResourceConversionState.Operational.Description()) {

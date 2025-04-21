@@ -3,6 +3,7 @@
 @use constants;
 
 :parts #isru_drill_1v {
+    $drillRate: 0.05;
     +Module_Mining {
         +Data_Mining {
             $log: debug-log("ISRU module added");
@@ -18,8 +19,13 @@
                 ];
                 OutputResources: [
                     {
-                        Rate: 0.05,
+                        Rate: $drillRate,
                         ResourceName: Regolith,
+                        AcceptanceThreshold: 0.00000001
+                    },
+                    {
+                        Rate: $drillRate,
+                        ResourceName: Nickel,
                         AcceptanceThreshold: 0.00000001
                     }
                 ];
@@ -81,6 +87,24 @@
             {
               Name: "Iron",
               CapacityUnits: $partVolume * $IRON_DENSITY,
+              InitialUnits: 0.0
+            }
+          ];
+        }
+        +ResourceContainerRemover {
+          Containers: [Aluminium];
+        }
+      }
+      +Nickel {
+        VariantLocalizationKey: "Resource/DisplayName/Nickel";
+        +TransformActivator {
+          Transforms: [nickel];
+        }
+        +ResourceContainerAdder {
+          Containers: [
+            {
+              Name: "Nickel",
+              CapacityUnits: $partVolume * $NICKEL_DENSITY,
               InitialUnits: 0.0
             }
           ];
@@ -159,6 +183,24 @@
           Containers: [Aluminium];
         }
       }
+      +Nickel {
+        VariantLocalizationKey: "Resource/DisplayName/Nickel";
+        +TransformActivator {
+          Transforms: [nickel];
+        }
+        +ResourceContainerAdder {
+          Containers: [
+            {
+              Name: "Nickel",
+              CapacityUnits: $partVolume * $NICKEL_DENSITY,
+              InitialUnits: 0.0
+            }
+          ];
+        }
+        +ResourceContainerRemover {
+          Containers: [Aluminium];
+        }
+      }
       +Regolith {
         VariantLocalizationKey: "Resource/DisplayName/Regolith";
         +TransformActivator {
@@ -221,6 +263,24 @@
             {
               Name: "Iron",
               CapacityUnits: $partVolume * $IRON_DENSITY,
+              InitialUnits: 0.0
+            }
+          ];
+        }
+        +ResourceContainerRemover {
+          Containers: [Aluminium];
+        }
+      }
+      +Nickel {
+        VariantLocalizationKey: "Resource/DisplayName/Nickel";
+        +TransformActivator {
+          Transforms: [nickel];
+        }
+        +ResourceContainerAdder {
+          Containers: [
+            {
+              Name: "Nickel",
+              CapacityUnits: $partVolume * $NICKEL_DENSITY,
               InitialUnits: 0.0
             }
           ];

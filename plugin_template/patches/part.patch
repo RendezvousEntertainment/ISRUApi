@@ -1,4 +1,5 @@
 @use "builtin:debug";
+@use "VSwift:*";
 
 :parts #isru_drill_1v {
     +Module_Mining {
@@ -68,4 +69,208 @@
         ]
     };
     $log: debug-log("ISRU Ore ressource added bis");
+}
+
+:parts #isru_tank_inline_1v_regolith {
+  @include part-switch() {
+    +TankType {
+      VariantSetLocalizationKey: "ISRU/Variants/TankType";
+      +Aluminium {
+        VariantLocalizationKey: "Resource/DisplayName/Aluminium";
+        +TransformActivator {
+          Transforms: [aluminium];
+        }
+      }
+      +Iron {
+        VariantLocalizationKey: "Resource/DisplayName/Iron";
+        +TransformActivator {
+          Transforms: [iron];
+        }
+        +ResourceContainerAdder {
+          Containers: [
+            {
+              Name: "Iron",
+              CapacityUnits: 1.0,
+              InitialUnits: 0.0
+            }
+          ];
+        }
+        +ResourceContainerRemover {
+          Containers: [Aluminium];
+        }
+      }
+      +Regolith {
+        VariantLocalizationKey: "Resource/DisplayName/Regolith";
+        +TransformActivator {
+          Transforms: [regolith];
+        }
+        +ResourceContainerAdder {
+          Containers: [
+            {
+              Name: "Regolith",
+              CapacityUnits: 1.0,
+              InitialUnits: 0.0
+            }
+          ];
+        }
+        +ResourceContainerRemover {
+          Containers: [Aluminium];
+        }
+      }
+      +Titanium {
+        VariantLocalizationKey: "Resource/DisplayName/Titanium";
+        +TransformActivator {
+          Transforms: [titanium];
+        }
+        +ResourceContainerAdder {
+          Containers: [
+            {
+              Name: "Titanium",
+              CapacityUnits: 1.0,
+              InitialUnits: 0.0
+            }
+          ];
+        }
+        +ResourceContainerRemover {
+          Containers: [Aluminium];
+        }
+      }
+    }
+  }
+}
+
+:parts #isru_tank_inline_2v_regolith {
+  @include part-switch() {
+    +TankType {
+      VariantSetLocalizationKey: "ISRU/Variants/TankType";
+      +Aluminium {
+        VariantLocalizationKey: "Resource/DisplayName/Aluminium";
+        +TransformActivator {
+          Transforms: [aluminium];
+        }
+      }
+      +Iron {
+        VariantLocalizationKey: "Resource/DisplayName/Iron";
+        +TransformActivator {
+          Transforms: [iron];
+        }
+        +ResourceContainerAdder {
+          Containers: [
+            {
+              Name: "Iron",
+              CapacityUnits: 1.0,
+              InitialUnits: 0.0
+            }
+          ];
+        }
+        +ResourceContainerRemover {
+          Containers: [Aluminium];
+        }
+      }
+      +Regolith {
+        VariantLocalizationKey: "Resource/DisplayName/Regolith";
+        +TransformActivator {
+          Transforms: [regolith];
+        }
+        +ResourceContainerAdder {
+          Containers: [
+            {
+              Name: "Regolith",
+              CapacityUnits: 1.0,
+              InitialUnits: 0.0
+            }
+          ];
+        }
+        +ResourceContainerRemover {
+          Containers: [Aluminium];
+        }
+      }
+      +Titanium {
+        VariantLocalizationKey: "Resource/DisplayName/Titanium";
+        +TransformActivator {
+          Transforms: [titanium];
+        }
+        +ResourceContainerAdder {
+          Containers: [
+            {
+              Name: "Titanium",
+              CapacityUnits: 1.0,
+              InitialUnits: 0.0
+            }
+          ];
+        }
+        +ResourceContainerRemover {
+          Containers: [Aluminium];
+        }
+      }
+    }
+  }
+}
+
+:parts #isru_tank_radial_1v_regolith {
+  @include part-switch() {
+    +TankType {
+      VariantSetLocalizationKey: "ISRU/Variants/TankType";
+      +Aluminium {
+        VariantLocalizationKey: "Resource/DisplayName/Aluminium";
+        +TransformActivator {
+          Transforms: [aluminium];
+        }
+      }
+      +Iron {
+        VariantLocalizationKey: "Resource/DisplayName/Iron";
+        +TransformActivator {
+          Transforms: [iron];
+        }
+        +ResourceContainerAdder {
+          Containers: [
+            {
+              Name: "Iron",
+              CapacityUnits: 1.0,
+              InitialUnits: 0.0
+            }
+          ];
+        }
+        +ResourceContainerRemover {
+          Containers: [Aluminium];
+        }
+      }
+      +Regolith {
+        VariantLocalizationKey: "Resource/DisplayName/Regolith";
+        +TransformActivator {
+          Transforms: [regolith];
+        }
+        +ResourceContainerAdder {
+          Containers: [
+            {
+              Name: "Regolith",
+              CapacityUnits: 1.0,
+              InitialUnits: 0.0
+            }
+          ];
+        }
+        +ResourceContainerRemover {
+          Containers: [Aluminium];
+        }
+      }
+      +Titanium {
+        VariantLocalizationKey: "Resource/DisplayName/Titanium";
+        +TransformActivator {
+          Transforms: [titanium];
+        }
+        +ResourceContainerAdder {
+          Containers: [
+            {
+              Name: "Titanium",
+              CapacityUnits: 1.0,
+              InitialUnits: 0.0
+            }
+          ];
+        }
+        +ResourceContainerRemover {
+          Containers: [Aluminium];
+        }
+      }
+    }
+  }
 }

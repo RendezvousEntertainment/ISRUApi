@@ -29,3 +29,4 @@ Parts/Manufacturer/isru_drill_1v,Text,,Kerbodyne
 Parts/Description/isru_drill_1v,Text,,"TODO"
 
 ISRU/Formulas/Regolith,Text,,Regolith
+ISRU/Variants/TankType,Text,,Tank type

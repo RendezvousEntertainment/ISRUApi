@@ -80,7 +80,7 @@ public class PartComponentModule_Mining : PartComponentModule
     **/
     public void SetStatusTxt()
     {
-        if (_dataMining.status == ResourceConversionState.InsufficientContainment.Description())
+        if (_dataMining.status == ResourceConversionStateMinig.InsufficientContainment.Description())
         {
             _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(_dataMining.status)); // out of storage
         }

@@ -58,9 +58,9 @@ public class Module_Mining : PartBehaviourModule
     private void UpdatePAMVisibility(bool state)
     {
         _dataMining.SetVisible(_dataMining.EnabledToggle, PartBackingMode == PartBehaviourModule.PartBackingModes.Flight);
-        _dataMining.SetVisible(_dataMining.OreRateTxt, PartBackingMode == PartBehaviourModule.PartBackingModes.Flight & state);
+        _dataMining.SetVisible(_dataMining.NickelRateTxt, PartBackingMode == PartBehaviourModule.PartBackingModes.Flight & state);
+        _dataMining.SetVisible(_dataMining.RegolithRateTxt, PartBackingMode == PartBehaviourModule.PartBackingModes.Flight & state);
         _dataMining.SetVisible(_dataMining.statusTxt, PartBackingMode == PartBehaviourModule.PartBackingModes.Flight);
-        _dataMining.SetVisible(_dataMining.OutputResource, true);
     }
 
     private void OnToggleChangedValue(bool newValue)

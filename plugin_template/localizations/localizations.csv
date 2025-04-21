@@ -2,7 +2,8 @@ Key,Type,Desc,English
 
 PartModules/Mining/Enabled,Text,,Drill Enabled
 PartModules/Mining/Status,Text,,Status
-PartModules/Mining/OreRate,Text,,Local Rate
+PartModules/Mining/NickelRate,Text,,Nickel Rate
+PartModules/Mining/RegolithRate,Text,,Regolith Rate
 PartModules/Mining/OutputResource,Text,,Output Resource
 PartModules/Mining/TooHigh,Text,,Too Far From Ground
 PartModules/Mining/NotDeployed,Text,,Not Deployed

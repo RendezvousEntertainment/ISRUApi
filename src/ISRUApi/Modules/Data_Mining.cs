@@ -41,16 +41,15 @@ public class Data_Mining : ModuleData
     [HideInInspector]
     public ModuleProperty<string> statusTxt = new ModuleProperty<string>(null, true, new ToStringDelegate(Data_Mining.GetConversionStatusString));
 
-    [LocalizedField("PartModules/Mining/OutputResource")]
-    [KSPState]
+    [LocalizedField("PartModules/Mining/NickelRate")]
     [PAMDisplayControl(SortIndex = 3)]
-    [HideInInspector]
-    public ModuleProperty<string> OutputResource = new ModuleProperty<string>("");
+    [JsonIgnore]
+    public ModuleProperty<double> NickelRateTxt = new ModuleProperty<double>(0.0, true, new ToStringDelegate(Data_Mining.GetOreRateOutputString));
 
-    [LocalizedField("PartModules/Mining/OreRate")]
+    [LocalizedField("PartModules/Mining/RegolithRate")]
     [PAMDisplayControl(SortIndex = 4)]
     [JsonIgnore]
-    public ModuleProperty<double> OreRateTxt = new ModuleProperty<double>(0.0, true, new ToStringDelegate(Data_Mining.GetOreRateOutputString));
+    public ModuleProperty<double> RegolithRateTxt = new ModuleProperty<double>(0.0, true, new ToStringDelegate(Data_Mining.GetOreRateOutputString));
 
     [KSPDefinition]
     public ResourceConverterFormulaDefinition MiningFormulaDefinitions; // TODO turn into list like in Data_ResourceConverter
@@ -77,30 +76,6 @@ public class Data_Mining : ModuleData
 
     [JsonIgnore]
     public PartComponentModule_Mining PartComponentModule;
-
-    public override void OnPartBehaviourModuleInit()
-    {
-        System.Diagnostics.Debug.Write("ISRU InitializeFormulae");
-        InitializeFormulae();
-        SetDropdownData(OutputResource, _dropdownItems);
-    }
-
-    private void InitializeFormulae()
-    {
-        _formulaeDict = new DictionaryValueList<string, ResourceConverterFormulaDefinition>();
-        //for (int index = 0; index < this.FormulaDefinitions.Count; ++index)
-        System.Diagnostics.Debug.Write("ISRU MiningFormulaDefinitions.InternalName="+ MiningFormulaDefinitions.InternalName);
-        _formulaeDict.Add(MiningFormulaDefinitions.InternalName, MiningFormulaDefinitions); // TODO for each element of MiningFormulaDefinitions when it is turned into a list
-        this._dropdownItems = new DropdownItemList();
-        for (int index = 0; index < _formulaeDict.Count; ++index)
-        {
-            _dropdownItems.Add(_formulaeDict.KeyAt(index), new DropdownItem()
-            {
-                key = _formulaeDict.KeyAt(index),
-                text = LocalizationManager.GetTranslation(Term:_formulaeDict.ValuesList[index].FormulaLocalizationKey, FixForRTL:true, 0, true, false, null, null, true)
-            });
-        }
-    }
 
     private List<OABPartData.PartInfoModuleSubEntry> GetInputStrings(OABPartData.OABSituationStats oabSituationStats, ResourceConverterFormulaDefinition formula)
     {

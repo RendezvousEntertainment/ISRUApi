@@ -70,7 +70,8 @@ public class PartComponentModule_Mining : PartComponentModule
             {
                 _localDensity = MyFirstWindowController.GetDensity(_dataMining.MiningFormulaDefinitions.OutputResources[0].ResourceName, Game.ViewController.GetActiveSimVessel()); // TODO : only works with one product
             }
-            _dataMining.OreRateTxt.SetValue(_oreStandardRate * _localDensity);
+            _dataMining.NickelRateTxt.SetValue(_oreStandardRate * _localDensity);
+            _dataMining.RegolithRateTxt.SetValue(_oreStandardRate * _localDensity);
         }
         SetStatusTxt();
     }

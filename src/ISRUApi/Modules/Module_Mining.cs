@@ -36,7 +36,10 @@ public class Module_Mining : PartBehaviourModule
         this.UpdatePAMVisibility(this._dataMining.EnabledToggle.GetValue());
 
         //get the animator
-        PartUtil.TryGetComponentInPart<Animator>(part.transform, out Animator);
+        if (part != null)
+        {
+            PartUtil.TryGetComponentInPart<Animator>(part.transform, out Animator);
+        }
     }
     public override void OnShutdown()
     {
@@ -54,9 +57,10 @@ public class Module_Mining : PartBehaviourModule
 
     private void UpdatePAMVisibility(bool state)
     {
-        this._dataMining.SetVisible((IModuleDataContext)this._dataMining.EnabledToggle, this.PartBackingMode == PartBehaviourModule.PartBackingModes.Flight);
-        this._dataMining.SetVisible((IModuleDataContext)this._dataMining.OreRateTxt, this.PartBackingMode == PartBehaviourModule.PartBackingModes.Flight & state);
-        this._dataMining.SetVisible((IModuleDataContext)this._dataMining.statusTxt, this.PartBackingMode == PartBehaviourModule.PartBackingModes.Flight);
+        _dataMining.SetVisible(_dataMining.EnabledToggle, PartBackingMode == PartBehaviourModule.PartBackingModes.Flight);
+        _dataMining.SetVisible(_dataMining.OreRateTxt, PartBackingMode == PartBehaviourModule.PartBackingModes.Flight & state);
+        _dataMining.SetVisible(_dataMining.statusTxt, PartBackingMode == PartBehaviourModule.PartBackingModes.Flight);
+        _dataMining.SetVisible(_dataMining.OutputResource, true);
     }
 
     private void OnToggleChangedValue(bool newValue)

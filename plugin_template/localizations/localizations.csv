@@ -2,10 +2,11 @@ Key,Type,Desc,English
 
 PartModules/Mining/Enabled,Text,,Drill Enabled
 PartModules/Mining/Status,Text,,Status
-PartModules/Mining/OreRate,Text,,Ore Rate
+PartModules/Mining/OreRate,Text,,Local Rate
 PartModules/Mining/StartMining,Text,,Start Mining
 PartModules/Mining/StopMining,Text,,Stop Mining
 PartModules/Mining/ToggleMining,Text,,Toggle Mining
+PartModules/Mining/OutputResource,Text,,Output Resource
 
 PartModules/ResourceConverter/TooHigh,Text,,Too Far From Ground
 PartModules/ResourceConverter/NotDeployed,Text,,Not Deployed
@@ -29,3 +30,5 @@ Parts/Title/isru_drill_1v,Text,,Drill-O-Matic
 Parts/Subtitle/isru_drill_1v,Text,,Mining Excavator
 Parts/Manufacturer/isru_drill_1v,Text,,Kerbodyne
 Parts/Description/isru_drill_1v,Text,,"TODO"
+
+ISRU/Formulas/Regolith,Text,,Regolith

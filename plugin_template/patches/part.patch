@@ -8,7 +8,7 @@
             $log: debug-log("ISRU module added");
             +MiningFormulaDefinitions {
                 InternalName: MiningFormulaDefinitions;
-                FormulaLocalizationKey: "ISRU/Formulas/Mining";
+                FormulaLocalizationKey: "ISRU/Formulas/Regolith";
                 InputResources: [
                     {
                         Rate: 5,

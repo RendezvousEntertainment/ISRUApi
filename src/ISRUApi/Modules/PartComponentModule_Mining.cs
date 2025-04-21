@@ -223,7 +223,10 @@ public class PartComponentModule_Mining : PartComponentModule
         if (_dataMining.status == ResourceConversionState.Operational.Description()) {
             for (var i = 0; i < outputCount; ++i)
             {
-                _containerGroup.AddResourceUnits(_currentProductUnits[i].resourceID, _currentProductUnits[i].units, deltaTime);
+                var outputName = _dataMining.MiningFormulaDefinitions.OutputResources[i].ResourceName;
+                double standardRate = _currentProductUnits[i].units;
+                float localDensity = _localDensities[outputName].Density;
+                _containerGroup.AddResourceUnits(_currentProductUnits[i].resourceID, standardRate * localDensity, deltaTime);
             }
         }
     }

@@ -352,7 +352,7 @@ MonoBehaviour:
         isCompoundJoint: 0
       resourceContainers:
       - name: Aluminium
-        capacityUnits: 4
+        capacityUnits: 54
         initialUnits: 0
         NonStageable: 0
       AllowKinematicPhysicsIfIntersectTerrain: 0

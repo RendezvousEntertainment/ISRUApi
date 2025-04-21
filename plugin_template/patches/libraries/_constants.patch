@@ -1,0 +1,6 @@
+// densities in g/cm3
+// for reference, Methalox density = 0.4
+$ALUMINIUM_DENSITY: 2.7;
+$IRON_DENSITY: 7.9;
+$REGOLITH_DENSITY: 1.5;
+$TITANIUM_DENSITY: 4.5;

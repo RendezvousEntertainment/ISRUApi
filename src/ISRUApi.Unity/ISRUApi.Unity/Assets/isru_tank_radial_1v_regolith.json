@@ -98,7 +98,7 @@
     "resourceContainers": [
       {
         "name": "Aluminium",
-        "capacityUnits": 0.2,
+        "capacityUnits": 2.2,
         "initialUnits": 0.0,
         "NonStageable": false
       }

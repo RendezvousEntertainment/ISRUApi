@@ -28,17 +28,6 @@
             $log: debug-log("ISRU MiningFormulaDefinitions added");
         }
     }
-    +Module_ResourceCapacities {
-        +Data_ResourceCapacities {}
-    }
-    resourceContainers: [
-        {
-            name: "Regolith",
-            capacityUnits: 0.1,
-            initialUnits: 0,
-            NonStageable: true
-        }
-    ];
     resourceSummary: {
         Consumes: [
             "ElectricCharge"
@@ -46,9 +35,7 @@
         Generates: [
             "Regolith"
         ],
-        Contains: [
-            "Regolith"
-        ]
+        Contains: []
     };
 }
 

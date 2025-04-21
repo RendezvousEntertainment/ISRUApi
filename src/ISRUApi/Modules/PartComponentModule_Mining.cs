@@ -147,7 +147,6 @@ public class PartComponentModule_Mining : PartComponentModule
             if (productCapacity - storedProduct < _dataMining.MiningFormulaDefinitions.AcceptanceThreshold)
             {
                 //outOfStorageProduct = outputName;
-                _dataMining.EnabledToggle.SetValue(false);
                 _currentProductUnits[i].units = 0.0;
             }
             else
@@ -158,6 +157,7 @@ public class PartComponentModule_Mining : PartComponentModule
         if (isEachProductOutOfStorage)
         {
             _dataMining.status = ResourceConversionStateMinig.InsufficientContainment.Description();
+            _dataMining.EnabledToggle.SetValue(false);
         }
     }
 

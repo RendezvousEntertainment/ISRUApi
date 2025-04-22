@@ -25,6 +25,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private Toggle _overlayToggle;
     private Label _densityValueField;
     private Label _messageField;
+    private List<RadioButton> _radioGroup;
+
     //private readonly List<string> _options = ["Aluminium", "Carbon", "H2", "Iron", "Nitrogen", "O2", "Regolith"];
     private readonly List<string> _options = ["Nickel", "Regolith"];
     //private string _selectedResource;
@@ -71,6 +73,28 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _rootElement.Q<VisualElement>("available-resource-2").style.display = DisplayStyle.None;
         _rootElement.Q<VisualElement>("available-resource-3").style.display = DisplayStyle.None;
 
+        // radio buttons
+        _radioGroup =
+        [
+            _rootElement.Q<RadioButton>("available-resource-1-radio"),
+            _rootElement.Q<RadioButton>("available-resource-2-radio"),
+            _rootElement.Q<RadioButton>("available-resource-3-radio")
+        ];
+
+        if (_radioGroup.Contains(null))
+        {
+            Debug.LogError("Un ou plusieurs boutons radio n'ont pas été trouvés dans l'UXML.");
+            return;
+        }
+
+        _radioGroup[0].value = true; // the first radio button is checked by default
+
+        foreach (var button in _radioGroup)
+        {
+            button.RegisterValueChangedCallback(evt => ToggleRadioButton(button, evt.newValue));
+        }
+
+
         // Get the toggle from the window
         _overlayToggle = _rootElement.Q<Toggle>("overlay-toggle");
         // Add a click event handler to the toggle
@@ -102,14 +126,34 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         if (material != null) _originalTexture = material.mainTexture;
     }
 
+    private static Texture2D GetImage(string celestialBodyName, string resourceName, string type)
+    {
+        string filePath = "./BepInEx/plugins/ISRU/assets/images/" + celestialBodyName + "_" + resourceName + "_" + type + ".png";
+        if (!File.Exists(filePath))
+        {
+            System.Diagnostics.Debug.Write("ISRU File not found: " + filePath + ", switching to black texture");
+            return null;
+        }
+        Texture2D texture = new(OverlaySideSize, OverlaySideSize);
+        texture.LoadImage(File.ReadAllBytes(filePath));
+        return texture;
+    }
+
+    private static Texture2D GetLevelsImage(string celestialBodyName, string resourceName)
+    {
+        return GetImage(celestialBodyName, resourceName, "Lev");
+    }
+
+    private static Texture2D GetTextureImage(string celestialBodyName, string resourceName)
+    {
+        return GetImage(celestialBodyName, resourceName, "Tex");
+    }
+
     private void InitializeFields()
     {
         // identity card
         _rootElement.Q<Label>("identity-card-title").text = _celestialBodyName;
         _rootElement.Q<Label>("identity-card-description").text = LocalizationManager.GetTranslation("ISRU/UI/IdentityCard/" + _celestialBodyName);
-
-        // available resources title
-        _rootElement.Q<Label>("available-resources-cb").text = _celestialBodyName;
 
         for (int i = 0; i < _cbResourceList[_celestialBodyName].Count; i++)
         {
@@ -122,6 +166,11 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             // loading texture level maps
             _cbResourceList[_celestialBodyName][i].LevelMap = GetLevelsImage(_celestialBodyName, cbResource.ResourceName);
         }
+    }
+
+    private bool IsMapView()
+    {
+        return Game.GlobalGameState.GetState() == GameState.Map3DView;
     }
 
     /// <summary>
@@ -142,8 +191,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             InitializeFields();
 
             // Set the Resource Gathering UI window status
-            GameState gameState = Game.GlobalGameState.GetState();
-            if (gameState != GameState.Map3DView)
+            if (IsMapView())
             {
                 _uiWindowStatus = UIResourceWindowStatus.NotInMapView;
             } else
@@ -186,7 +234,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         foreach (CBResourceChart ressourceChart in _cbResourceList[_celestialBodyName])
         {
             float density = 100 * GetLocalDensity(_vessel, ressourceChart.LevelMap);
-            _rootElement.Q<Label>("available-resource-" + i + "-density").text = density.ToString("F0"); // display value with 0 decimals
+            _rootElement.Q<Label>("available-resource-" + i + "-density").text = Math.Round(density).ToString();
             i++;
         }
     }
@@ -292,21 +340,23 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _newLevels.LoadImage(File.ReadAllBytes(filePathLevels));
     }
 
-    private static Texture2D GetLevelsImage(string celestialBodyName, string resourceName)
+    /// <summary>
+    /// Returns the density at the current vessel location.
+    /// </summary>
+    public static float GetDensity(string resourceName, VesselComponent vessel)
     {
-
-        //System.Diagnostics.Debug.Write("ISRU Attempting to load " + celestialBodyName + "_" + resourceName + "_Lev.png");
-        string filePathStart = "./BepInEx/plugins/ISRU/assets/images/" + celestialBodyName + "_" + resourceName;
-        //string filePathTexture = String.Concat(filePathStart, "_Tex.png");
-        string filePathLevels = String.Concat(filePathStart, "_Lev.png");
-        if (!File.Exists(filePathLevels))
+        if (vessel == null)
         {
-            System.Diagnostics.Debug.Write("ISRU File not found: " + filePathLevels + ", switching to black texture");
-            return null;
+            System.Diagnostics.Debug.Write("ISRU ERROR GetDensity vessel is null");
+            return 0.0f;
         }
-        Texture2D texture = new(OverlaySideSize, OverlaySideSize);
-        texture.LoadImage(File.ReadAllBytes(filePathLevels));
-        return texture;
+        if (resourceName == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR GetDensity resourceName is null");
+            return 0.0f;
+        }
+        Texture2D texture = GetLevelsImage(vessel.mainBody.Name, resourceName);
+        return GetLocalDensity(vessel, texture);
     }
 
     private void SetCelestialBodyName()
@@ -321,7 +371,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     {
         return "Map3D(Clone)/Map-" + _celestialBodyName + "/Celestial." + _celestialBodyName + ".Scaled(Clone)";
     }
-
 
     private Material GetCelestialBodyMaterial()
     {
@@ -343,6 +392,20 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         return material;
     }
 
+    private string GetResourceNameSelectedRadioButton()
+    {
+        System.Diagnostics.Debug.Write("ISRU GetResourceNameSelectedRadioButton");
+        foreach (var radioButton in _radioGroup)
+        {
+            if (radioButton.value)
+            {
+                System.Diagnostics.Debug.Write("ISRU _cbResourceList[_celestialBodyName][radioButton.tabIndex-1].ResourceName="+ _cbResourceList[_celestialBodyName][radioButton.tabIndex-1].ResourceName);
+                return _cbResourceList[_celestialBodyName][radioButton.tabIndex-1].ResourceName;
+            }
+        }
+        return "";
+    }
+
     private void DisplayResourceShader(bool state)
     {
         if (!state) // displays back the original texture
@@ -358,35 +421,25 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         if (_overlayToggle.value == false) return;
 
         Material material = GetCelestialBodyMaterial();
-        material.mainTexture = _newTexture;
-        //string[] list = material.GetTexturePropertyNames();
-        //for (int i = 0; i < list.Length; i++)
-        //{
-        //    System.Diagnostics.Debug.Write("ISRU list texture property name." + i + "=" + list[i]);
-        //}
-        
-        // doesn't work
-        material.SetTexture("_EmissionTex", _newTexture);
-        material.SetColor("_EmissionColor", Color.white);
+        //material.mainTexture = _newTexture;
+        System.Diagnostics.Debug.Write("ISRU GetTextureImage called");
+        material.mainTexture = GetTextureImage(_celestialBodyName, GetResourceNameSelectedRadioButton());
     }
 
-    /// <summary>
-    /// Returns the density at the current vessel location.
-    /// </summary>
-    public static float GetDensity(string resourceName, VesselComponent vessel)
+    private void ToggleRadioButton(RadioButton button, bool newValue)
     {
-        if (vessel == null)
+        if (!newValue) return;
+        System.Diagnostics.Debug.Write("ISRU ToggleRadioButton newValue=" + newValue);
+        if (!IsMapView())
         {
-            System.Diagnostics.Debug.Write("ISRU ERROR GetDensity vessel is null");
-            return 0.0f;
+            _uiWindowStatus = UIResourceWindowStatus.NotInMapView;
+            return;
         }
-        if (resourceName == null)
-        {
-            System.Diagnostics.Debug.Write("ISRU ERROR GetDensity resourceName is null");
-            return 0.0f;
-        }
-        Texture2D texture = GetLevelsImage(vessel.mainBody.Name, resourceName);
-        return GetLocalDensity(vessel, texture);
+        if (button == null) return;
+        System.Diagnostics.Debug.Write("ISRU ToggleRadioButton tabIndex=" + button.tabIndex);
+        //SaveOriginalTexture(); // in case the game was in Map View when the window opened
+        //LoadResourceImage();
+        DisplayResourceShader(_overlayToggle.value);
     }
 
     // Called when the player select a resource on the dropdown list.

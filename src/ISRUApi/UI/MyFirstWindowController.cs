@@ -21,15 +21,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     // The elements of the window that we need to access
     private VisualElement _rootElement;
-    private DropdownField _resourceDropdown;
     private Toggle _overlayToggle;
-    private Label _densityValueField;
     private Label _messageField;
     private List<RadioButton> _radioGroup;
 
-    //private readonly List<string> _options = ["Aluminium", "Carbon", "H2", "Iron", "Nitrogen", "O2", "Regolith"];
-    private readonly List<string> _options = ["Nickel", "Regolith"];
-    //private string _selectedResource;
     private UIResourceWindowStatus _uiWindowStatus;
 
     // The backing field for the IsWindowOpen property
@@ -38,11 +33,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     // Overlay
     Texture _originalTexture;
     private const int OverlaySideSize = 500;
-    readonly Texture2D _newTexture = new(OverlaySideSize, OverlaySideSize);
-    readonly Texture2D _newLevels = new(OverlaySideSize, OverlaySideSize);
 
     // Useful game objects
-    private static float _densityValue;
     private string _celestialBodyName;
     private VesselComponent _vessel;
 
@@ -73,19 +65,13 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _rootElement.Q<VisualElement>("available-resource-2").style.display = DisplayStyle.None;
         _rootElement.Q<VisualElement>("available-resource-3").style.display = DisplayStyle.None;
 
-        // radio buttons
+        // Radio buttons
         _radioGroup =
         [
             _rootElement.Q<RadioButton>("available-resource-1-radio"),
             _rootElement.Q<RadioButton>("available-resource-2-radio"),
             _rootElement.Q<RadioButton>("available-resource-3-radio")
         ];
-
-        if (_radioGroup.Contains(null))
-        {
-            Debug.LogError("Un ou plusieurs boutons radio n'ont pas été trouvés dans l'UXML.");
-            return;
-        }
 
         _radioGroup[0].value = true; // the first radio button is checked by default
 
@@ -94,27 +80,19 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             button.RegisterValueChangedCallback(evt => ToggleRadioButton(button, evt.newValue));
         }
 
-
-        // Get the toggle from the window
+        // Overlay Toggle
         _overlayToggle = _rootElement.Q<Toggle>("overlay-toggle");
-        // Add a click event handler to the toggle
         _overlayToggle.RegisterValueChangedCallback(evt => DisplayResourceShader(evt.newValue));
 
-        _densityValueField = _rootElement.Q<Label>("density-value");
+        // Message
         _messageField = _rootElement.Q<Label>("label-message");
         SetUserMessage("", false);
-        // Get the dropdown list from the window
-        _resourceDropdown = _rootElement.Q<DropdownField>("resource-dropdown");
-        _resourceDropdown.choices = _options; // Populate the dropdown elements
-        _resourceDropdown.value = _options[0]; // Select the first element by default
-        _resourceDropdown.RegisterValueChangedCallback(evt => OnSelectResource());
 
         // Center the window by default
         _rootElement.CenterByDefault();
 
-        // Get the close button from the window
+        // Close Button
         var closeButton = _rootElement.Q<Button>("close-button");
-        // Add a click event handler to the close button
         closeButton.clicked += () => IsWindowOpen = false;
     }
 
@@ -197,7 +175,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             } else
             {
                 _uiWindowStatus = UIResourceWindowStatus.DisplayingResources;
-                LoadResourceImage();
+                //LoadResourceImage();
             }            
 
             // Set the display style of the root element to show or hide the window
@@ -243,13 +221,11 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     {
         if (_isWindowOpen)
         {
-            SetDensity();
-            _densityValueField.text = _densityValue.ToString("F2"); // display value with 2 decimals
             SetDensityValues();
             switch (_uiWindowStatus)
             {
                 case UIResourceWindowStatus.DisplayingResources:
-                    SetUserMessage("Hmm, " + _resourceDropdown.value + "!", false);
+                    SetUserMessage("Hmm, TODO!", false);
                     break;
                 case UIResourceWindowStatus.TurnedOff:
                     SetUserMessage("", false);
@@ -263,30 +239,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             }
         }
             
-    }
-
-    private void SetDensity()
-    {
-        if (_uiWindowStatus == UIResourceWindowStatus.NoSuchResource)
-        {
-            _densityValue = 0;
-            return;
-        }
-        VesselComponent vessel = Game.ViewController.GetActiveSimVessel();
-        double longitude = vessel.Longitude;
-        double latitude = vessel.Latitude;
-        double long_norm = (180 + longitude) / 360;
-        double lat_norm = (90 - latitude) / 180;
-        int x = (int)Math.Round(long_norm * OverlaySideSize);
-        int y = (int)Math.Round(lat_norm * OverlaySideSize);
-        if (x < 0 || x > _newLevels.width || y < 0 || y > _newLevels.height)
-        {
-            System.Diagnostics.Debug.Write("ISRU ERROR coordinates out of bound: x=" + x + "; y=" + y);
-            _densityValue = 0.0f;
-            return;
-        }
-        Color pixelColor = _newLevels.GetPixel(x, y);
-        _densityValue = pixelColor.r; // we assume the texture is grayscale and only use the red value
     }
 
     private static float GetLocalDensity(VesselComponent vessel, Texture2D levelTex)
@@ -314,30 +266,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
         Color pixelColor = levelTex.GetPixel(x, y);
         return pixelColor.r; // we assume the texture is grayscale and only use the red value
-    }
-
-    private void LoadResourceImage()
-    {
-
-        System.Diagnostics.Debug.Write("ISRU Attempting to load " + _celestialBodyName + "_" + _resourceDropdown.value + "_Tex.png");
-        string filePathStart = "./BepInEx/plugins/ISRU/assets/images/" + _celestialBodyName + "_" + _resourceDropdown.value;
-        string filePathTexture = String.Concat(filePathStart, "_Tex.png");
-        string filePathLevels = String.Concat(filePathStart, "_Lev.png");
-        //filePath = "./BepInEx/plugins/ISRU/assets/images/gradient.png"; // for testing
-        if (!File.Exists(filePathTexture))
-        {
-            System.Diagnostics.Debug.Write("ISRU File not found: " + filePathTexture + ", switching to black texture");
-            _uiWindowStatus = UIResourceWindowStatus.NoSuchResource;
-            string filePathBlack = "./BepInEx/plugins/ISRU/assets/images/black.png";
-            filePathTexture = filePathBlack;
-            filePathLevels = filePathBlack;
-        }
-        else
-        {
-            _uiWindowStatus = UIResourceWindowStatus.DisplayingResources;
-        }
-        _newTexture.LoadImage(File.ReadAllBytes(filePathTexture));
-        _newLevels.LoadImage(File.ReadAllBytes(filePathLevels));
     }
 
     /// <summary>
@@ -374,7 +302,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private Material GetCelestialBodyMaterial()
     {
-        //SetCelestialBodyName();
         GameObject gameObject = GameObject.Find(GetCelestialBodyPath());
         if (gameObject == null)
         {
@@ -394,12 +321,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private string GetResourceNameSelectedRadioButton()
     {
-        System.Diagnostics.Debug.Write("ISRU GetResourceNameSelectedRadioButton");
         foreach (var radioButton in _radioGroup)
         {
             if (radioButton.value)
             {
-                System.Diagnostics.Debug.Write("ISRU _cbResourceList[_celestialBodyName][radioButton.tabIndex-1].ResourceName="+ _cbResourceList[_celestialBodyName][radioButton.tabIndex-1].ResourceName);
                 return _cbResourceList[_celestialBodyName][radioButton.tabIndex-1].ResourceName;
             }
         }
@@ -436,17 +361,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             return;
         }
         if (button == null) return;
-        System.Diagnostics.Debug.Write("ISRU ToggleRadioButton tabIndex=" + button.tabIndex);
-        //SaveOriginalTexture(); // in case the game was in Map View when the window opened
-        //LoadResourceImage();
-        DisplayResourceShader(_overlayToggle.value);
-    }
-
-    // Called when the player select a resource on the dropdown list.
-    private void OnSelectResource()
-    {
-        SaveOriginalTexture();
-        LoadResourceImage();
+        if (!_overlayToggle.value) return;
         DisplayResourceShader(_overlayToggle.value);
     }
 }

@@ -7,7 +7,7 @@ PartModules/Mining/RegolithRate,Text,,Regolith Rate
 PartModules/Mining/OutputResource,Text,,Output Resource
 PartModules/Mining/TooHigh,Text,,Too Far From Ground
 PartModules/Mining/NotDeployed,Text,,Not Deployed
-PartModules/Mining/InsufficientContainment,Text,,All storages are full
+PartModules/Mining/InsufficientContainment,Text,,Storage full
 
 Parts/Title/isru_tank_inline_1v_regolith,Text,,RHT-200
 Parts/Subtitle/isru_tank_inline_1v_regolith,Text,,Small Regolith Holding Tank

@@ -11,18 +11,6 @@ using I2.Loc;
 
 namespace ISRUApi.UI;
 
-public struct CBResourceChart
-{
-    public string ResourceName { get; }
-    public Texture2D LevelMap { get; set; }
-
-    public CBResourceChart(string resource, Texture2D map = null)
-    {
-        ResourceName = resource;
-        LevelMap = map;
-    }
-}
-
 /// <summary>
 /// Controller for the MyFirstWindow UI.
 /// </summary>
@@ -58,7 +46,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private readonly Dictionary<string, List<CBResourceChart>> _cbResourceList = new()
         {
-            { "Mun", new List<CBResourceChart>([new CBResourceChart("Nickel"), new CBResourceChart("Regolith")])},
+            { "Mun", new List<CBResourceChart>([new CBResourceChart("Nickel"), new CBResourceChart("Regolith"), new CBResourceChart("Water")])},
             { "Minmus", new List<CBResourceChart>([new CBResourceChart("Iron"), new CBResourceChart("Silicon")])},
         };
 
@@ -81,6 +69,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         // Hide the available resource fields
         _rootElement.Q<VisualElement>("available-resource-1").style.display = DisplayStyle.None;
         _rootElement.Q<VisualElement>("available-resource-2").style.display = DisplayStyle.None;
+        _rootElement.Q<VisualElement>("available-resource-3").style.display = DisplayStyle.None;
 
         // Get the toggle from the window
         _overlayToggle = _rootElement.Q<Toggle>("overlay-toggle");
@@ -103,9 +92,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         var closeButton = _rootElement.Q<Button>("close-button");
         // Add a click event handler to the close button
         closeButton.clicked += () => IsWindowOpen = false;
-
-        // Game objects
-        _vessel = Game.ViewController.GetActiveSimVessel();
     }
 
     // Save the celestial body original texture
@@ -122,20 +108,20 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _rootElement.Q<Label>("identity-card-title").text = _celestialBodyName;
         _rootElement.Q<Label>("identity-card-description").text = LocalizationManager.GetTranslation("ISRU/UI/IdentityCard/" + _celestialBodyName);
 
-        
-        int i = 1;
-        foreach (CBResourceChart ressourceChart in _cbResourceList[_celestialBodyName])
+        // available resources title
+        _rootElement.Q<Label>("available-resources-cb").text = _celestialBodyName;
+
+        for (int i = 0; i < _cbResourceList[_celestialBodyName].Count; i++)
         {
-            // available resources
-            _rootElement.Q<VisualElement>("available-resource-" + i).style.display = DisplayStyle.Flex;
-            _rootElement.Q<Label>("available-resource-" + i + "-name").text = ressourceChart.ResourceName;
+            CBResourceChart cbResource = _cbResourceList[_celestialBodyName][i];
+
+            // available resources list
+            _rootElement.Q<VisualElement>("available-resource-" + (i+1)).style.display = DisplayStyle.Flex;
+            _rootElement.Q<Label>("available-resource-" + (i+1) + "-name").text = cbResource.ResourceName;
+
             // loading texture level maps
-            CBResourceChart cbResource = _cbResourceList[_celestialBodyName][i - 1];
-            cbResource.LevelMap = GetLevelsImage(_celestialBodyName, ressourceChart.ResourceName);
-            i++;
+            _cbResourceList[_celestialBodyName][i].LevelMap = GetLevelsImage(_celestialBodyName, cbResource.ResourceName);
         }
-
-
     }
 
     /// <summary>
@@ -148,7 +134,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         {
             _isWindowOpen = value;
 
-            //VesselComponent vessel = Game.ViewController.GetActiveSimVessel();
+            // Game objects
+            _vessel = Game?.ViewController?.GetActiveSimVessel();
 
             SetCelestialBodyName();
             SaveOriginalTexture();
@@ -190,10 +177,16 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private void SetDensityValues()
     {
+        if (!_cbResourceList.ContainsKey(_celestialBodyName))
+        {
+            System.Diagnostics.Debug.Write("ISRU _cbResourceList does not contain key " + _celestialBodyName);
+            return;
+        }
         int i = 1;
         foreach (CBResourceChart ressourceChart in _cbResourceList[_celestialBodyName])
         {
-            _rootElement.Q<Label>("available-resource-" + i + "-density").text = (100 * GetLocalDensity(_vessel, ressourceChart.LevelMap)).ToString();
+            float density = 100 * GetLocalDensity(_vessel, ressourceChart.LevelMap);
+            _rootElement.Q<Label>("available-resource-" + i + "-density").text = density.ToString("F0"); // display value with 0 decimals
             i++;
         }
     }
@@ -250,6 +243,16 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private static float GetLocalDensity(VesselComponent vessel, Texture2D levelTex)
     {
+        if (vessel == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU vessel is null");
+            return 0.0f;
+        }
+        if (levelTex == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU levelTex is null");
+            return 0.0f;
+        }
         double longitude = vessel.Longitude;
         double latitude = vessel.Latitude;
         double long_norm = (180 + longitude) / 360;

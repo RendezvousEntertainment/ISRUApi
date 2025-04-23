@@ -106,6 +106,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private static Texture2D GetImage(string celestialBodyName, string resourceName, string type)
     {
         string filePath = "./BepInEx/plugins/ISRU/assets/images/" + celestialBodyName + "_" + resourceName + "_" + type + ".png";
+        //string filePath = "./BepInEx/plugins/ISRU/assets/images/gradient.png";
         if (!File.Exists(filePath))
         {
             System.Diagnostics.Debug.Write("ISRU File not found: " + filePath + ", switching to black texture");

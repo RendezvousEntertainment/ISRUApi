@@ -31,4 +31,4 @@ Parts/Description/isru_drill_1v,Text,,"TODO"
 
 ISRU/Formulas/Regolith,Text,,Regolith
 ISRU/Variants/TankType,Text,,Tank type
-ISRU/UI/IdentityCard/Mun,Text,,"Geological data indicates that the surface is primarily covered with basalt and regolith. The main mineral component is feldspar, but importantly, the samples also contain traces of several valuable resources, including iron (in the form of small iron stones and the iron oxide mineral ilmenite and magnetite), as well as pyroxene and olivine. The presence of ilmenite and magnetite is particularly noteworthy as they are iron-titanium oxides, making the Mun a potential source of both iron and titanium."
+ISRU/UI/IdentityCard/Mun,Text,,"Geological data indicates that the surface is primarily covered with regolith and nickel. The main mineral component is feldspar, but the samples also contain traces of several valuable resources, including ferrous ore, as well as pyroxene and olivine. The presence of ilmenite and magnetite is particularly noteworthy as they are iron-titanium oxides, making the Mun a potential source of both iron and titanium."

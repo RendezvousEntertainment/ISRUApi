@@ -5,6 +5,7 @@ using UnityEngine.UIElements;
 using KSP.Sim.impl;
 using KSP.Game;
 using I2.Loc;
+using KSP.Messages;
 
 namespace ISRUApi.UI;
 
@@ -175,9 +176,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             _rootElement.style.display = value ? DisplayStyle.Flex : DisplayStyle.None;
 
             // Update the Flight AppBar button state
-            GameObject.Find(ISRUApiPlugin.ToolbarFlightButtonID)
-                ?.GetComponent<UIValue_WriteBool_Toggle>()
-                ?.SetValue(value);
+            GameObject.Find(ISRUApiPlugin.ToolbarFlightButtonID)?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(value);
+
+            Game.Messages.Subscribe<SOIEnteredMessage>(new Action<MessageCenterMessage>(OnSOIEntered));
         }
     }
 
@@ -401,5 +402,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         if (button == null) return;
         if (!_overlayToggle.value) return;
         DisplayResourceShader(_overlayToggle.value);
+    }
+
+    private void OnSOIEntered(MessageCenterMessage message)
+    {
+        System.Diagnostics.Debug.Write("ISRU OnSOIEntered");
     }
 }

@@ -4,9 +4,6 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using KSP.Sim.impl;
 using KSP.Game;
-using static Texture2DArrayConfig;
-using static KSP.Api.UIDataPropertyStrings.View;
-using Steamworks;
 using I2.Loc;
 
 namespace ISRUApi.UI;
@@ -47,7 +44,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     /// <summary>
     /// Runs when the window is first created, and every time the window is re-enabled.
     /// </summary>
+#pragma warning disable IDE0051 // Remove unused private members
     private void OnEnable()
+#pragma warning restore IDE0051 // Remove unused private members
     {
         // Get the UIDocument component from the game object
         _window = GetComponent<UIDocument>();
@@ -82,7 +81,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
         // Overlay Toggle
         _overlayToggle = _rootElement.Q<Toggle>("overlay-toggle");
-        _overlayToggle.RegisterValueChangedCallback(evt => DisplayResourceShader(evt.newValue));
+        _overlayToggle.RegisterValueChangedCallback(evt => OnToggleOverlay(evt.newValue));
 
         // Message
         _messageField = _rootElement.Q<Label>("label-message");
@@ -169,14 +168,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             InitializeFields();
 
             // Set the Resource Gathering UI window status
-            if (IsMapView())
-            {
-                _uiWindowStatus = UIResourceWindowStatus.NotInMapView;
-            } else
-            {
-                _uiWindowStatus = UIResourceWindowStatus.DisplayingResources;
-                //LoadResourceImage();
-            }            
+            UpdateWindowStatus();    
 
             // Set the display style of the root element to show or hide the window
             _rootElement.style.display = value ? DisplayStyle.Flex : DisplayStyle.None;
@@ -201,6 +193,53 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
     }
 
+    private void UpdateWindowStatus()
+    {
+        if (!IsMapView())
+        {
+            _uiWindowStatus = UIResourceWindowStatus.NotInMapView;
+            _messageField.text = "";
+            return;
+        }
+        GameObject gameObject = GameObject.Find(GetCelestialBodyPath());
+        if (gameObject == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR Celestial Body Map not found");
+            _uiWindowStatus = UIResourceWindowStatus.NotInMapView;
+            _messageField.text = "";
+            return;
+        }
+        if (_uiWindowStatus != UIResourceWindowStatus.DisplayingResources) // to display a new user message
+        {
+            _messageField.text = "";
+        }
+        _uiWindowStatus = UIResourceWindowStatus.DisplayingResources;
+    }
+
+    private void UpdateUserMessage()
+    {
+        switch (_uiWindowStatus)
+        {
+            case UIResourceWindowStatus.DisplayingResources:
+                if (_messageField.text != "") break;
+                string resourceName = GetResourceNameSelectedRadioButton();
+                string[] options = ["Hmm, {0}"!, "{0}! {0} everywhere!", "{0} spotted!", "What a wonderful resource!", "Let's mine it all!", "For science! And the mining industry."];
+                System.Random random = new();
+                int randomIndex = random.Next(options.Length);
+                SetUserMessage(string.Format(options[randomIndex], resourceName), false);
+                break;
+            case UIResourceWindowStatus.TurnedOff:
+                SetUserMessage("", false);
+                break;
+            case UIResourceWindowStatus.NotInMapView:
+                SetUserMessage("Switch to map view.", true);
+                break;
+            case UIResourceWindowStatus.NoSuchResource:
+                SetUserMessage("This body is bare of this resource.", true);
+                break;
+        }
+    }
+
     private void SetDensityValues()
     {
         if (!_cbResourceList.ContainsKey(_celestialBodyName))
@@ -217,26 +256,14 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
     }
 
+#pragma warning disable IDE0051 // Remove unused private members
     private void Update()
+#pragma warning restore IDE0051 // Remove unused private members
     {
         if (_isWindowOpen)
         {
             SetDensityValues();
-            switch (_uiWindowStatus)
-            {
-                case UIResourceWindowStatus.DisplayingResources:
-                    SetUserMessage("Hmm, TODO!", false);
-                    break;
-                case UIResourceWindowStatus.TurnedOff:
-                    SetUserMessage("", false);
-                    break;
-                case UIResourceWindowStatus.NotInMapView:
-                    SetUserMessage("Switch to map view.", true);
-                    break;
-                case UIResourceWindowStatus.NoSuchResource:
-                    SetUserMessage("This body is bare of this resource.", true);
-                    break;
-            }
+            UpdateUserMessage();
         }
             
     }
@@ -306,7 +333,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         if (gameObject == null)
         {
             System.Diagnostics.Debug.Write("ISRU ERROR Celestial Body Map not found");
-            _uiWindowStatus = UIResourceWindowStatus.NotInMapView;
+            //_uiWindowStatus = UIResourceWindowStatus.NotInMapView;
+            UpdateWindowStatus();
             return null;
         }
 
@@ -355,15 +383,20 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         material.mainTexture = GetTextureImage(_celestialBodyName, GetResourceNameSelectedRadioButton());
     }
 
+    private void OnToggleOverlay(bool state)
+    {
+        UpdateWindowStatus();
+        UpdateUserMessage();
+        DisplayResourceShader(state);
+    }
+
     private void ToggleRadioButton(RadioButton button, bool newValue)
     {
         if (!newValue) return;
-        System.Diagnostics.Debug.Write("ISRU ToggleRadioButton newValue=" + newValue);
-        if (!IsMapView())
-        {
-            _uiWindowStatus = UIResourceWindowStatus.NotInMapView;
-            return;
-        }
+        //System.Diagnostics.Debug.Write("ISRU ToggleRadioButton newValue=" + newValue);
+        UpdateWindowStatus();
+        _messageField.text = "";
+        UpdateUserMessage();
         if (button == null) return;
         if (!_overlayToggle.value) return;
         DisplayResourceShader(_overlayToggle.value);

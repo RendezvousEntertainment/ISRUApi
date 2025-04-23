@@ -346,7 +346,11 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         if (_overlayToggle.value == false) return;
 
         Material material = GetCelestialBodyMaterial();
-        //material.mainTexture = _newTexture;
+        string[] list = material.GetTexturePropertyNames();
+        for (int i = 0; i < list.Length; i++)
+        {
+            System.Diagnostics.Debug.Write("ISRU list texture property name." + i + "=" + list[i]);
+        }
         System.Diagnostics.Debug.Write("ISRU GetTextureImage called");
         material.mainTexture = GetTextureImage(_celestialBodyName, GetResourceNameSelectedRadioButton());
     }

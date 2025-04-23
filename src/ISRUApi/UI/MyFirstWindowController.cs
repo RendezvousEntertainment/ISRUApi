@@ -283,7 +283,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         double longitude = vessel.Longitude;
         double latitude = vessel.Latitude;
         double long_norm = (180 + longitude) / 360;
-        double lat_norm = (90 - latitude) / 180;
+        double lat_norm = (90 + latitude) / 180;
         int x = (int)Math.Round(long_norm * OverlaySideSize);
         int y = (int)Math.Round(lat_norm * OverlaySideSize);
         if (x < 0 || x > levelTex.width || y < 0 || y > levelTex.height)

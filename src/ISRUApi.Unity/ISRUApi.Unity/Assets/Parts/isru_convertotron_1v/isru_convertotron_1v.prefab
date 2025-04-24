@@ -86,7 +86,7 @@ MonoBehaviour:
     data:
       partName: isru_convertotron_1v
       author: The Space Peacock;Polo
-      category: 0
+      category: 4
       family: 0560-Resource Gathering
       childStageOffset: 0
       cost: 100

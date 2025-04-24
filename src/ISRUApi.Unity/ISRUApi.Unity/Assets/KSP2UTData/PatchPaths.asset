@@ -19,7 +19,11 @@ MonoBehaviour:
   - isru_tank_inline_2v_regolith (1)
   - isru_tank_radial_1v_regolith
   - isru_drill_1v
+  - isru_convertatron_1v
+  - isru_convertotron_1v
   Values:
+  - plugin_template/patches/%NAME%.patch
+  - plugin_template/patches/%NAME%.patch
   - plugin_template/patches/%NAME%.patch
   - plugin_template/patches/%NAME%.patch
   - plugin_template/patches/%NAME%.patch

@@ -17,24 +17,24 @@ PartModules/Convertotron/Toggle,Text,,Toggle Convert-O-Tron
 PartModules/Convertotron/Formulas/RegolithProcessing,Text,,Regolith Processing
 
 Parts/Title/isru_tank_inline_1v_regolith,Text,,RHT-200
-Parts/Subtitle/isru_tank_inline_1v_regolith,Text,,Small Regolith Holding Tank
+Parts/Subtitle/isru_tank_inline_1v_regolith,Text,,Small Resource Holding Tank
 Parts/Manufacturer/isru_tank_inline_1v_regolith,Text,,Jebediah Kerman’s Junkyard And Spacecraft Parts Co.
-Parts/Description/isru_tank_inline_1v_regolith,Text,,"TODO"
+Parts/Description/isru_tank_inline_1v_regolith,Text,,"A small tank for storing raw materials, or possibly spare snacks."
 
 Parts/Title/isru_tank_inline_2v_regolith,Text,,RHT-500
-Parts/Subtitle/isru_tank_inline_2v_regolith,Text,,Medium Regolith Holding Tank
+Parts/Subtitle/isru_tank_inline_2v_regolith,Text,,Medium Resource Holding Tank
 Parts/Manufacturer/isru_tank_inline_2v_regolith,Text,,Jebediah Kerman’s Junkyard And Spacecraft Parts Co.
-Parts/Description/isru_tank_inline_2v_regolith,Text,,"TODO"
+Parts/Description/isru_tank_inline_2v_regolith,Text,,"A large tank that can be used for storing raw materials. Not to be used as a bouncy castle."
 
 Parts/Title/isru_tank_radial_1v_regolith,Text,,RHT-100-R
-Parts/Subtitle/isru_tank_radial_1v_regolith,Text,,Radial Regolith Holding Tank
+Parts/Subtitle/isru_tank_radial_1v_regolith,Text,,Radial Resource Holding Tank
 Parts/Manufacturer/isru_tank_radial_1v_regolith,Text,,Jebediah Kerman’s Junkyard And Spacecraft Parts Co.
-Parts/Description/isru_tank_radial_1v_regolith,Text,,"TODO"
+Parts/Description/isru_tank_radial_1v_regolith,Text,,"A small radial tank for storing raw materials, or possibly spare snacks."
 
 Parts/Title/isru_drill_1v,Text,,Drill-O-Matic
 Parts/Subtitle/isru_drill_1v,Text,,Mining Excavator
 Parts/Manufacturer/isru_drill_1v,Text,,Kerbodyne
-Parts/Description/isru_drill_1v,Text,,"TODO"
+Parts/Description/isru_drill_1v,Text,,"Designed to help extract valuable resources from the crust of planets and asteroids, the Drill-O-Matic uses a rotary drill combined with an internal transfer auger to pull crushed regolith into holding tanks for later processing. When operated by a skilled engineer, you will be able to operate with better efficiency."
 
 Parts/Title/isru_convertotron_1v,Text,,Convert-O-Tron 250
 Parts/Subtitle/isru_convertotron_1v,Text,,Resource Converter

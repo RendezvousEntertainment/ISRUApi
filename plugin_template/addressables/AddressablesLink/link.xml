@@ -5,7 +5,9 @@
     <type fullname="KSP.Modules.Module_Deployable" preserve="all" />
     <type fullname="KSP.Modules.Module_Drag" preserve="all" />
     <type fullname="KSP.Modules.Module_ResourceCapacities" preserve="all" />
+    <type fullname="KSP.Modules.Module_ResourceConverter" preserve="all" />
     <type fullname="Module_AnimStateInformer" preserve="all" />
+    <type fullname="FloatCurve" preserve="nothing" serialized="true" />
     <type fullname="KSP.Modules.Data_Color" preserve="nothing" serialized="true" />
     <type fullname="KSP.Modules.Data_Deployable" preserve="nothing" serialized="true" />
     <type fullname="KSP.Modules.Data_Deployable/DeployState" preserve="nothing" serialized="true" />
@@ -13,6 +15,9 @@
     <type fullname="KSP.Modules.Data_Deployable/TrackingMode" preserve="nothing" serialized="true" />
     <type fullname="KSP.Modules.Data_Drag" preserve="nothing" serialized="true" />
     <type fullname="KSP.Modules.Data_ResourceCapacities" preserve="nothing" serialized="true" />
+    <type fullname="KSP.Modules.Data_ResourceConverter" preserve="nothing" serialized="true" />
+    <type fullname="KSP.Modules.ResourceConversionState" preserve="nothing" serialized="true" />
+    <type fullname="KSP.Modules.ResourceConverterFormulaDefinition" preserve="nothing" serialized="true" />
     <type fullname="KSP.OAB.MirrorTechnique" preserve="nothing" serialized="true" />
     <type fullname="KSP.OAB.OABEditorPartCategory" preserve="nothing" serialized="true" />
     <type fullname="KSP.OAB.OABOrientation" preserve="nothing" serialized="true" />
@@ -21,6 +26,7 @@
     <type fullname="KSP.Sim.Definitions.ModuleDataList" preserve="nothing" serialized="true" />
     <type fullname="KSP.Sim.Definitions.PartCore" preserve="nothing" serialized="true" />
     <type fullname="KSP.Sim.Definitions.PartData" preserve="nothing" serialized="true" />
+    <type fullname="KSP.Sim.Definitions.PartModuleResourceSetting" preserve="nothing" serialized="true" />
     <type fullname="KSP.Sim.Definitions.SerializedModuleData" preserve="nothing" serialized="true" />
     <type fullname="KSP.Sim.Definitions.SerializedPartModule" preserve="nothing" serialized="true" />
     <type fullname="KSP.Sim.Definitions.SerializedResourceInfo" preserve="nothing" serialized="true" />

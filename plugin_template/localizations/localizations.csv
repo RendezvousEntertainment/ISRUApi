@@ -9,6 +9,13 @@ PartModules/Mining/TooHigh,Text,,Too Far From Ground
 PartModules/Mining/NotDeployed,Text,,Not Deployed
 PartModules/Mining/InsufficientContainment,Text,,Storage full
 
+PartModules/Convertotron/Enabled,Text,,Convert-O-Tron Enabled
+PartModules/Convertotron/Start,Text,,Start Convert-O-Tron
+PartModules/Convertotron/Stop,Text,,Stop Convert-O-Tron
+PartModules/Convertotron/Toggle,Text,,Toggle Convert-O-Tron
+
+PartModules/Convertotron/Formulas/RegolithProcessing,Text,,Regolith Processing
+
 Parts/Title/isru_tank_inline_1v_regolith,Text,,RHT-200
 Parts/Subtitle/isru_tank_inline_1v_regolith,Text,,Small Regolith Holding Tank
 Parts/Manufacturer/isru_tank_inline_1v_regolith,Text,,Jebediah Kerman’s Junkyard And Spacecraft Parts Co.
@@ -28,6 +35,11 @@ Parts/Title/isru_drill_1v,Text,,Drill-O-Matic
 Parts/Subtitle/isru_drill_1v,Text,,Mining Excavator
 Parts/Manufacturer/isru_drill_1v,Text,,Kerbodyne
 Parts/Description/isru_drill_1v,Text,,"TODO"
+
+Parts/Title/isru_convertotron_1v,Text,,Convert-O-Tron 250
+Parts/Subtitle/isru_convertotron_1v,Text,,Resource Converter
+Parts/Manufacturer/isru_convertotron_1v,Text,,Kerbodyne
+Parts/Description/isru_convertotron_1v,Text,,"TODO"
 
 ISRU/Formulas/Regolith,Text,,Regolith
 ISRU/Variants/TankType,Text,,Tank type

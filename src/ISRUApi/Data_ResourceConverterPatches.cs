@@ -8,7 +8,7 @@ namespace ISRUApi
     {
         [HarmonyPatch(typeof(Data_ResourceConverter), nameof(Data_ResourceConverter.SetupResourceRequest))]
         [HarmonyPrefix]
-        static public void OnInitializePreFix(ResourceFlowRequestBroker resourceFlowRequestBroker, Data_ResourceConverter __instance)
+        static public void OnInitializePreFix(Data_ResourceConverter __instance)
         {
             if (__instance.SelectedFormula == -1)
                 {

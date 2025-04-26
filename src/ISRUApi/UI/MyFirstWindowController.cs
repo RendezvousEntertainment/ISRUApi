@@ -135,11 +135,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         return GetImage(celestialBodyName, resourceName, "Lev");
     }
 
-    private static Texture2D GetTextureImage(string celestialBodyName, string resourceName)
-    {
-        return GetImage(celestialBodyName, resourceName, "Tex");
-    }
-
     private void InitializeFields()
     {
         // identity card
@@ -348,7 +343,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         if (gameObject == null)
         {
             System.Diagnostics.Debug.Write("ISRU ERROR Celestial Body Map not found");
-            //_uiWindowStatus = UIResourceWindowStatus.NotInMapView;
             UpdateWindowStatus();
             return null;
         }
@@ -381,15 +375,11 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
         if (!state) // displays back the original texture
         {
-            //Material materialCB = GetCelestialBodyMaterial();
-            //materialCB.mainTexture = _originalTexture;
             renderer.material = _originalMaterial;
             return;
         }
 
         SaveOriginalTexture();
-        //LoadShaderAsync();
-        
 
         // if the overlay toggle is not enabled
         if (_overlayToggle.value == false) return;
@@ -404,7 +394,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         {
             System.Diagnostics.Debug.Write("ISRU list texture property name." + i + "=" + list[i]);
         }
-        //material.mainTexture = GetTextureImage(_celestialBodyName, GetResourceNameSelectedRadioButton());
 
         
         if (gameObject == null)
@@ -415,7 +404,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
         
         renderer.material = _cbMaterial;
-        //renderer.material.mainTexture = GetTextureImage(_celestialBodyName, GetResourceNameSelectedRadioButton());
         renderer.material.SetTexture("_DensityMap", GetLevelsImage(_celestialBodyName, GetResourceNameSelectedRadioButton()));
         renderer.material.SetTexture("_CbAlbedo", _originalTexture);
         renderer.material.SetColor("_Color", new Color(237, 31, 255, 1));
@@ -462,7 +450,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
     }
 
+#pragma warning disable IDE0051 // Remove unused private members
     private void OnDestroy()
+#pragma warning restore IDE0051 // Remove unused private members
     {
         _originalMaterial = null;
     }

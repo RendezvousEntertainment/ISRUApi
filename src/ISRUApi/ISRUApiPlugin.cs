@@ -35,9 +35,6 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
     
     private readonly string iconLabel = "Resource Gathering";
 
-    // UI window state
-    private const int OverlaySideSize = 500;
-
     /// <summary>
     /// Runs when the mod is first initialized.
     /// </summary>

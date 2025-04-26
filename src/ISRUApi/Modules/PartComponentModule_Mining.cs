@@ -8,16 +8,10 @@ using KSP.Sim.ResourceSystem;
 
 namespace ISRUApi.Modules;
 
-public struct OutputResource
+public readonly struct OutputResource(double rate, float density)
 {
-    public double Rate { get; }
-    public float Density { get; }
-
-    public OutputResource(double rate, float density)
-    {
-        Rate = rate;
-        Density = density;
-    }
+    public double Rate { get; } = rate;
+    public float Density { get; } = density;
 }
 
 public class PartComponentModule_Mining : PartComponentModule
@@ -43,7 +37,7 @@ public class PartComponentModule_Mining : PartComponentModule
     private string missingIngredient;
 
     //private float _localDensity = -1;
-    Dictionary<string, OutputResource> _localDensities = new Dictionary<string, OutputResource>();
+    readonly Dictionary<string, OutputResource> _localDensities = [];
 
     protected Data_Deployable dataDeployable;
 
@@ -71,7 +65,7 @@ public class PartComponentModule_Mining : PartComponentModule
 
     public override void OnUpdate(double universalTime, double deltaUniversalTime)
     {
-        if (_activeVessel == null) _activeVessel = GameManager.Instance?.Game?.ViewController?.GetActiveVehicle(true)?.GetSimVessel(true);
+        _activeVessel ??= GameManager.Instance?.Game?.ViewController?.GetActiveVehicle(true)?.GetSimVessel(true);
         if (_dataMining.EnabledToggle.GetValue())
         {
             UpdateIngredients();
@@ -157,11 +151,9 @@ public class PartComponentModule_Mining : PartComponentModule
         }
 
         // Products
-        //outOfStorageProduct = null;
         bool isEachProductOutOfStorage = true;
         for (var i = 0; i < _currentProductUnits.Length; ++i)
         {
-            //var outputName = _dataMining.MiningFormulaDefinitions.OutputResources[i].ResourceName;
             double productCapacity = _containerGroup.GetResourceCapacityUnits(_currentProductUnits[i].resourceID);
             double storedProduct = _containerGroup.GetResourceStoredUnits(_currentProductUnits[i].resourceID);
 
@@ -170,7 +162,6 @@ public class PartComponentModule_Mining : PartComponentModule
             // Remove product from request if container full
             if (productCapacity - storedProduct < _dataMining.MiningFormulaDefinitions.AcceptanceThreshold)
             {
-                //outOfStorageProduct = outputName;
                 _currentProductUnits[i].units = 0.0;
             }
             else
@@ -269,7 +260,6 @@ public class PartComponentModule_Mining : PartComponentModule
 
             // Rate
             var rate = _dataMining.MiningFormulaDefinitions.OutputResources[i].Rate;
-            //_oreStandardRate = rate; // TODO only works when there is one product
 
             // Setup resource
             resourceUnitsPair.resourceID = _resourceDB.GetResourceIDFromName(outputName);

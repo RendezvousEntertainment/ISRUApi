@@ -30,7 +30,7 @@ public class Data_Mining : ModuleData
     [KSPState]
     [HideInInspector]
     [PAMDisplayControl(SortIndex = 1)]
-    public ModuleProperty<bool> EnabledToggle = new ModuleProperty<bool>(false);
+    public ModuleProperty<bool> EnabledToggle = new(false);
 
     /// <summary>
     /// The status of the mining device, displayed on the PAM
@@ -39,17 +39,17 @@ public class Data_Mining : ModuleData
     [PAMDisplayControl(SortIndex = 2)]
     [JsonIgnore]
     [HideInInspector]
-    public ModuleProperty<string> statusTxt = new ModuleProperty<string>(null, true, new ToStringDelegate(Data_Mining.GetConversionStatusString));
+    public ModuleProperty<string> statusTxt = new(null, true, new ToStringDelegate(Data_Mining.GetConversionStatusString));
 
     [LocalizedField("PartModules/Mining/NickelRate")]
     [PAMDisplayControl(SortIndex = 3)]
     [JsonIgnore]
-    public ModuleProperty<double> NickelRateTxt = new ModuleProperty<double>(0.0, true, new ToStringDelegate(Data_Mining.GetOreRateOutputString));
+    public ModuleProperty<double> NickelRateTxt = new(0.0, true, new ToStringDelegate(Data_Mining.GetOreRateOutputString));
 
     [LocalizedField("PartModules/Mining/RegolithRate")]
     [PAMDisplayControl(SortIndex = 4)]
     [JsonIgnore]
-    public ModuleProperty<double> RegolithRateTxt = new ModuleProperty<double>(0.0, true, new ToStringDelegate(Data_Mining.GetOreRateOutputString));
+    public ModuleProperty<double> RegolithRateTxt = new(0.0, true, new ToStringDelegate(Data_Mining.GetOreRateOutputString));
 
     [KSPDefinition]
     public ResourceConverterFormulaDefinition MiningFormulaDefinitions; // TODO turn into list like in Data_ResourceConverter
@@ -71,13 +71,10 @@ public class Data_Mining : ModuleData
     [JsonIgnore]
     public bool PartIsDeployed;
 
-    private DropdownItemList _dropdownItems;
-    private DictionaryValueList<string, ResourceConverterFormulaDefinition> _formulaeDict;
-
     [JsonIgnore]
     public PartComponentModule_Mining PartComponentModule;
 
-    private List<OABPartData.PartInfoModuleSubEntry> GetInputStrings(OABPartData.OABSituationStats oabSituationStats, ResourceConverterFormulaDefinition formula)
+    private List<OABPartData.PartInfoModuleSubEntry> GetInputStrings(ResourceConverterFormulaDefinition formula)
     {
         List<OABPartData.PartInfoModuleSubEntry> inputStrings = [];
         for (int index = 0; index < formula.InputResources.Count<PartModuleResourceSetting>(); ++index)
@@ -88,7 +85,7 @@ public class Data_Mining : ModuleData
         return inputStrings;
     }
 
-    private List<OABPartData.PartInfoModuleSubEntry> GetOutputStrings(OABPartData.OABSituationStats oabSituationStats, ResourceConverterFormulaDefinition formula)
+    private List<OABPartData.PartInfoModuleSubEntry> GetOutputStrings(ResourceConverterFormulaDefinition formula)
     {
         List<OABPartData.PartInfoModuleSubEntry> outputStrings = [];
         for (int index = 0; index < formula.OutputResources.Count<PartModuleResourceSetting>(); ++index)
@@ -107,12 +104,14 @@ public class Data_Mining : ModuleData
         return converterFormulas;
     }
 
+#pragma warning disable IDE0060 // Remove unused parameter
     private List<OABPartData.PartInfoModuleSubEntry> GetConverterFormulaEntry(OABPartData.OABSituationStats oabSituationStats, ResourceConverterFormulaDefinition formula)
+#pragma warning restore IDE0060 // Remove unused parameter
     {
         List<OABPartData.PartInfoModuleSubEntry> converterFormulaEntry =
         [
-            new OABPartData.PartInfoModuleSubEntry(LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/Inputs", true, 0, true, false, (GameObject)null, (string)null, true), this.GetInputStrings(oabSituationStats, formula)),
-            new OABPartData.PartInfoModuleSubEntry(LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/Outputs", true, 0, true, false, (GameObject)null, (string)null, true), this.GetOutputStrings(oabSituationStats, formula)),
+            new OABPartData.PartInfoModuleSubEntry(LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/Inputs", true, 0, true, false, (GameObject)null, (string)null, true), this.GetInputStrings(formula)),
+            new OABPartData.PartInfoModuleSubEntry(LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/Outputs", true, 0, true, false, (GameObject)null, (string)null, true), this.GetOutputStrings(formula)),
         ];
         return converterFormulaEntry;
     }

@@ -15,6 +15,7 @@ PartModules/Convertotron/Stop,Text,,Stop Convert-O-Tron
 PartModules/Convertotron/Toggle,Text,,Toggle Convert-O-Tron
 
 PartModules/Convertotron/Formulas/RegolithProcessing,Text,,Regolith Processing
+PartModules/Convertotron/Formulas/QuartzProcessing,Text,,Quartz Processing
 
 Parts/Title/isru_tank_inline_1v_regolith,Text,,RHT-200
 Parts/Subtitle/isru_tank_inline_1v_regolith,Text,,Small Resource Holding Tank

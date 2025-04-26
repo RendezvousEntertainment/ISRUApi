@@ -6,6 +6,10 @@ using KSP.Sim.impl;
 using KSP.Game;
 using I2.Loc;
 using KSP.Messages;
+using UnityEngine.AddressableAssets;
+using UnityEngine.InputSystem;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using Unity.IO.LowLevel.Unsafe;
 
 namespace ISRUApi.UI;
 
@@ -31,6 +35,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     // Overlay
     Texture _originalTexture;
     private const int OverlaySideSize = 500;
+    private Material _originalMaterial;
+    private Material _cbMaterial;
+
 
     // Useful game objects
     private string _celestialBodyName;
@@ -104,9 +111,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     // Save the celestial body original texture
     private void SaveOriginalTexture()
     {
-        if (_originalTexture != null) return;
-        Material material = GetCelestialBodyMaterial();
-        if (material != null) _originalTexture = material.mainTexture;
+        if (_originalMaterial != null) return;
+        _originalMaterial = GetCelestialBodyMaterial();
+        if (_originalMaterial != null) _originalTexture = _originalMaterial.mainTexture;
     }
 
     private static Texture2D GetImage(string celestialBodyName, string resourceName, string type)
@@ -171,6 +178,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             _vessel = Game?.ViewController?.GetActiveSimVessel();
 
             SetCelestialBodyName();
+            LoadMateralAsync(); // asynchronous
             SaveOriginalTexture();
             InitializeFields();
 
@@ -368,26 +376,51 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private void DisplayResourceShader(bool state)
     {
+        GameObject gameObject = GameObject.Find(GetCelestialBodyPath());
+        Renderer renderer = gameObject.GetComponent<Renderer>();
+
         if (!state) // displays back the original texture
         {
-            Material materialCB = GetCelestialBodyMaterial();
-            materialCB.mainTexture = _originalTexture;
+            //Material materialCB = GetCelestialBodyMaterial();
+            //materialCB.mainTexture = _originalTexture;
+            renderer.material = _originalMaterial;
             return;
         }
 
         SaveOriginalTexture();
+        //LoadShaderAsync();
+        
 
         // if the overlay toggle is not enabled
         if (_overlayToggle.value == false) return;
+        if (_cbMaterial == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR material not loaded :(");
+            return;
+        }
 
-        Material material = GetCelestialBodyMaterial();
-        string[] list = material.GetTexturePropertyNames();
+        string[] list = _cbMaterial.GetTexturePropertyNames();
         for (int i = 0; i < list.Length; i++)
         {
             System.Diagnostics.Debug.Write("ISRU list texture property name." + i + "=" + list[i]);
         }
-        System.Diagnostics.Debug.Write("ISRU GetTextureImage called");
-        material.mainTexture = GetTextureImage(_celestialBodyName, GetResourceNameSelectedRadioButton());
+        //material.mainTexture = GetTextureImage(_celestialBodyName, GetResourceNameSelectedRadioButton());
+
+        
+        if (gameObject == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR DisplayResourceShader: Celestial Body Map not found");
+            return;
+        }
+
+        
+        renderer.material = _cbMaterial;
+        //renderer.material.mainTexture = GetTextureImage(_celestialBodyName, GetResourceNameSelectedRadioButton());
+        renderer.material.SetTexture("_DensityMap", GetLevelsImage(_celestialBodyName, GetResourceNameSelectedRadioButton()));
+        renderer.material.SetTexture("_CbAlbedo", _originalTexture);
+        renderer.material.SetColor("_Color", new Color(237, 31, 255, 1));
+        System.Diagnostics.Debug.Write("ISRU material has been replaced");
+
     }
 
     private void OnToggleOverlay(bool state)
@@ -412,5 +445,25 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private void OnSOIEntered(MessageCenterMessage message)
     {
         System.Diagnostics.Debug.Write("ISRU OnSOIEntered");
+    }
+
+    private async void LoadMateralAsync()
+    {
+        AsyncOperationHandle<Material> opHandle = Addressables.LoadAssetAsync<Material>("isruCbMaterial.mat");
+        await opHandle.Task;
+        if (opHandle.Status == AsyncOperationStatus.Succeeded)
+        {
+            _cbMaterial = opHandle.Result;
+            System.Diagnostics.Debug.Write("ISRU LoadShaderAsync material loaded");
+        }
+        else
+        {
+            System.Diagnostics.Debug.Write("ISRU LoadShaderAsync failed to load material:"+ opHandle.Status);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        _originalMaterial = null;
     }
 }

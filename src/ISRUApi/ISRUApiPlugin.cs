@@ -1,17 +1,15 @@
 using System.Reflection;
 using BepInEx;
 using JetBrains.Annotations;
-using KSP.Sim.impl;
-using KSP.UI.Binding;
 using SpaceWarp;
 using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
-using SpaceWarp.API.UI;
 using SpaceWarp.API.UI.Appbar;
 using ISRUApi.UI;
 using UitkForKsp2.API;
 using UnityEngine;
 using UnityEngine.UIElements;
+using HarmonyLib;
 
 namespace ISRUApi;
 
@@ -96,6 +94,8 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
             AssetManager.GetAsset<Texture2D>($"{ModGuid}/images/icon.png"),
             isOpen => myFirstWindowController.IsWindowOpen = isOpen
         );
+
+        Harmony.CreateAndPatchAll(typeof(Data_ResourceConverterPatches));
     }
 
     /// <summary>

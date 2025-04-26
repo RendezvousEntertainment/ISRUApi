@@ -50,6 +50,13 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             { "Minmus", new List<CBResourceChart>([new CBResourceChart("Iron"), new CBResourceChart("Nickel"), new CBResourceChart("Quartz")])},
         };
 
+    private readonly Dictionary<string, Color> _colorMap = new()
+    {
+        {"Nickel", new Color(204, 14, 0, 1) },
+        {"Regolith", new Color(55, 0, 204, 1) }, // violet
+        {"Water", new Color(0, 156, 204, 1) }, // blue
+    };
+
     /// <summary>
     /// Runs when the window is first created, and every time the window is re-enabled.
     /// </summary>
@@ -388,25 +395,22 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             System.Diagnostics.Debug.Write("ISRU ERROR material not loaded :(");
             return;
         }
-
-        string[] list = _cbMaterial.GetTexturePropertyNames();
-        for (int i = 0; i < list.Length; i++)
-        {
-            System.Diagnostics.Debug.Write("ISRU list texture property name." + i + "=" + list[i]);
-        }
-
-        
         if (gameObject == null)
         {
             System.Diagnostics.Debug.Write("ISRU ERROR DisplayResourceShader: Celestial Body Map not found");
             return;
         }
-
         
         renderer.material = _cbMaterial;
-        renderer.material.SetTexture("_DensityMap", GetLevelsImage(_celestialBodyName, GetResourceNameSelectedRadioButton()));
+        string resourceName = GetResourceNameSelectedRadioButton();
+        renderer.material.SetTexture("_DensityMap", GetLevelsImage(_celestialBodyName, resourceName));
         renderer.material.SetTexture("_CbAlbedo", _originalTexture);
-        renderer.material.SetColor("_Color", new Color(237, 31, 255, 1));
+        Color color = new(237, 31, 255, 1); // default color purple
+        if (_colorMap.ContainsKey(resourceName))
+        {
+            color = _colorMap[resourceName];
+        }
+        renderer.material.SetColor("_Color", color);
         System.Diagnostics.Debug.Write("ISRU material has been replaced");
 
     }

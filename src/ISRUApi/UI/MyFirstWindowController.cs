@@ -38,7 +38,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private readonly Dictionary<string, List<CBResourceChart>> _cbResourceList = new()
         {
-            { "Kerbin", new List<CBResourceChart>([new CBResourceChart("Aluminium"), new CBResourceChart("Carbon"), new CBResourceChart("Copper")])},
+            { "Kerbin", new List<CBResourceChart>([new CBResourceChart("Methane"), new CBResourceChart("Carbon"), new CBResourceChart("Copper"), new CBResourceChart("Iron"), new CBResourceChart("Lithium")])},
             { "Mun", new List<CBResourceChart>([new CBResourceChart("Nickel"), new CBResourceChart("Regolith"), new CBResourceChart("Water")])},
             { "Minmus", new List<CBResourceChart>([new CBResourceChart("Iron"), new CBResourceChart("Nickel"), new CBResourceChart("Quartz")])},
         };
@@ -65,13 +65,17 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _rootElement.Q<VisualElement>("available-resource-1").style.display = DisplayStyle.None;
         _rootElement.Q<VisualElement>("available-resource-2").style.display = DisplayStyle.None;
         _rootElement.Q<VisualElement>("available-resource-3").style.display = DisplayStyle.None;
+        _rootElement.Q<VisualElement>("available-resource-4").style.display = DisplayStyle.None;
+        _rootElement.Q<VisualElement>("available-resource-5").style.display = DisplayStyle.None;
 
         // Radio buttons
         _radioGroup =
         [
             _rootElement.Q<RadioButton>("available-resource-1-radio"),
             _rootElement.Q<RadioButton>("available-resource-2-radio"),
-            _rootElement.Q<RadioButton>("available-resource-3-radio")
+            _rootElement.Q<RadioButton>("available-resource-3-radio"),
+            _rootElement.Q<RadioButton>("available-resource-4-radio"),
+            _rootElement.Q<RadioButton>("available-resource-5-radio")
         ];
 
         _radioGroup[0].value = true; // the first radio button is checked by default

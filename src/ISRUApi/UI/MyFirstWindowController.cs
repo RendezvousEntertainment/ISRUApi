@@ -38,6 +38,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private readonly Dictionary<string, List<CBResourceChart>> _cbResourceList = new()
         {
+            { "Kerbin", new List<CBResourceChart>([new CBResourceChart("Aluminium"), new CBResourceChart("Carbon"), new CBResourceChart("Copper")])},
             { "Mun", new List<CBResourceChart>([new CBResourceChart("Nickel"), new CBResourceChart("Regolith"), new CBResourceChart("Water")])},
             { "Minmus", new List<CBResourceChart>([new CBResourceChart("Iron"), new CBResourceChart("Nickel"), new CBResourceChart("Quartz")])},
         };

@@ -52,7 +52,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private readonly Dictionary<string, Color> _colorMap = new()
     {
-        {"Nickel", new Color(204, 14, 0, 1) },
+        {"Carbon", new Color(1, 0, 255, 1) }, // deep blue
+        {"Iron", new Color(0 ,255, 121, 1) }, // light blue
+        {"Nickel", new Color(204, 14, 0, 1) }, // orange
+        {"Quartz", new Color(255, 173, 0, 1) }, // gold
         {"Regolith", new Color(55, 0, 204, 1) }, // violet
         {"Water", new Color(0, 156, 204, 1) }, // blue
     };

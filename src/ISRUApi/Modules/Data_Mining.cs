@@ -39,17 +39,17 @@ public class Data_Mining : ModuleData
     [PAMDisplayControl(SortIndex = 2)]
     [JsonIgnore]
     [HideInInspector]
-    public ModuleProperty<string> statusTxt = new(null, true, new ToStringDelegate(Data_Mining.GetConversionStatusString));
+    public ModuleProperty<string> statusTxt = new(null, true, new ToStringDelegate(GetConversionStatusString));
 
     [LocalizedField("PartModules/Mining/NickelRate")]
     [PAMDisplayControl(SortIndex = 3)]
     [JsonIgnore]
-    public ModuleProperty<double> NickelRateTxt = new(0.0, true, new ToStringDelegate(Data_Mining.GetOreRateOutputString));
+    public ModuleProperty<double> NickelRateTxt = new(0.0, true, new ToStringDelegate(GetOreRateOutputString));
 
     [LocalizedField("PartModules/Mining/RegolithRate")]
     [PAMDisplayControl(SortIndex = 4)]
     [JsonIgnore]
-    public ModuleProperty<double> RegolithRateTxt = new(0.0, true, new ToStringDelegate(Data_Mining.GetOreRateOutputString));
+    public ModuleProperty<double> RegolithRateTxt = new(0.0, true, new ToStringDelegate(GetOreRateOutputString));
 
     [KSPDefinition]
     public ResourceConverterFormulaDefinition MiningFormulaDefinitions; // TODO turn into list like in Data_ResourceConverter

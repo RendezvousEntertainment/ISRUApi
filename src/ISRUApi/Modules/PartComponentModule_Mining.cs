@@ -59,7 +59,6 @@ public class PartComponentModule_Mining : PartComponentModule
 
             // Set up resource request
             SetupIngredientDataStructures();
-            System.Diagnostics.Debug.Write("ISRU OnStart success");
         }
     }
 

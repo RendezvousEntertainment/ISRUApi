@@ -58,21 +58,22 @@ public class Data_ResourceScanner : ModuleData
 
     private List<OABPartData.PartInfoModuleSubEntry> GetRequiredResourceStrings(OABPartData.OABSituationStats oabSituationStats)
     {
-        return GetResourceStrings(RequiredResources, "PartModules/Generic/Tooltip/ResourceRateMax");
+        List<OABPartData.PartInfoModuleSubEntry> resourceStrings = [];
+        for (int index = 0; index < RequiredResources.Count; ++index)
+        {
+            ResourceDefinitionData definitionData = Game.ResourceDefinitionDatabase.GetDefinitionData(Game.ResourceDefinitionDatabase.GetResourceIDFromName(RequiredResources[index].ResourceName));
+            resourceStrings.Add(new OABPartData.PartInfoModuleSubEntry(string.Format(LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/ResourceRateMax", true, 0, true, false, null, null, true), definitionData.DisplayName, PartModuleTooltipLocalization.FormatResourceRate(RequiredResources[index].Rate, PartModuleTooltipLocalization.GetTooltipResourceUnits(RequiredResources[index].ResourceName)))));
+        }
+        return resourceStrings;
     }
 
     private List<OABPartData.PartInfoModuleSubEntry> GetScannableResourceStrings(OABPartData.OABSituationStats oabSituationStats)
     {
-        return GetResourceStrings(ScannableResources, ScannableResourcesName);
-    }
-
-    private List<OABPartData.PartInfoModuleSubEntry> GetResourceStrings(List<PartModuleResourceSetting> resourceList, string localizationString)
-    {
         List<OABPartData.PartInfoModuleSubEntry> resourceStrings = [];
-        for (int index = 0; index < resourceList.Count; ++index)
+        for (int index = 0; index < ScannableResources.Count; ++index)
         {
-            ResourceDefinitionData definitionData = Game.ResourceDefinitionDatabase.GetDefinitionData(Game.ResourceDefinitionDatabase.GetResourceIDFromName(resourceList[index].ResourceName));
-            resourceStrings.Add(new OABPartData.PartInfoModuleSubEntry(string.Format(LocalizationManager.GetTranslation(localizationString, true, 0, true, false, null, null, true), definitionData.DisplayName, PartModuleTooltipLocalization.FormatResourceRate(resourceList[index].Rate, PartModuleTooltipLocalization.GetTooltipResourceUnits(resourceList[index].ResourceName)))));
+            ResourceDefinitionData definitionData = Game.ResourceDefinitionDatabase.GetDefinitionData(Game.ResourceDefinitionDatabase.GetResourceIDFromName(ScannableResources[index].ResourceName));
+            resourceStrings.Add(new OABPartData.PartInfoModuleSubEntry(LocalizationManager.GetTranslation(definitionData.displayNameKey, true, 0, true, false, null, null, true)));
         }
         return resourceStrings;
     }

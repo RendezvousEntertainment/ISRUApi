@@ -357,6 +357,19 @@
                     AcceptanceThreshold: 0.1
                 }
             ];
+            TimeToComplete: 5.0;
         }
     }
+}
+
+// add the PAM header for all resource scanners
+:parts .Module_ResourceScanner {
+    PAMModuleVisualsOverride +: [
+        {
+            PartComponentModuleName: "PartComponentModule_ResourceScanner",
+            ModuleDisplayName: "PartModules/ResourceScanner/Name",
+            ShowHeader: true,
+            ShowFooter: true
+        }
+    ];
 }

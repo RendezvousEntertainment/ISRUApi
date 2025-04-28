@@ -195,8 +195,7 @@ public class PartComponentModule_Mining : PartComponentModule
         if (_dataMining.status == ResourceConversionState.Operational.Description())
         {
             for (var i = 0; i < inputCount; ++i)
-                _containerGroup.RemoveResourceUnits(_currentIngredientUnits[i].resourceID, _currentIngredientUnits[i].units,
-                    deltaTime);
+                _containerGroup.RemoveResourceUnits(_currentIngredientUnits[i].resourceID, _currentIngredientUnits[i].units, deltaTime);
         }
 
         // Products

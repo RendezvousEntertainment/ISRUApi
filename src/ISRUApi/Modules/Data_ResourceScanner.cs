@@ -40,8 +40,6 @@ public class Data_ResourceScanner : ModuleData
     public string ToggleName = "PartModules/ResourceScanner/Enabled";
     [KSPDefinition]
     public string StartActionName = "PartModules/ResourceScanner/StartScanning";
-    [KSPDefinition]
-    private const string ScannableResourcesName = "PartModules/ResourceScanner/Tooltip/ScannableResources";
 
     public double _startScanTimestamp = 0;
 
@@ -54,9 +52,8 @@ public class Data_ResourceScanner : ModuleData
                 _cachedPartInfoEntries =
                 [
                     new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/Resources", true, 0, true, false, null, null, true), new OABPartData.PartInfoModuleMultipleEntryValueDelegate(GetRequiredResourceStrings)),
-                    new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation(ScannableResourcesName, true, 0, true, false, null, null, true), new OABPartData.PartInfoModuleMultipleEntryValueDelegate(GetScannableResourceStrings)),
-                    new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/ScanningRunTime", Units.FormatTimeString(TimeToComplete)))
-            
+                    new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/ScannableResources", true, 0, true, false, null, null, true), new OABPartData.PartInfoModuleMultipleEntryValueDelegate(GetScannableResourceStrings)),
+                    new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/ScanningRunTime", Units.FormatTimeString(TimeToComplete)), new OABPartData.PartInfoModuleEntryValueDelegate(GetTimeToCompleteString))
                 ];
             }
             delegateList.AddRange(_cachedPartInfoEntries);
@@ -64,6 +61,8 @@ public class Data_ResourceScanner : ModuleData
         }
         return delegateList;
     }
+
+    private string GetTimeToCompleteString(OABPartData.OABSituationStats oabSituationStats) => string.Empty;
 
     private List<OABPartData.PartInfoModuleSubEntry> GetRequiredResourceStrings(OABPartData.OABSituationStats oabSituationStats)
     {
@@ -96,6 +95,6 @@ public enum ResourceScannerStatus : byte
     None,
     [Description("PartModules/ResourceScanner/Idle")] Idle,
     [Description("PartModules/ResourceScanner/Scanning")] Scanning,
-    [Description("PartModules/ResourceScanner/Done")] Done,
+    [Description("PartModules/ResourceScanner/OutOfResource")] OutOfResource,
 }
 

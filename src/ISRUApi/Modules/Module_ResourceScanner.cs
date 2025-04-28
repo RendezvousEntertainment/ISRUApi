@@ -18,13 +18,6 @@ public class Module_ResourceScanner : PartBehaviourModule
     [SerializeField]
     protected Data_ResourceScanner _dataResourceScanner;
 
-    // Overlay
-    private Material _originalMaterial;
-    private Material _cbMaterial;
-
-    // Useful game objects
-    private string _celestialBodyName;
-
     public override void AddDataModules()
     {
         base.AddDataModules();
@@ -68,7 +61,7 @@ public class Module_ResourceScanner : PartBehaviourModule
         {
             return;
         }
-        _dataResourceScanner.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceScannerStatus.Scanning.Description()));
+        //_dataResourceScanner.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceScannerStatus.Scanning.Description()));
         //_dataResourceScanner._startScanTimestamp = DateTime.Now;
         _dataResourceScanner._startScanTimestamp = Game.UniverseModel.Time.UniverseTime;
         //_notificationManager.ProcessNotification(this._experimentNotifications[ExperimentState.RUNNING]);

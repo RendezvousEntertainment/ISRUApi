@@ -1,7 +1,12 @@
 ﻿using I2.Loc;
+using KSP.Game;
+using KSP.Modules;
 using KSP.Sim;
 using KSP.Sim.Definitions;
+using KSP.Sim.impl;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace ISRUApi.Modules;
 
@@ -12,6 +17,13 @@ public class Module_ResourceScanner : PartBehaviourModule
 
     [SerializeField]
     protected Data_ResourceScanner _dataResourceScanner;
+
+    // Overlay
+    private Material _originalMaterial;
+    private Material _cbMaterial;
+
+    // Useful game objects
+    private string _celestialBodyName;
 
     public override void AddDataModules()
     {
@@ -30,6 +42,7 @@ public class Module_ResourceScanner : PartBehaviourModule
         _dataResourceScanner.SetLabel(_dataResourceScanner.EnabledToggle, LocalizationManager.GetTermTranslation(_dataResourceScanner.ToggleName));
         AddActionGroupAction(new Action(StartScanning), KSPActionGroup.None, LocalizationManager.GetTermTranslation(_dataResourceScanner.StartActionName));
         UpdatePAMVisibility();
+        _dataResourceScanner.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceScannerStatus.Idle.Description()));
     }
     public override void OnShutdown()
     {
@@ -48,10 +61,20 @@ public class Module_ResourceScanner : PartBehaviourModule
         _dataResourceScanner.SetVisible(_dataResourceScanner.statusTxt, PartBackingMode == PartBackingModes.Flight);
     }
 
+
     private void OnToggleChangedValue(bool newValue)
     {
-        // nothing
+        if (PartBackingMode != PartBackingModes.Flight)
+        {
+            return;
+        }
+        _dataResourceScanner.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceScannerStatus.Scanning.Description()));
+        //_dataResourceScanner._startScanTimestamp = DateTime.Now;
+        _dataResourceScanner._startScanTimestamp = Game.UniverseModel.Time.UniverseTime;
+        //_notificationManager.ProcessNotification(this._experimentNotifications[ExperimentState.RUNNING]);
     } 
 
     private void StartScanning() => _dataResourceScanner.EnabledToggle.SetValue(true);
+
+
 }

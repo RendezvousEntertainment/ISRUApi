@@ -38,7 +38,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private Material _originalMaterial;
     private Material _cbMaterial;
 
-
     // Useful game objects
     private string _celestialBodyName;
     private VesselComponent _vessel;

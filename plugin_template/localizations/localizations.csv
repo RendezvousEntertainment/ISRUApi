@@ -12,7 +12,16 @@ PartModules/Mining/InsufficientContainment,Text,,Storage full
 PartModules/ResourceScanner/Enabled,Text,,Scanner Enabled
 PartModules/ResourceScanner/Status,Text,,Status
 PartModules/ResourceScanner/StartScanning,Text,,Start Scanning
+PartModules/ResourceScanner/Name,Text,,Resource Scanner
+PartModules/ResourceScanner/Idle,Text,,Idle
+PartModules/ResourceScanner/Scanning,Text,,Scanning... {0}
+PartModules/ResourceScanner/Done,Text,,Done
+
 PartModules/ResourceScanner/Tooltip/ScannableResources,Text,,Scannable Resources
+PartModules/ResourceScanner/Tooltip/ScanningRunTime,Text,,Scan Duration: {0}
+
+Resource/Notifications/ScanningDone,Text,,SCAN COMPLETE
+Resource/Notifications/ScanningDoneMessage,Text,,Resource data is now available in the Resource Gathering window
 
 PartModules/Convertotron/Enabled,Text,,Convert-O-Tron Enabled
 PartModules/Convertotron/Start,Text,,Start Convert-O-Tron

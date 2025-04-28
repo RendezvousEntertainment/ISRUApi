@@ -1,4 +1,6 @@
-﻿using I2.Loc;
+﻿using System.ComponentModel;
+using I2.Loc;
+using KSP;
 using KSP.Api;
 using KSP.Sim;
 using KSP.Sim.Definitions;
@@ -29,6 +31,8 @@ public class Data_ResourceScanner : ModuleData
     public List<PartModuleResourceSetting> RequiredResources;
     [KSPDefinition]
     public List<PartModuleResourceSetting> ScannableResources;
+    [KSPDefinition]
+    public float TimeToComplete;
 
     private List<OABPartData.PartInfoModuleEntry> _cachedPartInfoEntries;
 
@@ -38,6 +42,8 @@ public class Data_ResourceScanner : ModuleData
     public string StartActionName = "PartModules/ResourceScanner/StartScanning";
     [KSPDefinition]
     private const string ScannableResourcesName = "PartModules/ResourceScanner/Tooltip/ScannableResources";
+
+    public double _startScanTimestamp = 0;
 
     public override List<OABPartData.PartInfoModuleEntry> GetPartInfoEntries(Type partBehaviourModuleType, List<OABPartData.PartInfoModuleEntry> delegateList)
     {
@@ -49,9 +55,12 @@ public class Data_ResourceScanner : ModuleData
                 [
                     new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/Resources", true, 0, true, false, null, null, true), new OABPartData.PartInfoModuleMultipleEntryValueDelegate(GetRequiredResourceStrings)),
                     new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation(ScannableResourcesName, true, 0, true, false, null, null, true), new OABPartData.PartInfoModuleMultipleEntryValueDelegate(GetScannableResourceStrings)),
+                    new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/ScanningRunTime", Units.FormatTimeString(TimeToComplete)))
+            
                 ];
             }
             delegateList.AddRange(_cachedPartInfoEntries);
+
         }
         return delegateList;
     }
@@ -80,3 +89,13 @@ public class Data_ResourceScanner : ModuleData
 
     private static string GetConversionStatusString(object valueObj) => (string)valueObj;
 }
+
+[Serializable]
+public enum ResourceScannerStatus : byte
+{
+    None,
+    [Description("PartModules/ResourceScanner/Idle")] Idle,
+    [Description("PartModules/ResourceScanner/Scanning")] Scanning,
+    [Description("PartModules/ResourceScanner/Done")] Done,
+}
+

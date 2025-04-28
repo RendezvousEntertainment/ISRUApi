@@ -24,12 +24,6 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
     // Container group for the vessel
     private ResourceContainerGroup _containerGroup;
 
-    // Scanner attributes
-    //private ResourceUnitsPair[] _currentRequiredResourcetUnits;
-    //private ResourceDefinitionDatabase _resourceDB;
-    private bool _hasEnoughResources = true;
-
-
     public override void OnStart(double universalTime)
     {
         if (!DataModules.TryGetByType(out _dataResourceScanner))
@@ -42,44 +36,34 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
             System.Diagnostics.Debug.Write("Unable to find a valid game with a resource definition database");
             return;
         }
-        //System.Diagnostics.Debug.Write("ISRU PartComponentModule_ResourceScanner.OnStart success");
         _notificationManager = Game.Notifications;
-        //_resourceDB = GameManager.Instance.Game.ResourceDefinitionDatabase;
         _containerGroup = Part.PartOwner.ContainerGroup;
-        //SetupIngredientDataStructures();
     }
 
-    /**
-     * Setup the data structures storing the required resources.
-     **/
-    //private void SetupIngredientDataStructures()
-    //{
-    //    if (_dataResourceScanner.RequiredResources == null)
-    //    {
-    //        System.Diagnostics.Debug.Write("[ISRU] ERROR Unable to find RequiredResources.");
-    //        return;
-    //    }
+    private bool HasEnoughResources()
+    {
+        if (Game.SessionManager.IsDifficultyOptionEnabled("InfinitePower")) // TODO works only if EC is the only resource
+        {
+            return true;
+        }
+        for (var i = 0; i < _dataResourceScanner.RequiredResources.Count; ++i)
+        {
+            PartModuleResourceSetting moduleResourceSetting = _dataResourceScanner.RequiredResources[i];
+            ResourceDefinitionID resourceId = Game.ResourceDefinitionDatabase.GetResourceIDFromName(moduleResourceSetting.ResourceName);
 
-    //    var count = _dataResourceScanner.RequiredResources.Count;
-    //    _currentRequiredResourcetUnits = new ResourceUnitsPair[count];
-    //    var resourceUnitsPair = new ResourceUnitsPair();
-
-    //    // Initializing the data
-    //    for (var i = 0; i < count; ++i)
-    //    {
-    //        string inputName = _dataResourceScanner.RequiredResources[i].ResourceName;
-    //        double rate = _dataResourceScanner.RequiredResources[i].Rate;
-    //        resourceUnitsPair.resourceID = _resourceDB.GetResourceIDFromName(inputName);
-    //        resourceUnitsPair.units = rate;
-    //        _currentRequiredResourcetUnits[i] = resourceUnitsPair;
-    //    }
-    //}
+            // Remove resource from request if container empty
+            if (_containerGroup.GetResourceStoredUnits(resourceId) < moduleResourceSetting.AcceptanceThreshold)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 
     private void RequiredResourcesConsumptionUpdate(double deltaTime)
     {
-        if (Game.SessionManager.IsDifficultyOptionEnabled("InfinitePower"))
+        if (Game.SessionManager.IsDifficultyOptionEnabled("InfinitePower")) // TODO works only if EC is the only resource
         {
-            _hasEnoughResources = true;
             return;
         }
 
@@ -90,15 +74,10 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
             PartModuleResourceSetting moduleResourceSetting = _dataResourceScanner.RequiredResources[i];
             ResourceDefinitionID resourceId = Game.ResourceDefinitionDatabase.GetResourceIDFromName(moduleResourceSetting.ResourceName);
 
-            // Update the current consumption
-            //_currentRequiredResourcetUnits[i].units = moduleResourceSetting.Rate;
-
             // Remove resource from request if container empty
             if (_containerGroup.GetResourceStoredUnits(resourceId) < moduleResourceSetting.AcceptanceThreshold)
             {
                 _dataResourceScanner.EnabledToggle.SetValue(false);
-                //_currentRequiredResourcetUnits[i].units = 0.0;
-                _hasEnoughResources = false;
                 ResourceDefinitionData definitionData = Game.ResourceDefinitionDatabase.GetDefinitionData(resourceId);
                 string localizedResourceName = LocalizationManager.GetTranslation(definitionData.displayNameKey, true, 0, true, false, null, null, true);
                 SetStatus(ResourceScannerStatus.OutOfResource, localizedResourceName);
@@ -132,9 +111,8 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
 
         // Update resource consumption
         RequiredResourcesConsumptionUpdate(deltaUniversalTime);
-        //SendResourceRequest(deltaUniversalTime);
 
-        if (!_hasEnoughResources) return;
+        if (!HasEnoughResources()) return;
 
         double difference = Game.UniverseModel.Time.UniverseTime - _dataResourceScanner._startScanTimestamp;
         SetStatus(ResourceScannerStatus.Scanning, Math.Ceiling(_dataResourceScanner.TimeToComplete - difference));

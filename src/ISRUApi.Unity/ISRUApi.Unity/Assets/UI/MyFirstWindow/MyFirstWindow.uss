@@ -26,3 +26,11 @@
 .button:hover {
     -unity-background-image-tint-color: rgb(156, 156, 156);
 }
+
+.tinted {
+    -unity-background-image-tint-color: rgb(0, 255, 0);
+}
+
+.tinted:hover {
+    -unity-background-image-tint-color: rgb(0, 255, 0);
+}

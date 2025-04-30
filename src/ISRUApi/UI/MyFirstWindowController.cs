@@ -32,11 +32,15 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     // The backing field for the IsWindowOpen property
     private bool _isWindowOpen;
 
+    // Scan
+    private bool _isScanning = false;
+
     // Overlay
     Texture _originalTexture;
     private const int OverlaySideSize = 500;
     private Material _originalMaterial;
     private Material _cbMaterial;
+    private bool _displayOverlay = false;
 
     // Useful game objects
     private string _celestialBodyName;
@@ -76,6 +80,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
         // Hide the window
         _rootElement.style.display = DisplayStyle.None;
+
+        // Plug the buttons
+        _rootElement.Q<Button>("button-scan").clicked += () => OnClickButtonScan();
+        _rootElement.Q<Button>("button-display-overlay").clicked += () => OnClickButtonResourceOverlay();
 
         // Hide the available resource fields
         _rootElement.Q<VisualElement>("available-resource-1").style.display = DisplayStyle.None;
@@ -461,5 +469,32 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 #pragma warning restore IDE0051 // Remove unused private members
     {
         _originalMaterial = null;
+    }
+
+    private void OnClickButtonScan()
+    {
+        _isScanning = !_isScanning;
+        System.Diagnostics.Debug.Write("ISRU OnClickButtonScan");
+        if (_isScanning)
+        {
+            _rootElement.Q<Button>("button-scan").AddToClassList("tinted");
+        } else
+        {
+            _rootElement.Q<Button>("button-scan").RemoveFromClassList("tinted");
+        }
+
+    }
+
+    private void OnClickButtonResourceOverlay()
+    {
+        _displayOverlay = !_displayOverlay;
+        System.Diagnostics.Debug.Write("ISRU OnClickButtonResourceOverlay _displayOverlay=" + _displayOverlay);
+        if (_displayOverlay)
+        {
+            _rootElement.Q<Button>("button-display-overlay").style.unityBackgroundImageTintColor = Color.red;
+        } else
+        {
+            _rootElement.Q<Button>("button-display-overlay").style.unityBackgroundImageTintColor = Color.blue;
+        }
     }
 }

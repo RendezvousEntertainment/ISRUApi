@@ -199,12 +199,23 @@ public class MyFirstWindowController : KerbalMonoBehaviour
                 // loading texture level maps
                 _cbResourceList[_celestialBodyName][i].LevelMap = GetLevelsImage(_celestialBodyName, cbResource.ResourceName);
                 _radioGroup[i].SetEnabled(true); // enable the radio button
-                _radioGroup[i].value = true; // the last radio button is checked by default
+                //_radioGroup[i].value = true; // the last radio button is checked by default
             } else
             {
                 _radioGroup[i].SetEnabled(false); // disable the radio button
             }
             _rootElement.Q<Label>("available-resource-" + (i+1) + "-name").text = label;
+        }
+
+        // select the first scanned radio button by default
+        for (int i = 0; i < _cbResourceList[_celestialBodyName].Count; i++)
+        {
+            CBResourceChart cbResource = _cbResourceList[_celestialBodyName][i];
+            if (IsResourceScanned(cbResource.ResourceName))
+            {
+                _radioGroup[i].value = true; // the first radio button is checked by default
+                return;
+            }
         }
     }
 

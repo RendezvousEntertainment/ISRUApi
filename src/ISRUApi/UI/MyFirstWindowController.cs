@@ -366,8 +366,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         if (!_isWindowOpen) return;
 
         SetDensityValues();
-        UpdateUserMessage();
         UpdateScanningData();
+        UpdateUserMessage();
     }
 
     private void MarkedCelestialBodyResourcesAsScanned()
@@ -431,6 +431,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             {
                 renderer.material = _originalMaterial;
             }
+            SetUserMessage("Scan complete");
         }
         else
         {

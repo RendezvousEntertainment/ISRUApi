@@ -12,6 +12,7 @@ using KSP.Sim;
 using ISRUApi.Modules;
 using KSP.Sim.Definitions;
 using System.Runtime.CompilerServices;
+using TMPro;
 
 namespace ISRUApi.UI;
 
@@ -44,6 +45,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private const int OverlaySideSize = 500;
     private Material _originalMaterial;
     private Material _cbMaterial;
+    private Material _cbScanningMaterial;
     private bool _displayOverlay = false;
 
     // Useful game objects
@@ -225,7 +227,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             _vessel = Game?.ViewController?.GetActiveSimVessel();
 
             SetCelestialBodyName();
-            LoadMateralAsync(); // asynchronous
+            LoadCbMateralAsync(); // asynchronous
+            LoadCbScanningMateralAsync(); // asynchronous
             SaveOriginalTexture();
             InitializeFields();
 
@@ -412,6 +415,11 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             //_isCbScanned = true;
             MarkedCelestialBodyResourcesAsScanned();
             InitializeFields();
+            Renderer renderer = GameObject.Find(GetCelestialBodyPath()).GetComponent<Renderer>();
+            if (_originalMaterial != null) // displays back the original texture
+            {
+                renderer.material = _originalMaterial;
+            }
         }
         else
         {
@@ -509,13 +517,14 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         return "";
     }
 
-    private void DisplayResourceShader(bool state)
+    private void DisplayResourceShader()
     {
         GameObject gameObject = GameObject.Find(GetCelestialBodyPath());
         Renderer renderer = gameObject.GetComponent<Renderer>();
 
-        if (!state && _originalMaterial != null) // displays back the original texture
+        if (!_displayOverlay && _originalMaterial != null) // displays back the original texture
         {
+            System.Diagnostics.Debug.Write("ISRU DisplayResourceShader displaying back original texture");
             renderer.material = _originalMaterial;
             return;
         }
@@ -524,13 +533,13 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
         if (!IsResourceScanned(resourceName))
         {
+            System.Diagnostics.Debug.Write("ISRU DisplayResourceShader " + resourceName + " is not scanned");
             return;
         }
 
         SaveOriginalTexture();
 
         // if the overlay toggle is not enabled
-        //if (_overlayToggle.value == false) return;
         if (_displayOverlay == false) return;
         if (_cbMaterial == null)
         {
@@ -553,15 +562,33 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
         renderer.material.SetColor("_Color", color);
         System.Diagnostics.Debug.Write("ISRU material has been replaced");
-
     }
 
-    //private void OnToggleOverlay(bool state)
-    //{
-    //    UpdateWindowStatus();
-    //    UpdateUserMessage();
-    //    DisplayResourceShader(state);
-    //}
+    private void DisplayScanningShader()
+    {
+        if (!_isScanning) return;
+
+        SaveOriginalTexture();
+
+        if (_cbScanningMaterial == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR DisplayScanningShader: material not loaded :(");
+            return;
+        }
+
+        GameObject gameObject = GameObject.Find(GetCelestialBodyPath());
+        Renderer renderer = gameObject.GetComponent<Renderer>();
+
+        if (gameObject == null)
+        {
+            System.Diagnostics.Debug.Write("ISRU ERROR DisplayScanningShader: Celestial Body Map not found");
+            return;
+        }
+
+        renderer.material = _cbScanningMaterial;
+        renderer.material.SetTexture("_MainTex", _originalTexture);
+        renderer.material.SetColor("_Color", new Color(0, 1, 55)); // TODO make custom colors per CB
+    }
 
     private void ToggleRadioButton(RadioButton button, bool newValue)
     {
@@ -570,9 +597,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _messageField.text = "";
         UpdateUserMessage();
         if (button == null) return;
-        //if (!_overlayToggle.value) return;
         if (!_displayOverlay) return;
-        DisplayResourceShader(_displayOverlay);
+        DisplayResourceShader();
     }
 
     private void OnSOIEntered(MessageCenterMessage message)
@@ -582,22 +608,36 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         HideResourceFields();
         InitializeFields();
         SaveOriginalTexture();
-        //_overlayToggle.value = false;
         UnclickDisplayOverlayButton();
     }
 
-    private async void LoadMateralAsync()
+    private async void LoadCbMateralAsync()
     {
-        AsyncOperationHandle<Material> opHandle = Addressables.LoadAssetAsync<Material>("isruCbMaterial.mat");
-        await opHandle.Task;
-        if (opHandle.Status == AsyncOperationStatus.Succeeded)
+        AsyncOperationHandle<Material> opHandle2 = Addressables.LoadAssetAsync<Material>("isruCbMaterial.mat");
+        await opHandle2.Task;
+        if (opHandle2.Status == AsyncOperationStatus.Succeeded)
         {
-            _cbMaterial = opHandle.Result;
-            System.Diagnostics.Debug.Write("ISRU LoadShaderAsync material loaded");
+            _cbMaterial = opHandle2.Result;
+            System.Diagnostics.Debug.Write("ISRU LoadCbMateralAsync material isruCbMaterial.mat loaded");
         }
         else
         {
-            System.Diagnostics.Debug.Write("ISRU LoadShaderAsync failed to load material:"+ opHandle.Status);
+            System.Diagnostics.Debug.Write("ISRU LoadCbMateralAsync failed to load material: isruCbMaterial.mat " + opHandle2.Status);
+        }
+    }
+
+    private async void LoadCbScanningMateralAsync()
+    {
+        AsyncOperationHandle<Material> opHandle = Addressables.LoadAssetAsync<Material>("isruCbScanning.mat");
+        await opHandle.Task;
+        if (opHandle.Status == AsyncOperationStatus.Succeeded)
+        {
+            _cbScanningMaterial = opHandle.Result;
+            System.Diagnostics.Debug.Write("ISRU LoadCbScanningMateralAsync material isruCbScanning.mat loaded");
+        }
+        else
+        {
+            System.Diagnostics.Debug.Write("ISRU LoadCbScanningMateralAsync failed to load material: isruCbScanning.mat " + opHandle.Status);
         }
     }
 
@@ -610,8 +650,11 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private void UnclickButtonScan()
     {
+        //System.Diagnostics.Debug.Write("ISRU UnclickButtonScan 1");
         _buttonScan.RemoveFromClassList("tinted"); // remove color change
+        //System.Diagnostics.Debug.Write("ISRU UnclickButtonScan 2");
         _isScanning = false;
+        //System.Diagnostics.Debug.Write("ISRU UnclickButtonScan 5");
     }
 
     private void UnclickDisplayOverlayButton()
@@ -627,9 +670,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         {
             _buttonScan.AddToClassList("tinted"); // color change
 
-            // Run scanning through action group
-            _vessel.TriggerActionGroup(KSPActionGroup.Custom01); // start scanning with all scan parts // TODO in Redux change to custom Scan Resource action groupe
-
             _partComponentResourceScannerList = _vessel.SimulationObject.PartOwner.GetPartModules<PartComponentModule_ResourceScanner>();
             if (_partComponentResourceScannerList.Count() == 0)
             {
@@ -637,6 +677,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
                 UnclickButtonScan();
                 return;
             }
+
+            // Run scanning through action group
+            _vessel.TriggerActionGroup(KSPActionGroup.Custom01); // start scanning with all scan parts // TODO in Redux change to custom Scan Resource action groupe
+            DisplayScanningShader();
         } else
         {
             UnclickButtonScan();
@@ -657,7 +701,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
         UpdateWindowStatus();
         UpdateUserMessage();
-        DisplayResourceShader(_displayOverlay);
+        DisplayResourceShader();
         if (_uiWindowStatus == UIResourceWindowStatus.NoResourceScanned)
         {
             UnclickDisplayOverlayButton();

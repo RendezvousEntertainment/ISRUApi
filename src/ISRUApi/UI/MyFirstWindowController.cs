@@ -17,6 +17,8 @@ using static KSP.Api.UIDataPropertyStrings.View.Vessel.Stages;
 using ISRUApi.Modules;
 using System.Linq;
 using KSP.Sim.Definitions;
+using UniLinq;
+using TMPro;
 
 namespace ISRUApi.UI;
 
@@ -43,7 +45,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     // Scan
     private bool _isScanning = false;
-    bool _isCbScanned = false; // TODO
+    //bool _isCbScanned = false; // TODO
 
     // Overlay
     Texture _originalTexture;
@@ -55,7 +57,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     // Useful game objects
     private string _celestialBodyName;
     private VesselComponent _vessel;
-    private List<PartComponentModule_ResourceScanner> _partModuleList;
+    private List<PartComponentModule_ResourceScanner> _partComponentResourceScannerList;
 
     private readonly Dictionary<string, List<CBResourceChart>> _cbResourceList = new()
         {
@@ -165,6 +167,22 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         return GetImage(celestialBodyName, resourceName, "Lev");
     }
 
+    private bool IsResourceScanned(String resourceName)
+    {
+        if (resourceName == null) return false;
+        List<CBResourceChart> availableResourceList = _cbResourceList[_celestialBodyName];
+
+        // Loop through all available resources on current celestial body
+        foreach (CBResourceChart availableResource in availableResourceList)
+        {
+            if (availableResource.ResourceName == resourceName)
+            {
+                return availableResource.IsScanned;
+            }
+        }
+        return false;
+    }
+
     private void InitializeFields()
     {
         // identity card
@@ -178,7 +196,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             // available resources list
             _rootElement.Q<VisualElement>("available-resource-" + (i+1)).style.display = DisplayStyle.Flex;
             string label = LocalizationManager.GetTranslation("ISRU/UI/AvailableResources/Unknown");
-            if (_isCbScanned)
+            if (IsResourceScanned(cbResource.ResourceName))
             {
                 label = cbResource.ResourceName;
                 // loading texture level maps
@@ -312,17 +330,49 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         UpdateScanningData();
     }
 
+    private void MarkedCelestialBodyResourcesAsScanned()
+    {
+        List<string> scannableResourceList = [];
+        List<CBResourceChart> availableResourceList = _cbResourceList[_celestialBodyName];
+
+        // Loop through all current resource scanner parts
+        foreach (PartComponentModule_ResourceScanner partComponent in _partComponentResourceScannerList)
+        {
+            List<PartModuleResourceSetting> scannedResources = partComponent._dataResourceScanner.ScannableResources;
+            // Loop through all resources they can scan
+            foreach (PartModuleResourceSetting resourceSetting in scannedResources) {
+                // Add the resource to the list
+                if (!scannableResourceList.Contains(resourceSetting.ResourceName))
+                {
+                    scannableResourceList.Add(resourceSetting.ResourceName);
+                }
+            }
+        }
+
+        // Loop through all available resources on current celestial body
+        foreach (CBResourceChart availableResource in availableResourceList)
+        {
+            // If the resource is scannable, it is marked as scanned
+            if (scannableResourceList.Contains(availableResource.ResourceName)) {
+                availableResource.IsScanned = true;
+            }
+        }
+    }
+
     private void UpdateScanningData()
     {
-        bool isScanOngoing = _isScanning && _partModuleList != null && _partModuleList.Count > 0;
+        bool isScanOngoing = _isScanning && _partComponentResourceScannerList != null && _partComponentResourceScannerList.Count > 0;
+
+        // Not scanning
         if (!isScanOngoing) {
             UnclickButtonScan();
             return;
         }
 
+        // Scanning
         bool isAtLeastOneScannerActive = false;
         double maxRemainingTime = 0;
-        foreach (PartComponentModule_ResourceScanner partComponent in _partModuleList)
+        foreach (PartComponentModule_ResourceScanner partComponent in _partComponentResourceScannerList)
         {
             maxRemainingTime = Math.Max(partComponent.GetRemainingTime(), maxRemainingTime);
             if (partComponent._dataResourceScanner._startScanTimestamp != 0) // scan is not complete
@@ -333,7 +383,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         if (!isAtLeastOneScannerActive) // scan complete
         {
             UnclickButtonScan();
-            _isCbScanned = true;
+            //_isCbScanned = true;
+            MarkedCelestialBodyResourcesAsScanned();
             InitializeFields();
         }
         else
@@ -533,9 +584,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             // Run scanning through action group
             _vessel.TriggerActionGroup(KSPActionGroup.Custom01); // start scanning with all scan parts // TODO in Redux change to custom Scan Resource action groupe
 
-            _partModuleList = _vessel.SimulationObject.PartOwner.GetPartModules<PartComponentModule_ResourceScanner>();
-            System.Diagnostics.Debug.Write("ISRU OnClickButtonScan found " + _partModuleList.Count() + " part module(s)");
-            if (_partModuleList.Count() == 0)
+            _partComponentResourceScannerList = _vessel.SimulationObject.PartOwner.GetPartModules<PartComponentModule_ResourceScanner>();
+            System.Diagnostics.Debug.Write("ISRU OnClickButtonScan found " + _partComponentResourceScannerList.Count() + " part module(s)");
+            if (_partComponentResourceScannerList.Count() == 0)
             {
                 SetUserMessage("No resource scanner on board", true);
                 UnclickButtonScan();

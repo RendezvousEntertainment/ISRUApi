@@ -318,7 +318,14 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             case UIResourceWindowStatus.DisplayingResources:
                 if (_messageField.text != "") break;
                 string resourceName = GetResourceNameSelectedRadioButton();
-                string[] options = ["Hmm, {0}"!, "{0}! {0} everywhere!", "{0} spotted!", "What a wonderful resource!", "Let's mine it all!", "For science! And the mining industry."];
+                string[] options
+                if (IsResourceScanned(resourceName))
+                {
+                    options = ["Hmm, {0}"!, "{0}! {0} everywhere!", "{0} spotted!", "What a wonderful resource!", "Let's mine it all!", "For science! And the mining industry."];
+                } else
+                {
+                    options = ["I wonder what this resource could be.", "Ooh, what treasures are hiding beneath the surface?", "Fingers crossed for something good!", "Time to see what this planet's made of!", "Let the resource hunt begin!", "I've got a good feeling about this one!", "Hope it's not just more dirt.", "Let's just hope the scanner doesn't pick up any angry space kraken.", "Let's see if this one's got any tasty rocks!"];
+                }
                 System.Random random = new();
                 int randomIndex = random.Next(options.Length);
                 SetUserMessage(string.Format(options[randomIndex], resourceName));
@@ -431,7 +438,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             {
                 renderer.material = _originalMaterial;
             }
-            SetUserMessage("Scan complete");
+            SetUserMessage("Scan complete.");
         }
         else
         {

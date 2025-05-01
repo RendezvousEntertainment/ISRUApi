@@ -43,6 +43,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     // Scan
     private bool _isScanning = false;
+    bool _isCbScanned = false; // TODO
 
     // Overlay
     Texture _originalTexture;
@@ -176,10 +177,18 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
             // available resources list
             _rootElement.Q<VisualElement>("available-resource-" + (i+1)).style.display = DisplayStyle.Flex;
-            _rootElement.Q<Label>("available-resource-" + (i+1) + "-name").text = cbResource.ResourceName;
-
-            // loading texture level maps
-            _cbResourceList[_celestialBodyName][i].LevelMap = GetLevelsImage(_celestialBodyName, cbResource.ResourceName);
+            string label = LocalizationManager.GetTranslation("ISRU/UI/AvailableResources/Unknown");
+            if (_isCbScanned)
+            {
+                label = cbResource.ResourceName;
+                // loading texture level maps
+                _cbResourceList[_celestialBodyName][i].LevelMap = GetLevelsImage(_celestialBodyName, cbResource.ResourceName);
+                _radioGroup[i].SetEnabled(true); // enable the radio button
+            } else
+            {
+                _radioGroup[i].SetEnabled(false); // disable the radio button
+            }
+            _rootElement.Q<Label>("available-resource-" + (i+1) + "-name").text = label;
         }
     }
 
@@ -271,7 +280,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
                 SetUserMessage("", false);
                 break;
             case UIResourceWindowStatus.NotInMapView:
-                SetUserMessage("Switch to map view.", true);
+                SetUserMessage("Switch to map view to see the overlay.", true);
                 break;
             //case UIResourceWindowStatus.NoSuchResource:
             //    SetUserMessage("This body is bare of this resource.", true);
@@ -303,32 +312,41 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
         SetDensityValues();
         UpdateUserMessage();
+        UpdateScanningData();
 
-        if (_isScanning && _partModuleList != null && _partModuleList.Count() > 0)
+    }
+
+    private void UpdateScanningData()
+    {
+        if (_isScanning && _partModuleList != null && _partModuleList.Count > 0)
         {
             bool isAtLeastOneScannerActive = false;
             double maxRemainingTime = 0;
+            //System.Diagnostics.Debug.Write("ISRU _partModuleList.Count=" + _partModuleList.Count);
             foreach (PartComponentModule_ResourceScanner partComponent in _partModuleList)
             {
                 maxRemainingTime = Math.Max(partComponent.GetRemainingTime(), maxRemainingTime);
+                //System.Diagnostics.Debug.Write("ISRU partComponent._dataResourceScanner._startScanTimestamp=" + partComponent._dataResourceScanner._startScanTimestamp);
                 if (partComponent._dataResourceScanner._startScanTimestamp != 0)
                 {
                     isAtLeastOneScannerActive = true;
                 }
             }
-            if (!isAtLeastOneScannerActive)
+            if (!isAtLeastOneScannerActive) // scan complete
             {
                 UnclickButtonScan();
-                SetUserMessage("Scanning complete");
-            } else
+                _isCbScanned = true;
+                InitializeFields();
+            }
+            else
             {
                 SetUserMessage(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Scanning", maxRemainingTime));
             }
-        } else
+        }
+        else
         {
             UnclickButtonScan();
         }
-            
     }
 
     private static float GetLocalDensity(VesselComponent vessel, Texture2D levelTex)

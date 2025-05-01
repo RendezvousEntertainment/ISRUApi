@@ -61,3 +61,4 @@ ISRU/Formulas/Regolith,Text,,Regolith
 ISRU/Variants/TankType,Text,,Tank type
 ISRU/UI/IdentityCard/Mun,Text,,"Geological data indicates that the surface is primarily covered with regolith and nickel. The main mineral component is feldspar, but the samples also contain traces of several valuable resources, including ferrous ore, as well as pyroxene and olivine. The presence of ilmenite and magnetite is particularly noteworthy as they are iron-titanium oxides, making the Mun a potential source of both iron and titanium."
 ISRU/UI/IdentityCard/Minmus,Text,,"Though nickel can be found almost anywhere in traces amount, Minmus' surface is primarily composed of silicon and shocked quartz. That's why it looks like it's made of shiny glass. Imagine, it's like trying to land in a giant ice rink."
+ISRU/UI/AvailableResources/Unknown,Text,,Unknown

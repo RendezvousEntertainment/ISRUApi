@@ -34,8 +34,10 @@ public class Module_ResourceScanner : PartBehaviourModule
         }
         _dataResourceScanner.SetLabel(_dataResourceScanner.EnabledToggle, LocalizationManager.GetTermTranslation(_dataResourceScanner.ToggleName));
         AddActionGroupAction(new Action(StartScanning), KSPActionGroup.None, LocalizationManager.GetTermTranslation(_dataResourceScanner.StartActionName));
+        AddActionGroupAction(new Action(StartScanning), KSPActionGroup.Custom01, LocalizationManager.GetTranslation(_dataResourceScanner.StartActionName)); // TODO in Redux create a ScanResource action group
         UpdatePAMVisibility();
         _dataResourceScanner.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceScannerStatus.Idle.Description()));
+        
     }
     public override void OnShutdown()
     {

@@ -16,7 +16,7 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
     public override Type PartBehaviourModuleType => typeof(Module_ResourceScanner);
 
     // Module data
-    private Data_ResourceScanner _dataResourceScanner;
+    public Data_ResourceScanner _dataResourceScanner;
 
     // Game objects
     private NotificationManager _notificationManager;
@@ -102,6 +102,12 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
         _notificationManager.ProcessNotification(notificationData);
     }
 
+    public double GetRemainingTime()
+    {
+        double difference = Game.UniverseModel.Time.UniverseTime - _dataResourceScanner._startScanTimestamp;
+        return Math.Ceiling(_dataResourceScanner.TimeToComplete - difference);
+    }
+
     public override void OnUpdate(double universalTime, double deltaUniversalTime)
     {
         // Scanner not enabled
@@ -115,7 +121,7 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
         if (!HasEnoughResources()) return;
 
         double difference = Game.UniverseModel.Time.UniverseTime - _dataResourceScanner._startScanTimestamp;
-        SetStatus(ResourceScannerStatus.Scanning, Math.Ceiling(_dataResourceScanner.TimeToComplete - difference));
+        SetStatus(ResourceScannerStatus.Scanning, GetRemainingTime());
         if (difference >= _dataResourceScanner.TimeToComplete)
         {
             SendNotification();

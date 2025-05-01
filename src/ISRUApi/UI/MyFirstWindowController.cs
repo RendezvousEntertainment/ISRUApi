@@ -10,6 +10,13 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Unity.IO.LowLevel.Unsafe;
+using KSP.Sim;
+using KSP.Iteration.UI.Binding;
+using KSP.Modules;
+using static KSP.Api.UIDataPropertyStrings.View.Vessel.Stages;
+using ISRUApi.Modules;
+using System.Linq;
+using KSP.Sim.Definitions;
 
 namespace ISRUApi.UI;
 
@@ -26,6 +33,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private Toggle _overlayToggle;
     private Label _messageField;
     private List<RadioButton> _radioGroup;
+    Button _buttonScan;
+    Button _buttonDisplayOverlay;
 
     private UIResourceWindowStatus _uiWindowStatus;
 
@@ -45,6 +54,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     // Useful game objects
     private string _celestialBodyName;
     private VesselComponent _vessel;
+    private List<PartComponentModule_ResourceScanner> _partModuleList;
 
     private readonly Dictionary<string, List<CBResourceChart>> _cbResourceList = new()
         {
@@ -82,8 +92,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _rootElement.style.display = DisplayStyle.None;
 
         // Plug the buttons
-        _rootElement.Q<Button>("button-scan").clicked += () => OnClickButtonScan();
-        _rootElement.Q<Button>("button-display-overlay").clicked += () => OnClickButtonResourceOverlay();
+        _buttonScan = _rootElement.Q<Button>("button-scan");
+        _buttonDisplayOverlay = _rootElement.Q<Button>("button-display-overlay");
+        _buttonScan.clicked += () => OnClickButtonScan();
+        _buttonDisplayOverlay.clicked += () => OnClickButtonResourceOverlay();
 
         // Hide the available resource fields
         _rootElement.Q<VisualElement>("available-resource-1").style.display = DisplayStyle.None;
@@ -207,7 +219,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
     }
 
-    private void SetUserMessage(string message, bool isWarning)
+    private void SetUserMessage(string message, bool isWarning = false)
     {
         _messageField.text = message;
         if (isWarning)
@@ -261,9 +273,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             case UIResourceWindowStatus.NotInMapView:
                 SetUserMessage("Switch to map view.", true);
                 break;
-            case UIResourceWindowStatus.NoSuchResource:
-                SetUserMessage("This body is bare of this resource.", true);
-                break;
+            //case UIResourceWindowStatus.NoSuchResource:
+            //    SetUserMessage("This body is bare of this resource.", true);
+            //    break;
         }
     }
 
@@ -287,10 +299,34 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private void Update()
 #pragma warning restore IDE0051 // Remove unused private members
     {
-        if (_isWindowOpen)
+        if (!_isWindowOpen) return;
+
+        SetDensityValues();
+        UpdateUserMessage();
+
+        if (_isScanning && _partModuleList != null && _partModuleList.Count() > 0)
         {
-            SetDensityValues();
-            UpdateUserMessage();
+            bool isAtLeastOneScannerActive = false;
+            double maxRemainingTime = 0;
+            foreach (PartComponentModule_ResourceScanner partComponent in _partModuleList)
+            {
+                maxRemainingTime = Math.Max(partComponent.GetRemainingTime(), maxRemainingTime);
+                if (partComponent._dataResourceScanner._startScanTimestamp != 0)
+                {
+                    isAtLeastOneScannerActive = true;
+                }
+            }
+            if (!isAtLeastOneScannerActive)
+            {
+                UnclickButtonScan();
+                SetUserMessage("Scanning complete");
+            } else
+            {
+                SetUserMessage(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Scanning", maxRemainingTime));
+            }
+        } else
+        {
+            UnclickButtonScan();
         }
             
     }
@@ -471,18 +507,35 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _originalMaterial = null;
     }
 
+    private void UnclickButtonScan()
+    {
+        _buttonScan.RemoveFromClassList("tinted"); // remove color change
+        _isScanning = false;
+    }
+
     private void OnClickButtonScan()
     {
         _isScanning = !_isScanning;
-        System.Diagnostics.Debug.Write("ISRU OnClickButtonScan");
+        //System.Diagnostics.Debug.Write("ISRU OnClickButtonScan");
         if (_isScanning)
         {
-            _rootElement.Q<Button>("button-scan").AddToClassList("tinted");
+            _buttonScan.AddToClassList("tinted"); // color change
+
+            // Run scanning through action group
+            _vessel.TriggerActionGroup(KSPActionGroup.Custom01); // start scanning with all scan parts // TODO in Redux change to custom Scan Resource action groupe
+
+            _partModuleList = _vessel.SimulationObject.PartOwner.GetPartModules<PartComponentModule_ResourceScanner>();
+            System.Diagnostics.Debug.Write("ISRU OnClickButtonScan found " + _partModuleList.Count() + " part module(s)");
+            if (_partModuleList.Count() == 0)
+            {
+                SetUserMessage("No resource scanner on board", true);
+                UnclickButtonScan();
+                return;
+            }
         } else
         {
-            _rootElement.Q<Button>("button-scan").RemoveFromClassList("tinted");
+            UnclickButtonScan();
         }
-
     }
 
     private void OnClickButtonResourceOverlay()
@@ -491,10 +544,11 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         System.Diagnostics.Debug.Write("ISRU OnClickButtonResourceOverlay _displayOverlay=" + _displayOverlay);
         if (_displayOverlay)
         {
-            _rootElement.Q<Button>("button-display-overlay").style.unityBackgroundImageTintColor = Color.red;
-        } else
+            _buttonDisplayOverlay.AddToClassList("tinted");
+        }
+        else
         {
-            _rootElement.Q<Button>("button-display-overlay").style.unityBackgroundImageTintColor = Color.blue;
+            _buttonDisplayOverlay.RemoveFromClassList("tinted");
         }
     }
 }

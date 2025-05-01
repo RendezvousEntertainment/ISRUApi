@@ -11,6 +11,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using KSP.Sim;
 using ISRUApi.Modules;
 using KSP.Sim.Definitions;
+using System.Runtime.CompilerServices;
 
 namespace ISRUApi.UI;
 
@@ -24,7 +25,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     // The elements of the window that we need to access
     private VisualElement _rootElement;
-    private Toggle _overlayToggle;
+    //private Toggle _overlayToggle;
     private Label _messageField;
     private List<RadioButton> _radioGroup;
     Button _buttonScan;
@@ -110,8 +111,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
 
         // Overlay Toggle
-        _overlayToggle = _rootElement.Q<Toggle>("overlay-toggle");
-        _overlayToggle.RegisterValueChangedCallback(evt => OnToggleOverlay(evt.newValue));
+        //_overlayToggle = _rootElement.Q<Toggle>("overlay-toggle");
+        //_overlayToggle.RegisterValueChangedCallback(evt => OnToggleOverlay(evt.newValue));
 
         // Message
         _messageField = _rootElement.Q<Label>("label-message");
@@ -254,8 +255,27 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
     }
 
+    private bool NoResourceWasScanned()
+    {
+        List<CBResourceChart> availableResourceList = _cbResourceList[_celestialBodyName];
+        // Loop through all available resources on current celestial body
+        foreach (CBResourceChart availableResource in availableResourceList)
+        {
+            if (availableResource.IsScanned)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void UpdateWindowStatus()
     {
+        if (_displayOverlay && NoResourceWasScanned())
+        {
+            _uiWindowStatus = UIResourceWindowStatus.NoResourceScanned;
+            return;
+        }
         if (!IsMapView())
         {
             _uiWindowStatus = UIResourceWindowStatus.NotInMapView;
@@ -287,13 +307,16 @@ public class MyFirstWindowController : KerbalMonoBehaviour
                 string[] options = ["Hmm, {0}"!, "{0}! {0} everywhere!", "{0} spotted!", "What a wonderful resource!", "Let's mine it all!", "For science! And the mining industry."];
                 System.Random random = new();
                 int randomIndex = random.Next(options.Length);
-                SetUserMessage(string.Format(options[randomIndex], resourceName), false);
+                SetUserMessage(string.Format(options[randomIndex], resourceName));
                 break;
             case UIResourceWindowStatus.TurnedOff:
-                SetUserMessage("", false);
+                SetUserMessage("");
                 break;
             case UIResourceWindowStatus.NotInMapView:
                 SetUserMessage("Switch to map view to see the overlay.", true);
+                break;
+            case UIResourceWindowStatus.NoResourceScanned:
+                SetUserMessage("No resource was scanned.", true);
                 break;
         }
     }
@@ -491,7 +514,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         GameObject gameObject = GameObject.Find(GetCelestialBodyPath());
         Renderer renderer = gameObject.GetComponent<Renderer>();
 
-        if (!state) // displays back the original texture
+        if (!state && _originalMaterial != null) // displays back the original texture
         {
             renderer.material = _originalMaterial;
             return;
@@ -507,7 +530,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         SaveOriginalTexture();
 
         // if the overlay toggle is not enabled
-        if (_overlayToggle.value == false) return;
+        //if (_overlayToggle.value == false) return;
+        if (_displayOverlay == false) return;
         if (_cbMaterial == null)
         {
             System.Diagnostics.Debug.Write("ISRU ERROR material not loaded :(");
@@ -532,12 +556,12 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     }
 
-    private void OnToggleOverlay(bool state)
-    {
-        UpdateWindowStatus();
-        UpdateUserMessage();
-        DisplayResourceShader(state);
-    }
+    //private void OnToggleOverlay(bool state)
+    //{
+    //    UpdateWindowStatus();
+    //    UpdateUserMessage();
+    //    DisplayResourceShader(state);
+    //}
 
     private void ToggleRadioButton(RadioButton button, bool newValue)
     {
@@ -546,8 +570,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _messageField.text = "";
         UpdateUserMessage();
         if (button == null) return;
-        if (!_overlayToggle.value) return;
-        DisplayResourceShader(_overlayToggle.value);
+        //if (!_overlayToggle.value) return;
+        if (!_displayOverlay) return;
+        DisplayResourceShader(_displayOverlay);
     }
 
     private void OnSOIEntered(MessageCenterMessage message)
@@ -557,7 +582,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         HideResourceFields();
         InitializeFields();
         SaveOriginalTexture();
-        _overlayToggle.value = false;
+        //_overlayToggle.value = false;
+        UnclickDisplayOverlayButton();
     }
 
     private async void LoadMateralAsync()
@@ -588,6 +614,12 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _isScanning = false;
     }
 
+    private void UnclickDisplayOverlayButton()
+    {
+        _buttonDisplayOverlay.RemoveFromClassList("tinted"); // remove color change
+        _displayOverlay = false;
+    }
+
     private void OnClickButtonScan()
     {
         _isScanning = !_isScanning;
@@ -599,7 +631,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             _vessel.TriggerActionGroup(KSPActionGroup.Custom01); // start scanning with all scan parts // TODO in Redux change to custom Scan Resource action groupe
 
             _partComponentResourceScannerList = _vessel.SimulationObject.PartOwner.GetPartModules<PartComponentModule_ResourceScanner>();
-            System.Diagnostics.Debug.Write("ISRU OnClickButtonScan found " + _partComponentResourceScannerList.Count() + " part module(s)");
             if (_partComponentResourceScannerList.Count() == 0)
             {
                 SetUserMessage("No resource scanner on board", true);
@@ -615,14 +646,21 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private void OnClickButtonResourceOverlay()
     {
         _displayOverlay = !_displayOverlay;
-        System.Diagnostics.Debug.Write("ISRU OnClickButtonResourceOverlay _displayOverlay=" + _displayOverlay);
         if (_displayOverlay)
         {
             _buttonDisplayOverlay.AddToClassList("tinted");
         }
         else
         {
-            _buttonDisplayOverlay.RemoveFromClassList("tinted");
+            UnclickDisplayOverlayButton();
+            SetUserMessage("");
+        }
+        UpdateWindowStatus();
+        UpdateUserMessage();
+        DisplayResourceShader(_displayOverlay);
+        if (_uiWindowStatus == UIResourceWindowStatus.NoResourceScanned)
+        {
+            UnclickDisplayOverlayButton();
         }
     }
 }

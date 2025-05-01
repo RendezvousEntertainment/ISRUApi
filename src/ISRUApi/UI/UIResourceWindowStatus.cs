@@ -12,5 +12,6 @@ namespace ISRUApi.UI
         [Description("Turned off")] TurnedOff,
         [Description("Not in Map View")] NotInMapView,
         [Description("The resource is not available")] NoSuchResource,
+        [Description("No resource was scanned")] NoResourceScanned,
     }
 }

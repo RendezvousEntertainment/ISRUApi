@@ -101,11 +101,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _buttonDisplayOverlay.clicked += () => OnClickButtonResourceOverlay();
 
         // Hide the available resource fields
-        _rootElement.Q<VisualElement>("available-resource-1").style.display = DisplayStyle.None;
-        _rootElement.Q<VisualElement>("available-resource-2").style.display = DisplayStyle.None;
-        _rootElement.Q<VisualElement>("available-resource-3").style.display = DisplayStyle.None;
-        _rootElement.Q<VisualElement>("available-resource-4").style.display = DisplayStyle.None;
-        _rootElement.Q<VisualElement>("available-resource-5").style.display = DisplayStyle.None;
+        HideResourceFields();
 
         // Radio buttons
         _radioGroup =
@@ -138,6 +134,15 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         // Close Button
         var closeButton = _rootElement.Q<Button>("close-button");
         closeButton.clicked += () => IsWindowOpen = false;
+    }
+
+    private void HideResourceFields()
+    {
+        _rootElement.Q<VisualElement>("available-resource-1").style.display = DisplayStyle.None;
+        _rootElement.Q<VisualElement>("available-resource-2").style.display = DisplayStyle.None;
+        _rootElement.Q<VisualElement>("available-resource-3").style.display = DisplayStyle.None;
+        _rootElement.Q<VisualElement>("available-resource-4").style.display = DisplayStyle.None;
+        _rootElement.Q<VisualElement>("available-resource-5").style.display = DisplayStyle.None;
     }
 
     // Save the celestial body original texture
@@ -313,8 +318,16 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         int i = 1;
         foreach (CBResourceChart ressourceChart in _cbResourceList[_celestialBodyName])
         {
-            float density = 100 * GetLocalDensity(_vessel, ressourceChart.LevelMap);
-            _rootElement.Q<Label>("available-resource-" + i + "-density").text = Math.Round(density).ToString();
+            float localDensity = GetLocalDensity(_vessel, ressourceChart.LevelMap);
+            string density;
+            if (localDensity == -1.0f)
+            {
+                density = "?";
+            } else
+            {
+                density = Math.Round(100 * localDensity).ToString();
+            }
+            _rootElement.Q<Label>("available-resource-" + i + "-density").text = density;
             i++;
         }
     }
@@ -400,10 +413,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             System.Diagnostics.Debug.Write("ISRU vessel is null");
             return 0.0f;
         }
-        if (levelTex == null)
+        if (levelTex == null) // level map is unknown when the resource has not been scanned
         {
-            System.Diagnostics.Debug.Write("ISRU levelTex is null");
-            return 0.0f;
+            //System.Diagnostics.Debug.Write("ISRU levelTex is null");
+            return -1.0f;
         }
         double longitude = vessel.Longitude;
         double latitude = vessel.Latitude;
@@ -494,6 +507,13 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             return;
         }
 
+        string resourceName = GetResourceNameSelectedRadioButton();
+
+        if (!IsResourceScanned(resourceName))
+        {
+            return;
+        }
+
         SaveOriginalTexture();
 
         // if the overlay toggle is not enabled
@@ -510,7 +530,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
         
         renderer.material = _cbMaterial;
-        string resourceName = GetResourceNameSelectedRadioButton();
         renderer.material.SetTexture("_DensityMap", GetLevelsImage(_celestialBodyName, resourceName));
         renderer.material.SetTexture("_CbAlbedo", _originalTexture);
         Color color = new(237, 31, 255, 1); // default color purple
@@ -544,6 +563,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private void OnSOIEntered(MessageCenterMessage message)
     {
         System.Diagnostics.Debug.Write("ISRU OnSOIEntered");
+        HideResourceFields();
+        InitializeFields();
+        SaveOriginalTexture();
     }
 
     private async void LoadMateralAsync()

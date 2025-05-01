@@ -375,17 +375,17 @@
             ScannableResources: [
                 {
                     Rate: 1.0,
-                    ResourceName: Iron,
+                    ResourceName: Methane,
                     AcceptanceThreshold: 0.1
                 },
                 {
                     Rate: 1.0,
-                    ResourceName: Regolith,
+                    ResourceName: Nickel,
                     AcceptanceThreshold: 0.1
                 },
                 {
                     Rate: 1.0,
-                    ResourceName: Water,
+                    ResourceName: Quartz,
                     AcceptanceThreshold: 0.1
                 }
             ];

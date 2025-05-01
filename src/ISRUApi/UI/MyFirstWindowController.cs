@@ -688,6 +688,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         if (_isScanning)
         {
             _buttonScan.AddToClassList("tinted"); // color change
+            UnclickDisplayOverlayButton();
 
             _partComponentResourceScannerList = _vessel.SimulationObject.PartOwner.GetPartModules<PartComponentModule_ResourceScanner>();
             if (_partComponentResourceScannerList.Count() == 0)

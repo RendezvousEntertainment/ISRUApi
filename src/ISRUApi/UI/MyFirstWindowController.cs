@@ -7,18 +7,10 @@ using KSP.Game;
 using I2.Loc;
 using KSP.Messages;
 using UnityEngine.AddressableAssets;
-using UnityEngine.InputSystem;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using Unity.IO.LowLevel.Unsafe;
 using KSP.Sim;
-using KSP.Iteration.UI.Binding;
-using KSP.Modules;
-using static KSP.Api.UIDataPropertyStrings.View.Vessel.Stages;
 using ISRUApi.Modules;
-using System.Linq;
 using KSP.Sim.Definitions;
-using UniLinq;
-using TMPro;
 
 namespace ISRUApi.UI;
 
@@ -45,7 +37,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     // Scan
     private bool _isScanning = false;
-    //bool _isCbScanned = false; // TODO
 
     // Overlay
     Texture _originalTexture;

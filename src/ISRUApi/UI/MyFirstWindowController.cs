@@ -282,9 +282,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             case UIResourceWindowStatus.NotInMapView:
                 SetUserMessage("Switch to map view to see the overlay.", true);
                 break;
-            //case UIResourceWindowStatus.NoSuchResource:
-            //    SetUserMessage("This body is bare of this resource.", true);
-            //    break;
         }
     }
 
@@ -313,39 +310,35 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         SetDensityValues();
         UpdateUserMessage();
         UpdateScanningData();
-
     }
 
     private void UpdateScanningData()
     {
-        if (_isScanning && _partModuleList != null && _partModuleList.Count > 0)
+        bool isScanOngoing = _isScanning && _partModuleList != null && _partModuleList.Count > 0;
+        if (!isScanOngoing) {
+            UnclickButtonScan();
+            return;
+        }
+
+        bool isAtLeastOneScannerActive = false;
+        double maxRemainingTime = 0;
+        foreach (PartComponentModule_ResourceScanner partComponent in _partModuleList)
         {
-            bool isAtLeastOneScannerActive = false;
-            double maxRemainingTime = 0;
-            //System.Diagnostics.Debug.Write("ISRU _partModuleList.Count=" + _partModuleList.Count);
-            foreach (PartComponentModule_ResourceScanner partComponent in _partModuleList)
+            maxRemainingTime = Math.Max(partComponent.GetRemainingTime(), maxRemainingTime);
+            if (partComponent._dataResourceScanner._startScanTimestamp != 0) // scan is not complete
             {
-                maxRemainingTime = Math.Max(partComponent.GetRemainingTime(), maxRemainingTime);
-                //System.Diagnostics.Debug.Write("ISRU partComponent._dataResourceScanner._startScanTimestamp=" + partComponent._dataResourceScanner._startScanTimestamp);
-                if (partComponent._dataResourceScanner._startScanTimestamp != 0)
-                {
-                    isAtLeastOneScannerActive = true;
-                }
+                isAtLeastOneScannerActive = true;
             }
-            if (!isAtLeastOneScannerActive) // scan complete
-            {
-                UnclickButtonScan();
-                _isCbScanned = true;
-                InitializeFields();
-            }
-            else
-            {
-                SetUserMessage(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Scanning", maxRemainingTime));
-            }
+        }
+        if (!isAtLeastOneScannerActive) // scan complete
+        {
+            UnclickButtonScan();
+            _isCbScanned = true;
+            InitializeFields();
         }
         else
         {
-            UnclickButtonScan();
+            SetUserMessage(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Scanning", maxRemainingTime));
         }
     }
 
@@ -489,7 +482,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private void ToggleRadioButton(RadioButton button, bool newValue)
     {
         if (!newValue) return;
-        //System.Diagnostics.Debug.Write("ISRU ToggleRadioButton newValue=" + newValue);
         UpdateWindowStatus();
         _messageField.text = "";
         UpdateUserMessage();
@@ -534,7 +526,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private void OnClickButtonScan()
     {
         _isScanning = !_isScanning;
-        //System.Diagnostics.Debug.Write("ISRU OnClickButtonScan");
         if (_isScanning)
         {
             _buttonScan.AddToClassList("tinted"); // color change

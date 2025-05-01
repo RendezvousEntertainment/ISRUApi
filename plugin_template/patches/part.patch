@@ -362,6 +362,38 @@
     }
 }
 
+:parts #antenna_0v_dish_ra-15 {
+    +Module_ResourceScanner {
+        +Data_ResourceScanner {
+            RequiredResources: [
+                {
+                    Rate: 30,
+                    ResourceName: ElectricCharge,
+                    AcceptanceThreshold: 0.1
+                }
+            ];
+            ScannableResources: [
+                {
+                    Rate: 1.0,
+                    ResourceName: Iron,
+                    AcceptanceThreshold: 0.1
+                },
+                {
+                    Rate: 1.0,
+                    ResourceName: Regolith,
+                    AcceptanceThreshold: 0.1
+                },
+                {
+                    Rate: 1.0,
+                    ResourceName: Water,
+                    AcceptanceThreshold: 0.1
+                }
+            ];
+            TimeToComplete: 7.0;
+        }
+    }
+}
+
 // add the PAM header for all resource scanners
 :parts .Module_ResourceScanner {
     PAMModuleVisualsOverride +: [

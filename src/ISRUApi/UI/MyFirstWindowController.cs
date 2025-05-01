@@ -113,8 +113,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             _rootElement.Q<RadioButton>("available-resource-5-radio")
         ];
 
-        _radioGroup[0].value = true; // the first radio button is checked by default
-
         foreach (var button in _radioGroup)
         {
             button.RegisterValueChangedCallback(evt => ToggleRadioButton(button, evt.newValue));
@@ -207,6 +205,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
                 // loading texture level maps
                 _cbResourceList[_celestialBodyName][i].LevelMap = GetLevelsImage(_celestialBodyName, cbResource.ResourceName);
                 _radioGroup[i].SetEnabled(true); // enable the radio button
+                _radioGroup[i].value = true; // the last radio button is checked by default
             } else
             {
                 _radioGroup[i].SetEnabled(false); // disable the radio button
@@ -563,9 +562,11 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private void OnSOIEntered(MessageCenterMessage message)
     {
         System.Diagnostics.Debug.Write("ISRU OnSOIEntered");
+        SetCelestialBodyName();
         HideResourceFields();
         InitializeFields();
         SaveOriginalTexture();
+        _overlayToggle.value = false;
     }
 
     private async void LoadMateralAsync()

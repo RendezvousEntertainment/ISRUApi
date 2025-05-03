@@ -92,8 +92,12 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
             Importance = NotificationImportance.Low,
             TimeStamp = Game.UniverseModel.Time.UniverseTime
         };
-        notificationData.AlertTitle.LocKey = "Resource/Notifications/ScanningDone";
-        notificationData.FirstLine.LocKey = "Resource/Notifications/ScanningDoneMessage";
+        //notificationData.AlertTitle.LocKey = "Resource/Notifications/ScanningDone";
+        notificationData.AlertTitle.LocKey = "Parts/Title/" + Part.Name;
+        notificationData.FirstLine.LocKey = "Resource/Notifications/ScanComplete";
+        notificationData.FirstLine.ObjectParams = [
+            Part.PartCelestialBody.Name
+        ];
         _notificationManager.ProcessNotification(notificationData);
     }
 

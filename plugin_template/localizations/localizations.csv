@@ -21,8 +21,7 @@ PartModules/ResourceScanner/OutOfResource,Text,,Out of {0}
 PartModules/ResourceScanner/Tooltip/ScannableResources,Text,,Scannable Resources
 PartModules/ResourceScanner/Tooltip/ScanningRunTime,Text,,Scan Duration: {0} s
 
-Resource/Notifications/ScanningDone,Text,,SCAN COMPLETE
-Resource/Notifications/ScanningDoneMessage,Text,,Resource data is now available in the Resource Gathering window
+Resource/Notifications/ScanComplete,Text,,{0} scan complete.
 
 PartModules/Convertotron/Enabled,Text,,Convert-O-Tron Enabled
 PartModules/Convertotron/Start,Text,,Start Convert-O-Tron

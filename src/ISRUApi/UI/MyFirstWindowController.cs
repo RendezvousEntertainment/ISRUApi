@@ -27,13 +27,13 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     // The elements of the window that we need to access
     private VisualElement _rootElement;
-    //private Toggle _overlayToggle;
     private Label _messageField;
     private List<RadioButton> _radioGroup;
     Button _buttonScan;
     Button _buttonDisplayOverlay;
 
     private UIResourceWindowStatus _uiWindowStatus;
+    double _maxRemainingTime = 0;
 
     // The backing field for the IsWindowOpen property
     private bool _isWindowOpen;
@@ -339,6 +339,18 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             case UIResourceWindowStatus.NoResourceScanned:
                 SetUserMessage("No resource was scanned.", true);
                 break;
+            case UIResourceWindowStatus.ScanComplete:
+                SetUserMessage("Scan complete.");
+                break;
+            case UIResourceWindowStatus.NoVesselControl:
+                SetUserMessage("Insufficient vessel control.", true);
+                break;
+            case UIResourceWindowStatus.Scanning:
+                SetUserMessage(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Scanning", _maxRemainingTime));
+                break;
+            case UIResourceWindowStatus.NoScanner:
+                SetUserMessage("No resource scanner on board.", true);
+                break;
         }
     }
 
@@ -418,10 +430,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
         // Scanning
         bool isAtLeastOneScannerActive = false;
-        double maxRemainingTime = 0;
+        //double maxRemainingTime = 0;
         foreach (PartComponentModule_ResourceScanner partComponent in _partComponentResourceScannerList)
         {
-            maxRemainingTime = Math.Max(partComponent.GetRemainingTime(), maxRemainingTime);
+            _maxRemainingTime = Math.Max(partComponent.GetRemainingTime(), _maxRemainingTime);
             if (partComponent._dataResourceScanner._startScanTimestamp != 0) // scan is not complete
             {
                 isAtLeastOneScannerActive = true;
@@ -430,7 +442,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         if (!isAtLeastOneScannerActive) // scan complete
         {
             UnclickButtonScan();
-            //_isCbScanned = true;
+            _maxRemainingTime = 0;
             MarkedCelestialBodyResourcesAsScanned();
             InitializeFields();
             Renderer renderer = GameObject.Find(GetCelestialBodyPath()).GetComponent<Renderer>();
@@ -438,11 +450,13 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             {
                 renderer.material = _originalMaterial;
             }
-            SetUserMessage("Scan complete.");
+            _uiWindowStatus = UIResourceWindowStatus.ScanComplete;
+            //SetUserMessage("Scan complete.");
         }
         else
         {
-            SetUserMessage(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Scanning", maxRemainingTime));
+            _uiWindowStatus = UIResourceWindowStatus.Scanning;
+            //SetUserMessage(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Scanning", maxRemainingTime));
         }
     }
 
@@ -698,7 +712,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         if (state.ControlState.HasValue && state.ControlState.Value != VesselControlState.FullControl)
         {
             _vessel.NotifyInsufficientVesselControl();
-            SetUserMessage("Insufficient vessel control.", true);
+            _uiWindowStatus = UIResourceWindowStatus.NoVesselControl;
+            //SetUserMessage("Insufficient vessel control.", true);
             UnclickButtonScan();
             return;
         }
@@ -707,7 +722,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _partComponentResourceScannerList = _vessel.SimulationObject.PartOwner.GetPartModules<PartComponentModule_ResourceScanner>();
         if (_partComponentResourceScannerList.Count() == 0)
         {
-            SetUserMessage("No resource scanner on board.", true);
+            _uiWindowStatus = UIResourceWindowStatus.NoScanner;
+            //SetUserMessage("No resource scanner on board.", true);
             UnclickButtonScan();
             return;
         }

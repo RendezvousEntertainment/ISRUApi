@@ -6,7 +6,6 @@ using KSP.Modules;
 using KSP.Sim;
 using KSP.Sim.Definitions;
 using KSP.Sim.ResourceSystem;
-using KSP.UI.Binding;
 using Newtonsoft.Json;
 using UnityEngine;
 

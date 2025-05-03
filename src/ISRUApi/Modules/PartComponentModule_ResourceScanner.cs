@@ -1,10 +1,5 @@
-﻿using System;
-using I2.Loc;
-using ISRUApi.UI;
+﻿using I2.Loc;
 using KSP.Game;
-using KSP.Messages.PropertyWatchers;
-using KSP.Modules;
-using KSP.Sim;
 using KSP.Sim.Definitions;
 using KSP.Sim.impl;
 using KSP.Sim.ResourceSystem;

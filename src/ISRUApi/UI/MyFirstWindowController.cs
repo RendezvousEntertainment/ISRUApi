@@ -13,6 +13,7 @@ using ISRUApi.Modules;
 using KSP.Sim.Definitions;
 using System.Runtime.CompilerServices;
 using TMPro;
+using KSP.Sim.State;
 
 namespace ISRUApi.UI;
 
@@ -680,26 +681,42 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private void OnClickButtonScan()
     {
         _isScanning = !_isScanning;
-        if (_isScanning)
-        {
-            _buttonScan.AddToClassList("tinted"); // color change
-            UnclickDisplayOverlayButton();
 
-            _partComponentResourceScannerList = _vessel.SimulationObject.PartOwner.GetPartModules<PartComponentModule_ResourceScanner>();
-            if (_partComponentResourceScannerList.Count() == 0)
-            {
-                SetUserMessage("No resource scanner on board", true);
-                UnclickButtonScan();
-                return;
-            }
-
-            // Run scanning through action group
-            _vessel.TriggerActionGroup(KSPActionGroup.Custom01); // start scanning with all scan parts // TODO in Redux change to custom Scan Resource action groupe
-            DisplayScanningShader();
-        } else
+        // Scanning complete
+        if (!_isScanning)
         {
             UnclickButtonScan();
+            return;
         }
+
+        // If no control, we don't scan
+        VesselState state = (VesselState)_vessel.GetState();
+        if (state.ControlState.HasValue && state.ControlState.Value != VesselControlState.FullControl)
+        {
+            _vessel.NotifyInsufficientVesselControl();
+            SetUserMessage("Insufficient vessel control.", true);
+            UnclickButtonScan();
+            return;
+        }
+
+        // If no scanner onboard, we don't scan
+        _partComponentResourceScannerList = _vessel.SimulationObject.PartOwner.GetPartModules<PartComponentModule_ResourceScanner>();
+        if (_partComponentResourceScannerList.Count() == 0)
+        {
+            SetUserMessage("No resource scanner on board.", true);
+            UnclickButtonScan();
+            return;
+        }
+
+        // Button color change
+        _buttonScan.AddToClassList("tinted");
+
+        // Disable the other button
+        UnclickDisplayOverlayButton();
+
+        // Run scanning through action group
+        _vessel.TriggerActionGroup(KSPActionGroup.Custom01); // start scanning with all scan parts // TODO in Redux change to custom Scan Resource action groupe
+        DisplayScanningShader();
     }
 
     private void OnClickButtonResourceOverlay()

@@ -317,6 +317,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         {
             case UIResourceWindowStatus.DisplayingResources:
                 if (_messageField.text != "") break;
+                if (!_displayOverlay) break;
                 string resourceName = GetResourceNameSelectedRadioButton();
                 string[] options;
                 if (IsResourceScanned(resourceName))

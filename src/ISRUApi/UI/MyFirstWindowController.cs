@@ -309,6 +309,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private void UpdateUserMessage()
     {
+        if (_uiWindowStatus == UIResourceWindowStatus.NotInMapView && IsMapView())
+        {
+            _uiWindowStatus = UIResourceWindowStatus.TurnedOff;
+        }
         switch (_uiWindowStatus)
         {
             case UIResourceWindowStatus.DisplayingResources:

@@ -133,9 +133,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     }
 
     // Save the celestial body original texture
-    private void SaveOriginalTexture()
+    private void SaveOriginalTexture(bool onSOIEntered = false)
     {
-        if (_originalMaterial != null) return;
+        if (_originalMaterial != null && !onSOIEntered) return;
         _originalMaterial = GetCelestialBodyMaterial();
         if (_originalMaterial != null) _originalTexture = _originalMaterial.mainTexture;
     }
@@ -427,9 +427,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _maxRemainingTime = 0;
         foreach (PartComponentModule_ResourceScanner partComponent in _partComponentResourceScannerList)
         {
-            System.Diagnostics.Debug.Write("ISRU partComponent.GetRemainingTime()=" + partComponent.GetRemainingTime());
             _maxRemainingTime = Math.Max(partComponent.GetRemainingTime(), _maxRemainingTime);
-            System.Diagnostics.Debug.Write("ISRU _maxRemainingTime=" + _maxRemainingTime);
             if (partComponent._dataResourceScanner._startScanTimestamp != 0) // scan is not complete
             {
                 isAtLeastOneScannerActive = true;
@@ -439,7 +437,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         {
             UnclickButtonScan();
             _maxRemainingTime = 0;
-            System.Diagnostics.Debug.Write("ISRU _maxRemainingTime=" + _maxRemainingTime);
             MarkedCelestialBodyResourcesAsScanned();
             InitializeFields();
             Renderer renderer = GameObject.Find(GetCelestialBodyPath()).GetComponent<Renderer>();
@@ -634,7 +631,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         SetCelestialBodyName();
         HideResourceFields();
         InitializeFields();
-        SaveOriginalTexture();
+        SaveOriginalTexture(true);
         UnclickDisplayOverlayButton();
     }
 

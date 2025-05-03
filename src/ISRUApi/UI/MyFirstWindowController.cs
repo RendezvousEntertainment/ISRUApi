@@ -145,9 +145,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         if (_originalMaterial != null) _originalTexture = _originalMaterial.mainTexture;
     }
 
-    private static Texture2D GetImage(string celestialBodyName, string resourceName, string type)
+    private static Texture2D GetLevelsImage(string celestialBodyName, string resourceName)
     {
-        string filePath = "./BepInEx/plugins/ISRU/assets/images/" + celestialBodyName + "_" + resourceName + "_" + type + ".png";
+        string filePath = "./BepInEx/plugins/ISRU/assets/images/" + celestialBodyName + "_" + resourceName + ".png";
         //string filePath = "./BepInEx/plugins/ISRU/assets/images/gradient.png";
         if (!File.Exists(filePath))
         {
@@ -157,11 +157,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         Texture2D texture = new(OverlaySideSize, OverlaySideSize);
         texture.LoadImage(File.ReadAllBytes(filePath));
         return texture;
-    }
-
-    private static Texture2D GetLevelsImage(string celestialBodyName, string resourceName)
-    {
-        return GetImage(celestialBodyName, resourceName, "Lev");
     }
 
     private bool IsResourceScanned(String resourceName)
@@ -318,7 +313,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             case UIResourceWindowStatus.DisplayingResources:
                 if (_messageField.text != "") break;
                 string resourceName = GetResourceNameSelectedRadioButton();
-                string[] options
+                string[] options;
                 if (IsResourceScanned(resourceName))
                 {
                     options = ["Hmm, {0}"!, "{0}! {0} everywhere!", "{0} spotted!", "What a wonderful resource!", "Let's mine it all!", "For science! And the mining industry."];

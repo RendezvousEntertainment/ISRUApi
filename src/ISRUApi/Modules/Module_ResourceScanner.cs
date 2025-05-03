@@ -63,10 +63,7 @@ public class Module_ResourceScanner : PartBehaviourModule
         {
             return;
         }
-        //_dataResourceScanner.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceScannerStatus.Scanning.Description()));
-        //_dataResourceScanner._startScanTimestamp = DateTime.Now;
         if (newValue) _dataResourceScanner._startScanTimestamp = Game.UniverseModel.Time.UniverseTime;
-        //_notificationManager.ProcessNotification(this._experimentNotifications[ExperimentState.RUNNING]);
     } 
 
     private void StartScanning() => _dataResourceScanner.EnabledToggle.SetValue(true);

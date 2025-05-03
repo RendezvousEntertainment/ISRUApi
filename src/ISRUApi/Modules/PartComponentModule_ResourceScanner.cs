@@ -120,16 +120,13 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
 
         if (!HasEnoughResources()) return;
 
-        //System.Diagnostics.Debug.WriteLine("ISRU PartComponent_ResourceScanner.OnUpdate _dataResourceScanner._startScanTimestamp=" + _dataResourceScanner._startScanTimestamp);
         double difference = Game.UniverseModel.Time.UniverseTime - _dataResourceScanner._startScanTimestamp;
         SetStatus(ResourceScannerStatus.Scanning, GetRemainingTime());
         if (difference >= _dataResourceScanner.TimeToComplete)
         {
-            //System.Diagnostics.Debug.WriteLine("ISRU PartComponent_ResourceScanner.OnUpdate end of scanning");
             SendNotification();
             SetStatus(ResourceScannerStatus.Idle);
             _dataResourceScanner._startScanTimestamp = 0;
-            //System.Diagnostics.Debug.WriteLine("ISRU PartComponent_ResourceScanner.OnUpdate _dataResourceScanner._startScanTimestamp=" + _dataResourceScanner._startScanTimestamp);
             _dataResourceScanner.EnabledToggle.SetValue(false);
         }
     }

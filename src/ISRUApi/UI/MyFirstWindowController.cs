@@ -113,10 +113,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             button.RegisterValueChangedCallback(evt => ToggleRadioButton(button, evt.newValue));
         }
 
-        // Overlay Toggle
-        //_overlayToggle = _rootElement.Q<Toggle>("overlay-toggle");
-        //_overlayToggle.RegisterValueChangedCallback(evt => OnToggleOverlay(evt.newValue));
-
         // Message
         _messageField = _rootElement.Q<Label>("label-message");
         SetUserMessage("", false);
@@ -195,7 +191,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
                 // loading texture level maps
                 _cbResourceList[_celestialBodyName][i].LevelMap = GetLevelsImage(_celestialBodyName, cbResource.ResourceName);
                 _radioGroup[i].SetEnabled(true); // enable the radio button
-                //_radioGroup[i].value = true; // the last radio button is checked by default
             } else
             {
                 _radioGroup[i].SetEnabled(false); // disable the radio button
@@ -455,12 +450,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
                 renderer.material = _originalMaterial;
             }
             _uiWindowStatus = UIResourceWindowStatus.ScanComplete;
-            //SetUserMessage("Scan complete.");
         }
         else
         {
             _uiWindowStatus = UIResourceWindowStatus.Scanning;
-            //SetUserMessage(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Scanning", maxRemainingTime));
         }
     }
 
@@ -473,7 +466,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
         if (levelTex == null) // level map is unknown when the resource has not been scanned
         {
-            //System.Diagnostics.Debug.Write("ISRU levelTex is null");
             return -1.0f;
         }
         double longitude = vessel.Longitude;
@@ -687,11 +679,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private void UnclickButtonScan()
     {
-        //System.Diagnostics.Debug.Write("ISRU UnclickButtonScan 1");
         _buttonScan.RemoveFromClassList("tinted"); // remove color change
-        //System.Diagnostics.Debug.Write("ISRU UnclickButtonScan 2");
         _isScanning = false;
-        //System.Diagnostics.Debug.Write("ISRU UnclickButtonScan 5");
     }
 
     private void UnclickDisplayOverlayButton()
@@ -717,7 +706,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         {
             _vessel.NotifyInsufficientVesselControl();
             _uiWindowStatus = UIResourceWindowStatus.NoVesselControl;
-            //SetUserMessage("Insufficient vessel control.", true);
             UnclickButtonScan();
             return;
         }
@@ -727,7 +715,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         if (_partComponentResourceScannerList.Count() == 0)
         {
             _uiWindowStatus = UIResourceWindowStatus.NoScanner;
-            //SetUserMessage("No resource scanner on board.", true);
             UnclickButtonScan();
             return;
         }

@@ -1,4 +1,5 @@
 ﻿using I2.Loc;
+using ISRUApi.Managers;
 using KSP.Game;
 using KSP.Sim.Definitions;
 using KSP.Sim.impl;
@@ -92,7 +93,6 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
             Importance = NotificationImportance.Low,
             TimeStamp = Game.UniverseModel.Time.UniverseTime
         };
-        //notificationData.AlertTitle.LocKey = "Resource/Notifications/ScanningDone";
         notificationData.AlertTitle.LocKey = "Parts/Title/" + Part.Name;
         notificationData.FirstLine.LocKey = "Resource/Notifications/ScanComplete";
         notificationData.FirstLine.ObjectParams = [
@@ -121,12 +121,15 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
 
         double difference = Game.UniverseModel.Time.UniverseTime - _dataResourceScanner._startScanTimestamp;
         SetStatus(ResourceScannerStatus.Scanning, GetRemainingTime());
+
+        // Scan complete
         if (difference >= _dataResourceScanner.TimeToComplete)
         {
             SendNotification();
             SetStatus(ResourceScannerStatus.Idle);
             _dataResourceScanner._startScanTimestamp = 0;
             _dataResourceScanner.EnabledToggle.SetValue(false);
+            ISRUResourceManager.MarkedCelestialBodyResourcesAsScanned(Part.PartCelestialBody.Name, [ this ]);
         }
     }
 

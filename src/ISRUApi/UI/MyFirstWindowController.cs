@@ -12,6 +12,7 @@ using KSP.Sim;
 using ISRUApi.Modules;
 using KSP.Sim.Definitions;
 using KSP.Sim.State;
+using ISRUApi.Managers;
 
 namespace ISRUApi.UI;
 
@@ -52,22 +53,24 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private VesselComponent _vessel;
     private List<PartComponentModule_ResourceScanner> _partComponentResourceScannerList;
 
-    private readonly Dictionary<string, List<CBResourceChart>> _cbResourceList = new()
-        {
-            { "Kerbin", new List<CBResourceChart>([new CBResourceChart("Methane"), new CBResourceChart("Carbon"), new CBResourceChart("Copper"), new CBResourceChart("Iron"), new CBResourceChart("Lithium")])},
-            { "Mun", new List<CBResourceChart>([new CBResourceChart("Nickel"), new CBResourceChart("Regolith"), new CBResourceChart("Water")])},
-            { "Minmus", new List<CBResourceChart>([new CBResourceChart("Iron"), new CBResourceChart("Nickel"), new CBResourceChart("Quartz")])},
-        };
+    private Dictionary<string, List<CBResourceChart>> _cbResourceList;
+    //private readonly Dictionary<string, List<CBResourceChart>> _cbResourceList = new()
+    //    {
+    //        { "Kerbin", new List<CBResourceChart>([new CBResourceChart("Methane"), new CBResourceChart("Carbon"), new CBResourceChart("Copper"), new CBResourceChart("Iron"), new CBResourceChart("Lithium")])},
+    //        { "Mun", new List<CBResourceChart>([new CBResourceChart("Nickel"), new CBResourceChart("Regolith"), new CBResourceChart("Water")])},
+    //        { "Minmus", new List<CBResourceChart>([new CBResourceChart("Iron"), new CBResourceChart("Nickel"), new CBResourceChart("Quartz")])},
+    //    };
 
-    private readonly Dictionary<string, Color> _colorMap = new()
-    {
-        {"Carbon", new Color(1, 0, 255, 1) }, // deep blue
-        {"Iron", new Color(0 ,255, 121, 1) }, // light blue
-        {"Nickel", new Color(204, 14, 0, 1) }, // orange
-        {"Quartz", new Color(255, 173, 0, 1) }, // gold
-        {"Regolith", new Color(55, 0, 204, 1) }, // violet
-        {"Water", new Color(0, 156, 204, 1) }, // blue
-    };
+    private Dictionary<string, Color> _colorMap;
+    //private readonly Dictionary<string, Color> _colorMap = new()
+    //{
+    //    {"Carbon", new Color(1, 0, 255, 1) }, // deep blue
+    //    {"Iron", new Color(0 ,255, 121, 1) }, // light blue
+    //    {"Nickel", new Color(204, 14, 0, 1) }, // orange
+    //    {"Quartz", new Color(255, 173, 0, 1) }, // gold
+    //    {"Regolith", new Color(55, 0, 204, 1) }, // violet
+    //    {"Water", new Color(0, 156, 204, 1) }, // blue
+    //};
 
     /// <summary>
     /// Runs when the window is first created, and every time the window is re-enabled.
@@ -176,25 +179,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         _rootElement.Q<Label>("identity-card-title").text = _celestialBodyName;
         _rootElement.Q<Label>("identity-card-description").text = LocalizationManager.GetTranslation("ISRU/UI/IdentityCard/" + _celestialBodyName);
 
-        for (int i = 0; i < _cbResourceList[_celestialBodyName].Count; i++)
-        {
-            CBResourceChart cbResource = _cbResourceList[_celestialBodyName][i];
-
-            // available resources list
-            _rootElement.Q<VisualElement>("available-resource-" + (i+1)).style.display = DisplayStyle.Flex;
-            string label = LocalizationManager.GetTranslation("ISRU/UI/AvailableResources/Unknown");
-            if (IsResourceScanned(cbResource.ResourceName))
-            {
-                label = cbResource.ResourceName;
-                // loading texture level maps
-                _cbResourceList[_celestialBodyName][i].LevelMap = GetLevelsImage(_celestialBodyName, cbResource.ResourceName);
-                _radioGroup[i].SetEnabled(true); // enable the radio button
-            } else
-            {
-                _radioGroup[i].SetEnabled(false); // disable the radio button
-            }
-            _rootElement.Q<Label>("available-resource-" + (i+1) + "-name").text = label;
-        }
+        //UpdateAvailableResourceFields();
 
         // select the first scanned radio button by default
         for (int i = 0; i < _cbResourceList[_celestialBodyName].Count; i++)
@@ -205,6 +190,33 @@ public class MyFirstWindowController : KerbalMonoBehaviour
                 _radioGroup[i].value = true; // the first radio button is checked by default
                 return;
             }
+        }
+    }
+
+    private void UpdateAvailableResourceFields()
+    {
+        for (int i = 0; i < _cbResourceList[_celestialBodyName].Count; i++)
+        {
+            CBResourceChart cbResource = _cbResourceList[_celestialBodyName][i];
+
+            // available resources list
+            _rootElement.Q<VisualElement>("available-resource-" + (i + 1)).style.display = DisplayStyle.Flex;
+            string label = LocalizationManager.GetTranslation("ISRU/UI/AvailableResources/Unknown");
+            if (IsResourceScanned(cbResource.ResourceName))
+            {
+                label = cbResource.ResourceName;
+                // loading texture level maps
+                if (_cbResourceList[_celestialBodyName][i].LevelMap == null)
+                {
+                    _cbResourceList[_celestialBodyName][i].LevelMap = GetLevelsImage(_celestialBodyName, cbResource.ResourceName);
+                }
+                _radioGroup[i].SetEnabled(true); // enable the radio button
+            }
+            else
+            {
+                _radioGroup[i].SetEnabled(false); // disable the radio button
+            }
+            _rootElement.Q<Label>("available-resource-" + (i + 1) + "-name").text = label;
         }
     }
 
@@ -225,6 +237,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
             // Game objects
             _vessel = Game?.ViewController?.GetActiveSimVessel();
+
+            //Resource manager
+            _cbResourceList = ISRUResourceManager.CbResourceList;
+            _colorMap = ISRUResourceManager.ColorMap;
 
             SetCelestialBodyName();
             LoadCbMateralAsync(); // asynchronous
@@ -348,7 +364,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
     }
 
-    private void SetDensityValues()
+    private void UpdateDensityValues()
     {
         if (!_cbResourceList.ContainsKey(_celestialBodyName))
         {
@@ -378,39 +394,40 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     {
         if (!_isWindowOpen) return;
 
-        SetDensityValues();
+        UpdateDensityValues();
         UpdateScanningData();
+        UpdateAvailableResourceFields();
         UpdateUserMessage();
     }
 
-    private void MarkedCelestialBodyResourcesAsScanned()
-    {
-        List<string> scannableResourceList = [];
-        List<CBResourceChart> availableResourceList = _cbResourceList[_celestialBodyName];
+    //private void MarkedCelestialBodyResourcesAsScanned()
+    //{
+    //    List<string> scannableResourceList = [];
+    //    List<CBResourceChart> availableResourceList = _cbResourceList[_celestialBodyName];
 
-        // Loop through all current resource scanner parts
-        foreach (PartComponentModule_ResourceScanner partComponent in _partComponentResourceScannerList)
-        {
-            List<PartModuleResourceSetting> scannedResources = partComponent._dataResourceScanner.ScannableResources;
-            // Loop through all resources they can scan
-            foreach (PartModuleResourceSetting resourceSetting in scannedResources) {
-                // Add the resource to the list
-                if (!scannableResourceList.Contains(resourceSetting.ResourceName))
-                {
-                    scannableResourceList.Add(resourceSetting.ResourceName);
-                }
-            }
-        }
+    //    // Loop through all current resource scanner parts
+    //    foreach (PartComponentModule_ResourceScanner partComponent in _partComponentResourceScannerList)
+    //    {
+    //        List<PartModuleResourceSetting> scannedResources = partComponent._dataResourceScanner.ScannableResources;
+    //        // Loop through all resources they can scan
+    //        foreach (PartModuleResourceSetting resourceSetting in scannedResources) {
+    //            // Add the resource to the list
+    //            if (!scannableResourceList.Contains(resourceSetting.ResourceName))
+    //            {
+    //                scannableResourceList.Add(resourceSetting.ResourceName);
+    //            }
+    //        }
+    //    }
 
-        // Loop through all available resources on current celestial body
-        foreach (CBResourceChart availableResource in availableResourceList)
-        {
-            // If the resource is scannable, it is marked as scanned
-            if (scannableResourceList.Contains(availableResource.ResourceName)) {
-                availableResource.IsScanned = true;
-            }
-        }
-    }
+    //    // Loop through all available resources on current celestial body
+    //    foreach (CBResourceChart availableResource in availableResourceList)
+    //    {
+    //        // If the resource is scannable, it is marked as scanned
+    //        if (scannableResourceList.Contains(availableResource.ResourceName)) {
+    //            availableResource.IsScanned = true;
+    //        }
+    //    }
+    //}
 
     private void UpdateScanningData()
     {
@@ -437,7 +454,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         {
             UnclickButtonScan();
             _maxRemainingTime = 0;
-            MarkedCelestialBodyResourcesAsScanned();
+            ISRUResourceManager.MarkedCelestialBodyResourcesAsScanned(_celestialBodyName, _partComponentResourceScannerList);
             InitializeFields();
             Renderer renderer = GameObject.Find(GetCelestialBodyPath()).GetComponent<Renderer>();
             if (_originalMaterial != null) // displays back the original texture

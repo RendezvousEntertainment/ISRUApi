@@ -78,5 +78,35 @@ namespace ISRUApi.Managers
                 }
             }
         }
+
+        public static bool IsResourceScanned(String resourceName, String celestialBodyName)
+        {
+            if (resourceName == null || celestialBodyName == null) return false;
+            List<CBResourceChart> availableResourceList = CbResourceList[celestialBodyName];
+
+            // Loop through all available resources on current celestial body
+            foreach (CBResourceChart availableResource in availableResourceList)
+            {
+                if (availableResource.ResourceName == resourceName)
+                {
+                    return availableResource.IsScanned;
+                }
+            }
+            return false;
+        }
+
+        public static bool NoResourceWasScanned(string celestialBodyName)
+        {
+            List<CBResourceChart> availableResourceList = CbResourceList[celestialBodyName];
+            // Loop through all available resources on current celestial body
+            foreach (CBResourceChart availableResource in availableResourceList)
+            {
+                if (availableResource.IsScanned)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

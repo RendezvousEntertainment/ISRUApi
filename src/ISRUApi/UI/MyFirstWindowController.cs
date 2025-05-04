@@ -56,23 +56,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private List<PartComponentModule_ResourceScanner> _partComponentResourceScannerList;
 
     private Dictionary<string, List<CBResourceChart>> _cbResourceList;
-    //private readonly Dictionary<string, List<CBResourceChart>> _cbResourceList = new()
-    //    {
-    //        { "Kerbin", new List<CBResourceChart>([new CBResourceChart("Methane"), new CBResourceChart("Carbon"), new CBResourceChart("Copper"), new CBResourceChart("Iron"), new CBResourceChart("Lithium")])},
-    //        { "Mun", new List<CBResourceChart>([new CBResourceChart("Nickel"), new CBResourceChart("Regolith"), new CBResourceChart("Water")])},
-    //        { "Minmus", new List<CBResourceChart>([new CBResourceChart("Iron"), new CBResourceChart("Nickel"), new CBResourceChart("Quartz")])},
-    //    };
-
     private Dictionary<string, Color> _colorMap;
-    //private readonly Dictionary<string, Color> _colorMap = new()
-    //{
-    //    {"Carbon", new Color(1, 0, 255, 1) }, // deep blue
-    //    {"Iron", new Color(0 ,255, 121, 1) }, // light blue
-    //    {"Nickel", new Color(204, 14, 0, 1) }, // orange
-    //    {"Quartz", new Color(255, 173, 0, 1) }, // gold
-    //    {"Regolith", new Color(55, 0, 204, 1) }, // violet
-    //    {"Water", new Color(0, 156, 204, 1) }, // blue
-    //};
 
     /// <summary>
     /// Runs when the window is first created, and every time the window is re-enabled.
@@ -183,13 +167,11 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             "ISRU/UI/IdentityCard/" + _celestialBodyName
         );
 
-        //UpdateAvailableResourceFields();
-
         // select the first scanned radio button by default
         for (int i = 0; i < _cbResourceList[_celestialBodyName].Count; i++)
         {
             CBResourceChart cbResource = _cbResourceList[_celestialBodyName][i];
-            if (IsResourceScanned(cbResource.ResourceName))
+            if (ISRUResourceManager.IsResourceScanned(cbResource.ResourceName, _celestialBodyName))
             {
                 _radioGroup[i].value = true; // the first radio button is checked by default
                 return;
@@ -206,7 +188,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             // available resources list
             _rootElement.Q<VisualElement>("available-resource-" + (i + 1)).style.display = DisplayStyle.Flex;
             string label = LocalizationManager.GetTranslation("ISRU/UI/AvailableResources/Unknown");
-            if (IsResourceScanned(cbResource.ResourceName))
+            if (ISRUResourceManager.IsResourceScanned(cbResource.ResourceName, _celestialBodyName))
             {
                 label = cbResource.ResourceName;
                 // loading texture level maps
@@ -283,23 +265,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
     }
 
-    private bool NoResourceWasScanned()
-    {
-        List<CBResourceChart> availableResourceList = _cbResourceList[_celestialBodyName];
-        // Loop through all available resources on current celestial body
-        foreach (CBResourceChart availableResource in availableResourceList)
-        {
-            if (availableResource.IsScanned)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private void UpdateWindowStatus()
     {
-        if (_displayOverlay && NoResourceWasScanned())
+        if (_displayOverlay && ISRUResourceManager.NoResourceWasScanned(_celestialBodyName))
         {
             _uiWindowStatus = UIResourceWindowStatus.NoResourceScanned;
             return;
@@ -346,7 +314,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
                 
                 string resourceName = GetResourceNameSelectedRadioButton();
                 string[] options;
-                if (IsResourceScanned(resourceName))
+                if (ISRUResourceManager.IsResourceScanned(resourceName, _celestialBodyName))
                 {
                     options =
                     [
@@ -432,35 +400,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         UpdateAvailableResourceFields();
         UpdateUserMessage();
     }
-
-    //private void MarkedCelestialBodyResourcesAsScanned()
-    //{
-    //    List<string> scannableResourceList = [];
-    //    List<CBResourceChart> availableResourceList = _cbResourceList[_celestialBodyName];
-
-    //    // Loop through all current resource scanner parts
-    //    foreach (PartComponentModule_ResourceScanner partComponent in _partComponentResourceScannerList)
-    //    {
-    //        List<PartModuleResourceSetting> scannedResources = partComponent._dataResourceScanner.ScannableResources;
-    //        // Loop through all resources they can scan
-    //        foreach (PartModuleResourceSetting resourceSetting in scannedResources) {
-    //            // Add the resource to the list
-    //            if (!scannableResourceList.Contains(resourceSetting.ResourceName))
-    //            {
-    //                scannableResourceList.Add(resourceSetting.ResourceName);
-    //            }
-    //        }
-    //    }
-
-    //    // Loop through all available resources on current celestial body
-    //    foreach (CBResourceChart availableResource in availableResourceList)
-    //    {
-    //        // If the resource is scannable, it is marked as scanned
-    //        if (scannableResourceList.Contains(availableResource.ResourceName)) {
-    //            availableResource.IsScanned = true;
-    //        }
-    //    }
-    //}
 
     private void UpdateScanningData()
     {
@@ -608,7 +547,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
         string resourceName = GetResourceNameSelectedRadioButton();
 
-        if (!IsResourceScanned(resourceName))
+        if (!ISRUResourceManager.IsResourceScanned(resourceName, _celestialBodyName))
         {
             Debug.Write("ISRU DisplayResourceShader " + resourceName + " is not scanned");
             return;

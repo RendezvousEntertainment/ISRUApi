@@ -49,6 +49,3 @@ _UpgradeReport_Files/
 Thumbs.db
 Desktop.ini
 .DS_Store
-*.meta
-/src/ISRUApi.Unity/ISRUApi.Unity/Assets/AddressableAssetsData
-/src/ISRUApi.Unity/ISRUApi.Unity/ProjectSettings

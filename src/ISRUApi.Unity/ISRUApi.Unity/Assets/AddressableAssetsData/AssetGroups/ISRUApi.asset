@@ -1,0 +1,110 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: ISRUApi
+  m_EditorClassIdentifier: 
+  m_GroupName: ISRUApi
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 0f9d0c4ac1d30af45be28d74a16254ab
+  m_SerializeEntries:
+  - m_GUID: 292596d782f13f443be8ca1524ae1e01
+    m_Address: isru_tank_inline_1v_regolith.json
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - parts_data
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8763bb9eceb9d87438591a6ded718d0e
+    m_Address: isru_tank_inline_2v_regolith.json
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - parts_data
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a0510383da37ff6439835952a94af300
+    m_Address: isru_tank_inline_1v_regolith.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8593216109e2d4e46bc0ec4361c5b83c
+    m_Address: isru_tank_inline_2v_regolith.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 18e5c49602acd924b8d02215ad10abef
+    m_Address: isru_tank_radial_1v_regolith.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6d95ea21f51418543890242a76c98d34
+    m_Address: isru_tank_radial_1v_regolith.json
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - parts_data
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fc375645dec2fbf4794b7cee7d1a65b8
+    m_Address: isru_tank_inline_1v_regolith_icon.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: aeef3a89c334321489d7787b902d0c58
+    m_Address: isru_tank_inline_2v_regolith_icon.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9155f413aa38a6c4e81d114f9bc79fca
+    m_Address: isru_tank_radial_1v_regolith_icon.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 95ac200a14ae1134f99f9bbf8e31f5b0
+    m_Address: isru_drill_1v.json
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - parts_data
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5592c3fa516512542afc5aeb2c5e599e
+    m_Address: isru_drill_1v.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 71aed87ca8f40f4478fee45270ac95bd
+    m_Address: isru_convertotron_1v_icon.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: de1959e586c1eba46bc770b31dcf4f86
+    m_Address: isru_convertotron_1v.json
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - parts_data
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0c363667fff82d243bebb74b6cd0e6db
+    m_Address: isru_convertotron_1v.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1b1d5ed2c213af24b806ce8b67af62ce
+    m_Address: isruCbMaterial.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 21d5fc3c70b164b4cbc9b4eed313400c
+    m_Address: isruCbScanning.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 300d7982e53bc724ca4c84da4335703d, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 31c4acf286f795c4f8d24095456b1719, type: 2}
+    - {fileID: 11400000, guid: bf51a6ac9ad08c44ebdfc4db76c28b4b, type: 2}

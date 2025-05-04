@@ -1,14 +1,11 @@
-#if !Redux
+﻿#if Redux
 
 using System.Reflection;
-using BepInEx;
 using HarmonyLib;
 using ISRUApi.UI;
 using JetBrains.Annotations;
-using SpaceWarp;
-using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
-using SpaceWarp.API.UI.Appbar;
+using SpaceWarp.UI.API.Appbar;
 using UitkForKsp2.API;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -18,9 +15,7 @@ namespace ISRUApi;
 /// <summary>
 /// Main plugin class for the mod.
 /// </summary>
-[BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-[BepInDependency(SpaceWarpPlugin.ModGuid, SpaceWarpPlugin.ModVer)]
-public class ISRUApiPlugin : BaseSpaceWarpPlugin
+public class ISRUApiPlugin : GeneralMod
 {
     // Useful in case some other mod wants to use this mod a dependency
     [PublicAPI] public const string ModGuid = MyPluginInfo.PLUGIN_GUID;
@@ -37,6 +32,36 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
     
     private readonly string iconLabel = "Resource Gathering";
 
+    private VisualTreeAsset _uiWindowAsset;
+    private Dictionary<string, Texture2D> _graphics = new();
+    
+    public ISRUApiPlugin()
+    {
+        SpaceWarp.API.Loading.Loading.AddAddressablesLoadingAction<VisualTreeAsset>(
+            "Loading ISRU UI",
+            "isru_ui",
+            true,
+            OnUIAssetsLoaded
+        );
+        
+        SpaceWarp.API.Loading.Loading.AddAddressablesLoadingAction<Texture2D>(
+            "Loading ISRU Assets",
+            "isru_graphics",
+            true,
+            OnGraphicAssetsLoaded
+        );
+    }
+
+    private void OnUIAssetsLoaded(VisualTreeAsset asset)
+    {
+        _uiWindowAsset = asset;
+    }
+    
+    private void OnGraphicAssetsLoaded(Texture2D asset)
+    {
+        _graphics.Add(asset.name, asset);
+    }
+
     /// <summary>
     /// Runs when the mod is first initialized.
     /// </summary>
@@ -48,17 +73,6 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
 
         // Load all the other assemblies used by this mod
         LoadAssemblies();
-
-        // Load the UI from the asset bundle
-        var myFirstWindowUxml = AssetManager.GetAsset<VisualTreeAsset>(
-            // The case-insensitive path to the asset in the bundle is composed of:
-            // - The mod GUID:
-            $"{ModGuid}/" +
-            // - The name of the asset bundle:
-            "ISRUApi_ui/" +
-            // - The path to the asset in your Unity project (without the "Assets/" part)
-            "ui/myfirstwindow/myfirstwindow.uxml"
-        );
 
         // Create the window options object
         var windowOptions = new WindowOptions
@@ -82,7 +96,7 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         };
 
         // Create the window
-        var myFirstWindow = Window.Create(windowOptions, myFirstWindowUxml);
+        var myFirstWindow = Window.Create(windowOptions, _uiWindowAsset);
         // Add a controller for the UI to the window's game object
         var myFirstWindowController = myFirstWindow.gameObject.AddComponent<MyFirstWindowController>();
 
@@ -90,7 +104,7 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
         Appbar.RegisterAppButton(
             iconLabel,
             ToolbarFlightButtonID,
-            AssetManager.GetAsset<Texture2D>($"{ModGuid}/images/icon.png"),
+            _graphics["icon.png"],
             isOpen => myFirstWindowController.IsWindowOpen = isOpen
         );
 
@@ -111,4 +125,4 @@ public class ISRUApiPlugin : BaseSpaceWarpPlugin
     }
 }
 
-#endif
+#endif // Redux

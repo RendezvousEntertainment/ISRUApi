@@ -1,4 +1,5 @@
 ﻿using I2.Loc;
+using KSP.Game;
 using KSP.Sim;
 using KSP.Sim.Definitions;
 using UnityEngine;
@@ -81,8 +82,34 @@ public class Module_Mining : PartBehaviourModule
 
     private void OnToggleChangedValue(bool newValue)
     {
+        if (newValue && !CheckCollisions())
+        {
+            _dataMining.EnabledToggle.SetValue(false);
+            Game.Notifications.ProcessNotification(new NotificationData
+            {
+                Tier = NotificationTier.Alert,
+                Importance = NotificationImportance.High,
+                AlertTitle =
+                {
+                    LocKey = "PartModules/Mining/TooHigh"
+                },
+            });
+        }
+        
         UpdatePAMVisibility(newValue);
-    } 
+    }
+
+    private bool CheckCollisions()
+    {
+        if (!((PartComponentModule_Mining)ComponentModule).IsVesselLanded())
+        {
+            return false;
+        }
+
+        var cb = part.SimObjectComponent.PartOwner.SimulationObject.Vessel.mainBody;
+        // var drillExtension = gameObject.transform.Find(...)
+        return true;
+    }
 
     private void StartMining() => _dataMining.EnabledToggle.SetValue(true);
 

@@ -184,9 +184,13 @@ public class PartComponentModule_Mining : PartComponentModule
         }
     }
 
-    private bool IsVesselLanded()
+    internal bool IsVesselLanded()
     {
-        if (_activeVessel == null) return false;
+        if (_activeVessel == null)
+        {
+            return false;
+        }
+        
         return VesselSituations.Landed.Equals(_activeVessel.Situation);
     }
 

@@ -28,6 +28,10 @@
     <ItemGroup Label="Dependencies for build targets">
         <PackageReference Include="JsonPeek" Version="1.2.0" PrivateAssets="all"/>
     </ItemGroup>
+    
+    <PropertyGroup Condition="'$(Configuration)' == 'Redux'">
+        <DefineConstants>Redux;$(DefineConstants)</DefineConstants>
+    </PropertyGroup>
 
     <!-- Define the main target -->
     <Target Label="Reading properties from swinfo.json" Name="ReadPropertiesFromJson" BeforeTargets="PreBuildEvent;AddGeneratedFile">

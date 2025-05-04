@@ -97,7 +97,7 @@ public class PartComponentModule_Mining : PartComponentModule
     **/
     public void SetStatusTxt()
     {
-        if (_dataMining.status == ResourceConversionStateMinig.InsufficientContainment.Description())
+        if (_dataMining.status == ResourceConversionStateMining.InsufficientContainment.Description())
         {
             _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(_dataMining.status)); // out of storage
         }
@@ -108,9 +108,9 @@ public class PartComponentModule_Mining : PartComponentModule
         {
             if (!_dataMining.PartIsDeployed)
             {
-                _dataMining.status = ResourceConversionStateMinig.NotDeployed.Description(); // not deployed
+                _dataMining.status = ResourceConversionStateMining.NotDeployed.Description(); // not deployed
                 _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(_dataMining.status));
-            } else if (_dataMining.status == ResourceConversionStateMinig.TooHigh.Description())
+            } else if (_dataMining.status == ResourceConversionStateMining.TooHigh.Description())
             {
                 _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(_dataMining.status)); // too high
             }
@@ -170,7 +170,7 @@ public class PartComponentModule_Mining : PartComponentModule
         }
         if (isEachProductOutOfStorage)
         {
-            _dataMining.status = ResourceConversionStateMinig.InsufficientContainment.Description();
+            _dataMining.status = ResourceConversionStateMining.InsufficientContainment.Description();
             _dataMining.EnabledToggle.SetValue(false);
         }
     }
@@ -207,7 +207,7 @@ public class PartComponentModule_Mining : PartComponentModule
             System.Diagnostics.Debug.Write("ISRU Ground Altitude not computable");
         }
         if (altitude > 8.0 || !IsVesselLanded()) { // if drill is not on the ground, do nothing
-            _dataMining.status = ResourceConversionStateMinig.TooHigh.Description();
+            _dataMining.status = ResourceConversionStateMining.TooHigh.Description();
         }
         if (_dataMining.status == ResourceConversionState.Operational.Description()) {
             for (var i = 0; i < outputCount; ++i)

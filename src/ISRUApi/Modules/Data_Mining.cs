@@ -129,7 +129,7 @@ public class Data_Mining : ModuleData
 }
 
 [Serializable]
-public enum ResourceConversionStateMinig : byte
+public enum ResourceConversionStateMining : byte
 {
     None,
     [Description("PartModules/Mining/TooHigh")] TooHigh,

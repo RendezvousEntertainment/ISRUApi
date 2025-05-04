@@ -40,5 +40,6 @@
         "max": "*"
       }
     }
-  ]
+  ],
+  "main-assembly": "ISRUApi.dll"
 }

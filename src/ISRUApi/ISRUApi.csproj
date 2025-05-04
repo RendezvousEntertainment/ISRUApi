@@ -19,35 +19,32 @@
     </ItemGroup>
     
     <ItemGroup Condition="'$(Configuration)' == 'Redux'">
-        <Reference Include="Assembly-CSharp" PrivateAssets="all" Publicize="true">
+        <Reference Include="Assembly-CSharp" Private="false" Publicize="true">
             <HintPath>$(SolutionDir)/external_dlls/Assembly-CSharp.dll</HintPath>
         </Reference>
-        <Reference Include="ReduxLib">
+        <Reference Include="ReduxLib" Private="false">
             <HintPath>$(SolutionDir)/external_dlls/ReduxLib.dll</HintPath>
+        </Reference>
+        <Reference Include="SpaceWarp" Private="false">
+            <HintPath>..\..\external_dlls\SpaceWarp.dll</HintPath>
+        </Reference>
+        <Reference Include="SpaceWarp.Game" Private="false">
+            <HintPath>..\..\external_dlls\SpaceWarp.Game.dll</HintPath>
+        </Reference>
+        <Reference Include="SpaceWarp.Sound" Private="false">
+            <HintPath>..\..\external_dlls\SpaceWarp.Sound.dll</HintPath>
+        </Reference>
+        <Reference Include="SpaceWarp.UI" Private="false">
+            <HintPath>..\..\external_dlls\SpaceWarp.UI.dll</HintPath>
+        </Reference>
+        <Reference Include="SpaceWarp.VersionChecking" Private="false">
+            <HintPath>..\..\external_dlls\SpaceWarp.VersionChecking.dll</HintPath>
         </Reference>
     </ItemGroup>
     
     <ItemGroup Label="Project references">
         <!-- Add references to any other projects in your solution that you want to use in your mod here -->
         <ProjectReference Include="..\ISRUApi.Unity\ISRUApi.Unity.csproj" Private="false"/>
-    </ItemGroup>
-    
-    <ItemGroup>
-      <Reference Include="SpaceWarp">
-        <HintPath>..\..\external_dlls\SpaceWarp.dll</HintPath>
-      </Reference>
-      <Reference Include="SpaceWarp.Game">
-        <HintPath>..\..\external_dlls\SpaceWarp.Game.dll</HintPath>
-      </Reference>
-      <Reference Include="SpaceWarp.Sound">
-        <HintPath>..\..\external_dlls\SpaceWarp.Sound.dll</HintPath>
-      </Reference>
-      <Reference Include="SpaceWarp.UI">
-        <HintPath>..\..\external_dlls\SpaceWarp.UI.dll</HintPath>
-      </Reference>
-      <Reference Include="SpaceWarp.VersionChecking">
-        <HintPath>..\..\external_dlls\SpaceWarp.VersionChecking.dll</HintPath>
-      </Reference>
     </ItemGroup>
     <!-- Use Assembly-CSharp from the game as a reference locally to enable debugging in Deploy and DeployAndRun -->
     <!--<ItemGroup Condition="$(ConfigurationName) != 'Release'">

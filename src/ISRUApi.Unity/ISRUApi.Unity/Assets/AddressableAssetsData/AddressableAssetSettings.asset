@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 0f9d0c4ac1d30af45be28d74a16254ab
   m_currentHash:
     serializedVersion: 2
-    Hash: 00000000000000000000000000000000
+    Hash: 4535e180da56f31e3831dbed12560a41
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
@@ -90,6 +90,8 @@ MonoBehaviour:
     m_LabelNames:
     - default
     - parts_data
+    - isru_graphics
+    - isru_ui
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 16240ef41733edb499edb165845bc7a2, type: 2}

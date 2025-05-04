@@ -102,6 +102,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7ed5cdb1dc1b4730bdb0f8096d09dd9d
+    m_Address: isru_icon.png
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - isru_graphics
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8f86a98a35fea6949a9ac5af3fd14436
+    m_Address: isru_myfirstwindow.uxml
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - isru_ui
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 300d7982e53bc724ca4c84da4335703d, type: 2}
   m_SchemaSet:

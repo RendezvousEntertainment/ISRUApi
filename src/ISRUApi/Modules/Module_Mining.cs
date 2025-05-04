@@ -9,12 +9,15 @@ namespace ISRUApi.Modules;
 [DisallowMultipleComponent]
 public class Module_Mining : PartBehaviourModule
 {
+    private const string DrillHeadPath = "model/isru_drill_1v/Drill MP Attach Point/Drill MP1/Drill MP2/Drill MP3/Drill MP4/Drill MP5/Drill Base/DEP1/DEP2/DEP3/Drill Rotor";
+    
     public override Type PartComponentModuleType => typeof(PartComponentModule_Mining);
 
     [SerializeField]
     protected Data_Mining _dataMining;
 
     public Animator Animator;
+    private Transform _drillHead;
 
     public override void AddDataModules()
     {
@@ -26,6 +29,8 @@ public class Module_Mining : PartBehaviourModule
     public override void OnInitialize()
     {
         base.OnInitialize();
+        
+        _drillHead = gameObject.transform.Find(DrillHeadPath);
         
         if (PartBackingMode == PartBackingModes.Flight)
         {
@@ -105,10 +110,17 @@ public class Module_Mining : PartBehaviourModule
         {
             return false;
         }
+        
+        var drillDirection = _drillHead.position - gameObject.transform.position;
+        float drillLength = drillDirection.magnitude;
 
-        var cb = part.SimObjectComponent.PartOwner.SimulationObject.Vessel.mainBody;
-        // var drillExtension = gameObject.transform.Find(...)
-        return true;
+        return Physics.Raycast(
+            gameObject.transform.position,
+            drillDirection.normalized,
+            out _,
+            drillLength,
+            LayerMask.NameToLayer("Local.Scenery")
+        );
     }
 
     private void StartMining() => _dataMining.EnabledToggle.SetValue(true);

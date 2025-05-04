@@ -1,18 +1,20 @@
+using I2.Loc;
+using ISRUApi.Managers;
+using ISRUApi.Modules;
+using KSP.Game;
+using KSP.Messages;
+using KSP.Sim;
+using KSP.Sim.Definitions;
+using KSP.Sim.impl;
+using KSP.Sim.State;
 using KSP.UI.Binding;
 using UitkForKsp2.API;
 using UnityEngine;
-using UnityEngine.UIElements;
-using KSP.Sim.impl;
-using KSP.Game;
-using I2.Loc;
-using KSP.Messages;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using KSP.Sim;
-using ISRUApi.Modules;
-using KSP.Sim.Definitions;
-using KSP.Sim.State;
-using ISRUApi.Managers;
+using UnityEngine.UIElements;
+using Debug = System.Diagnostics.Debug;
+using Random = System.Random;
 
 namespace ISRUApi.UI;
 
@@ -32,13 +34,13 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     Button _buttonDisplayOverlay;
 
     private UIResourceWindowStatus _uiWindowStatus;
-    double _maxRemainingTime = 0;
+    double _maxRemainingTime;
 
     // The backing field for the IsWindowOpen property
     private bool _isWindowOpen;
 
     // Scan
-    private bool _isScanning = false;
+    private bool _isScanning;
 
     // Overlay
     Texture _originalTexture;
@@ -46,7 +48,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private Material _originalMaterial;
     private Material _cbMaterial;
     private Material _cbScanningMaterial;
-    private bool _displayOverlay = false;
+    private bool _displayOverlay;
 
     // Useful game objects
     private string _celestialBodyName;
@@ -77,8 +79,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         // Plug the buttons
         _buttonScan = _rootElement.Q<Button>("button-scan");
         _buttonDisplayOverlay = _rootElement.Q<Button>("button-display-overlay");
-        _buttonScan.clicked += () => OnClickButtonScan();
-        _buttonDisplayOverlay.clicked += () => OnClickButtonResourceOverlay();
+        _buttonScan.clicked += OnClickButtonScan;
+        _buttonDisplayOverlay.clicked += OnClickButtonResourceOverlay;
 
         // Hide the available resource fields
         HideResourceFields();
@@ -100,7 +102,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
         // Message
         _messageField = _rootElement.Q<Label>("label-message");
-        SetUserMessage("", false);
+        SetUserMessage("");
 
         // Center the window by default
         _rootElement.CenterByDefault();
@@ -133,7 +135,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         //string filePath = "./BepInEx/plugins/ISRU/assets/images/gradient.png";
         if (!File.Exists(filePath))
         {
-            System.Diagnostics.Debug.Write("ISRU File not found: " + filePath + ", switching to black texture");
+            Debug.Write("ISRU File not found: " + filePath + ", switching to black texture");
             return null;
         }
         Texture2D texture = new(OverlaySideSize, OverlaySideSize);
@@ -141,11 +143,29 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         return texture;
     }
 
+    private bool IsResourceScanned(string resourceName)
+    {
+        if (resourceName == null) return false;
+        List<CBResourceChart> availableResourceList = _cbResourceList[_celestialBodyName];
+
+        // Loop through all available resources on current celestial body
+        foreach (CBResourceChart availableResource in availableResourceList)
+        {
+            if (availableResource.ResourceName == resourceName)
+            {
+                return availableResource.IsScanned;
+            }
+        }
+        return false;
+    }
+
     private void InitializeFields()
     {
         // identity card
         _rootElement.Q<Label>("identity-card-title").text = _celestialBodyName;
-        _rootElement.Q<Label>("identity-card-description").text = LocalizationManager.GetTranslation("ISRU/UI/IdentityCard/" + _celestialBodyName);
+        _rootElement.Q<Label>("identity-card-description").text = LocalizationManager.GetTranslation(
+            "ISRU/UI/IdentityCard/" + _celestialBodyName
+        );
 
         // select the first scanned radio button by default
         for (int i = 0; i < _cbResourceList[_celestialBodyName].Count; i++)
@@ -174,7 +194,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
                 // loading texture level maps
                 if (_cbResourceList[_celestialBodyName][i].LevelMap == null)
                 {
-                    _cbResourceList[_celestialBodyName][i].LevelMap = GetLevelsImage(_celestialBodyName, cbResource.ResourceName);
+                    _cbResourceList[_celestialBodyName][i].LevelMap = GetLevelsImage(
+                        _celestialBodyName,
+                        cbResource.ResourceName
+                    );
                 }
                 _radioGroup[i].SetEnabled(true); // enable the radio button
             }
@@ -209,8 +232,8 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             _colorMap = ISRUResourceManager.ColorMap;
 
             SetCelestialBodyName();
-            LoadCbMateralAsync(); // asynchronous
-            LoadCbScanningMateralAsync(); // asynchronous
+            LoadCbMaterialAsync(); // asynchronous
+            LoadCbScanningMaterialAsync(); // asynchronous
             SaveOriginalTexture();
             InitializeFields();
 
@@ -221,9 +244,11 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             _rootElement.style.display = value ? DisplayStyle.Flex : DisplayStyle.None;
 
             // Update the Flight AppBar button state
-            GameObject.Find(ISRUApiPlugin.ToolbarFlightButtonID)?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(value);
+            GameObject.Find(ISRUApiPlugin.ToolbarFlightButtonID)?
+                .GetComponent<UIValue_WriteBool_Toggle>()?
+                .SetValue(value);
 
-            Game.Messages.Subscribe<SOIEnteredMessage>(new Action<MessageCenterMessage>(OnSOIEntered));
+            Game.Messages.Subscribe<SOIEnteredMessage>(OnSOIEntered);
         }
     }
 
@@ -256,7 +281,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         GameObject gameObject = GameObject.Find(GetCelestialBodyPath());
         if (gameObject == null)
         {
-            System.Diagnostics.Debug.Write("ISRU ERROR Celestial Body Map not found");
+            Debug.Write("ISRU ERROR Celestial Body Map not found");
             _uiWindowStatus = UIResourceWindowStatus.NotInMapView;
             _messageField.text = "";
             return;
@@ -277,18 +302,46 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         switch (_uiWindowStatus)
         {
             case UIResourceWindowStatus.DisplayingResources:
-                if (_messageField.text != "") break;
-                if (!_displayOverlay) break;
+                if (_messageField.text != "")
+                {
+                    break;
+                }
+                
+                if (!_displayOverlay)
+                {
+                    break;
+                }
+                
                 string resourceName = GetResourceNameSelectedRadioButton();
                 string[] options;
                 if (ISRUResourceManager.IsResourceScanned(resourceName, _celestialBodyName))
                 {
-                    options = ["Hmm, {0}"!, "{0}! {0} everywhere!", "{0} spotted!", "What a wonderful resource!", "Let's mine it all!", "For science! And the mining industry."];
-                } else
-                {
-                    options = ["I wonder what this resource could be.", "Ooh, what treasures are hiding beneath the surface?", "Fingers crossed for something good!", "Time to see what this planet's made of!", "Let the resource hunt begin!", "I've got a good feeling about this one!", "Hope it's not just more dirt.", "Let's just hope the scanner doesn't pick up any angry space kraken.", "Let's see if this one's got any tasty rocks!"];
+                    options =
+                    [
+                        "Hmm, {0}"!,
+                        "{0}! {0} everywhere!",
+                        "{0} spotted!",
+                        "What a wonderful resource!",
+                        "Let's mine it all!",
+                        "For science! And the mining industry."
+                    ];
                 }
-                System.Random random = new();
+                else
+                {
+                    options =
+                    [
+                        "I wonder what this resource could be.",
+                        "Ooh, what treasures are hiding beneath the surface?",
+                        "Fingers crossed for something good!",
+                        "Time to see what this planet's made of!",
+                        "Let the resource hunt begin!",
+                        "I've got a good feeling about this one!",
+                        "Hope it's not just more dirt.",
+                        "Let's just hope the scanner doesn't pick up any angry space kraken.",
+                        "Let's see if this one's got any tasty rocks!"
+                    ];
+                }
+                Random random = new();
                 int randomIndex = random.Next(options.Length);
                 SetUserMessage(string.Format(options[randomIndex], resourceName));
                 break;
@@ -320,21 +373,14 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     {
         if (!_cbResourceList.ContainsKey(_celestialBodyName))
         {
-            System.Diagnostics.Debug.Write("ISRU _cbResourceList does not contain key " + _celestialBodyName);
+            Debug.Write("ISRU _cbResourceList does not contain key " + _celestialBodyName);
             return;
         }
         int i = 1;
         foreach (CBResourceChart ressourceChart in _cbResourceList[_celestialBodyName])
         {
             float localDensity = GetLocalDensity(_vessel, ressourceChart.LevelMap);
-            string density;
-            if (localDensity == -1.0f)
-            {
-                density = "?";
-            } else
-            {
-                density = Math.Round(100 * localDensity).ToString();
-            }
+            string density = localDensity == -1.0f ? "?" : Math.Round(100 * localDensity).ToString();
             _rootElement.Q<Label>("available-resource-" + i + "-density").text = density;
             i++;
         }
@@ -344,7 +390,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     private void Update()
 #pragma warning restore IDE0051 // Remove unused private members
     {
-        if (!_isWindowOpen) return;
+        if (!_isWindowOpen)
+        {
+            return;
+        }
 
         UpdateDensityValues();
         UpdateScanningData();
@@ -354,7 +403,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private void UpdateScanningData()
     {
-        bool isScanOngoing = _isScanning && _partComponentResourceScannerList != null && _partComponentResourceScannerList.Count > 0;
+        bool isScanOngoing = _isScanning && _partComponentResourceScannerList is { Count: > 0 };
 
         // Not scanning
         if (!isScanOngoing) {
@@ -377,7 +426,10 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         {
             UnclickButtonScan();
             _maxRemainingTime = 0;
-            ISRUResourceManager.MarkedCelestialBodyResourcesAsScanned(_celestialBodyName, _partComponentResourceScannerList);
+            ISRUResourceManager.MarkedCelestialBodyResourcesAsScanned(
+                _celestialBodyName,
+                _partComponentResourceScannerList
+            );
             InitializeFields();
             Renderer renderer = GameObject.Find(GetCelestialBodyPath()).GetComponent<Renderer>();
             if (_originalMaterial != null) // displays back the original texture
@@ -396,7 +448,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     {
         if (vessel == null)
         {
-            System.Diagnostics.Debug.Write("ISRU vessel is null");
+            Debug.Write("ISRU vessel is null");
             return 0.0f;
         }
         if (levelTex == null) // level map is unknown when the resource has not been scanned
@@ -405,13 +457,13 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
         double longitude = vessel.Longitude;
         double latitude = vessel.Latitude;
-        double long_norm = (180 + longitude) / 360;
-        double lat_norm = (90 + latitude) / 180;
-        int x = (int)Math.Round(long_norm * OverlaySideSize);
-        int y = (int)Math.Round(lat_norm * OverlaySideSize);
+        double longNorm = (180 + longitude) / 360;
+        double latNorm = (90 + latitude) / 180;
+        int x = (int)Math.Round(longNorm * OverlaySideSize);
+        int y = (int)Math.Round(latNorm * OverlaySideSize);
         if (x < 0 || x > levelTex.width || y < 0 || y > levelTex.height)
         {
-            System.Diagnostics.Debug.Write("ISRU ERROR coordinates out of bound: x=" + x + "; y=" + y);
+            Debug.Write("ISRU ERROR coordinates out of bound: x=" + x + "; y=" + y);
             return 0.0f;
         }
         Color pixelColor = levelTex.GetPixel(x, y);
@@ -425,12 +477,12 @@ public class MyFirstWindowController : KerbalMonoBehaviour
     {
         if (vessel == null)
         {
-            System.Diagnostics.Debug.Write("ISRU ERROR GetDensity vessel is null");
+            Debug.Write("ISRU ERROR GetDensity vessel is null");
             return 0.0f;
         }
         if (resourceName == null)
         {
-            System.Diagnostics.Debug.Write("ISRU ERROR GetDensity resourceName is null");
+            Debug.Write("ISRU ERROR GetDensity resourceName is null");
             return 0.0f;
         }
         Texture2D texture = GetLevelsImage(vessel.mainBody.Name, resourceName);
@@ -452,18 +504,18 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private Material GetCelestialBodyMaterial()
     {
-        GameObject gameObject = GameObject.Find(GetCelestialBodyPath());
-        if (gameObject == null)
+        GameObject gameObj = GameObject.Find(GetCelestialBodyPath());
+        if (gameObj == null)
         {
-            System.Diagnostics.Debug.Write("ISRU ERROR Celestial Body Map not found");
+            Debug.Write("ISRU ERROR Celestial Body Map not found");
             UpdateWindowStatus();
             return null;
         }
 
-        Material material = gameObject.GetComponent<Renderer>()?.material;
+        Material material = gameObj.GetComponent<Renderer>()?.material;
         if (material == null)
         {
-            System.Diagnostics.Debug.Write("ISRU ERROR material not found");
+            Debug.Write("ISRU ERROR material not found");
             return null;
         }
         return material;
@@ -483,12 +535,12 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private void DisplayResourceShader()
     {
-        GameObject gameObject = GameObject.Find(GetCelestialBodyPath());
-        Renderer renderer = gameObject.GetComponent<Renderer>();
+        GameObject gameObj = GameObject.Find(GetCelestialBodyPath());
+        Renderer renderer = gameObj.GetComponent<Renderer>();
 
         if (!_displayOverlay && _originalMaterial != null) // displays back the original texture
         {
-            System.Diagnostics.Debug.Write("ISRU DisplayResourceShader displaying back original texture");
+            Debug.Write("ISRU DisplayResourceShader displaying back original texture");
             renderer.material = _originalMaterial;
             return;
         }
@@ -497,7 +549,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
         if (!ISRUResourceManager.IsResourceScanned(resourceName, _celestialBodyName))
         {
-            System.Diagnostics.Debug.Write("ISRU DisplayResourceShader " + resourceName + " is not scanned");
+            Debug.Write("ISRU DisplayResourceShader " + resourceName + " is not scanned");
             return;
         }
 
@@ -507,25 +559,21 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         if (_displayOverlay == false) return;
         if (_cbMaterial == null)
         {
-            System.Diagnostics.Debug.Write("ISRU ERROR material not loaded :(");
+            Debug.Write("ISRU ERROR material not loaded :(");
             return;
         }
-        if (gameObject == null)
+        if (gameObj == null)
         {
-            System.Diagnostics.Debug.Write("ISRU ERROR DisplayResourceShader: Celestial Body Map not found");
+            Debug.Write("ISRU ERROR DisplayResourceShader: Celestial Body Map not found");
             return;
         }
         
         renderer.material = _cbMaterial;
         renderer.material.SetTexture("_DensityMap", GetLevelsImage(_celestialBodyName, resourceName));
         renderer.material.SetTexture("_CbAlbedo", _originalTexture);
-        Color color = new(237, 31, 255, 1); // default color purple
-        if (_colorMap.ContainsKey(resourceName))
-        {
-            color = _colorMap[resourceName];
-        }
+        Color color = _colorMap.GetValueOrDefault(resourceName, new Color(237, 31, 255, 1));
         renderer.material.SetColor("_Color", color);
-        System.Diagnostics.Debug.Write("ISRU material has been replaced");
+        Debug.Write("ISRU material has been replaced");
     }
 
     private void DisplayScanningShader()
@@ -536,16 +584,16 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
         if (_cbScanningMaterial == null)
         {
-            System.Diagnostics.Debug.Write("ISRU ERROR DisplayScanningShader: material not loaded :(");
+            Debug.Write("ISRU ERROR DisplayScanningShader: material not loaded :(");
             return;
         }
 
-        GameObject gameObject = GameObject.Find(GetCelestialBodyPath());
-        Renderer renderer = gameObject.GetComponent<Renderer>();
+        GameObject gameObj = GameObject.Find(GetCelestialBodyPath());
+        Renderer renderer = gameObj.GetComponent<Renderer>();
 
-        if (gameObject == null)
+        if (gameObj == null)
         {
-            System.Diagnostics.Debug.Write("ISRU ERROR DisplayScanningShader: Celestial Body Map not found");
+            Debug.Write("ISRU ERROR DisplayScanningShader: Celestial Body Map not found");
             return;
         }
 
@@ -567,7 +615,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
     private void OnSOIEntered(MessageCenterMessage message)
     {
-        System.Diagnostics.Debug.Write("ISRU OnSOIEntered");
+        Debug.Write("ISRU OnSOIEntered");
         SetCelestialBodyName();
         HideResourceFields();
         InitializeFields();
@@ -575,33 +623,33 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         UnclickDisplayOverlayButton();
     }
 
-    private async void LoadCbMateralAsync()
+    private async void LoadCbMaterialAsync()
     {
-        AsyncOperationHandle<Material> opHandle2 = Addressables.LoadAssetAsync<Material>("isruCbMaterial.mat");
-        await opHandle2.Task;
-        if (opHandle2.Status == AsyncOperationStatus.Succeeded)
+        AsyncOperationHandle<Material> handle = Addressables.LoadAssetAsync<Material>("isruCbMaterial.mat");
+        await handle.Task;
+        if (handle.Status == AsyncOperationStatus.Succeeded)
         {
-            _cbMaterial = opHandle2.Result;
-            System.Diagnostics.Debug.Write("ISRU LoadCbMateralAsync material isruCbMaterial.mat loaded");
+            _cbMaterial = handle.Result;
+            Debug.Write("ISRU LoadCbMateralAsync material isruCbMaterial.mat loaded");
         }
         else
         {
-            System.Diagnostics.Debug.Write("ISRU LoadCbMateralAsync failed to load material: isruCbMaterial.mat " + opHandle2.Status);
+            Debug.Write("ISRU LoadCbMateralAsync failed to load material: isruCbMaterial.mat " + handle.Status);
         }
     }
 
-    private async void LoadCbScanningMateralAsync()
+    private async void LoadCbScanningMaterialAsync()
     {
         AsyncOperationHandle<Material> opHandle = Addressables.LoadAssetAsync<Material>("isruCbScanning.mat");
         await opHandle.Task;
         if (opHandle.Status == AsyncOperationStatus.Succeeded)
         {
             _cbScanningMaterial = opHandle.Result;
-            System.Diagnostics.Debug.Write("ISRU LoadCbScanningMateralAsync material isruCbScanning.mat loaded");
+            Debug.Write("ISRU LoadCbScanningMateralAsync material isruCbScanning.mat loaded");
         }
         else
         {
-            System.Diagnostics.Debug.Write("ISRU LoadCbScanningMateralAsync failed to load material: isruCbScanning.mat " + opHandle.Status);
+            Debug.Write("ISRU LoadCbScanningMateralAsync failed to load material: isruCbScanning.mat " + opHandle.Status);
         }
     }
 
@@ -646,8 +694,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
 
         // If no scanner onboard, we don't scan
-        _partComponentResourceScannerList = _vessel.SimulationObject.PartOwner.GetPartModules<PartComponentModule_ResourceScanner>();
-        if (_partComponentResourceScannerList.Count() == 0)
+        _partComponentResourceScannerList = _vessel.SimulationObject.PartOwner
+            .GetPartModules<PartComponentModule_ResourceScanner>();
+        if (!_partComponentResourceScannerList.Any())
         {
             _uiWindowStatus = UIResourceWindowStatus.NoScanner;
             UnclickButtonScan();
@@ -661,7 +710,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         UnclickDisplayOverlayButton();
 
         // Run scanning through action group
-        _vessel.TriggerActionGroup(KSPActionGroup.Custom01); // start scanning with all scan parts // TODO in Redux change to custom Scan Resource action groupe
+        _vessel.TriggerActionGroup(KSPActionGroup.Custom01); // start scanning with all scan parts // TODO in Redux change to custom Scan Resource action group
         DisplayScanningShader();
     }
 

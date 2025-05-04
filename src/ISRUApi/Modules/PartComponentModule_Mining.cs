@@ -1,4 +1,5 @@
-﻿using I2.Loc;
+﻿using System.Diagnostics;
+using I2.Loc;
 using ISRUApi.UI;
 using KSP.Game;
 using KSP.Modules;
@@ -45,11 +46,11 @@ public class PartComponentModule_Mining : PartComponentModule
     {
         if (!DataModules.TryGetByType(out _dataMining))
         {
-            System.Diagnostics.Debug.Write("Unable to find a Data_Mining in the PartComponentModule for " + this.Part.PartName);
+            Debug.Write("Unable to find a Data_Mining in the PartComponentModule for " + Part.PartName);
         }
         else if (GameManager.Instance.Game == null || GameManager.Instance.Game.ResourceDefinitionDatabase == null)
         {
-            System.Diagnostics.Debug.Write("Unable to find a valid game with a resource definition database");
+            Debug.Write("Unable to find a valid game with a resource definition database");
         }
         else
         {
@@ -64,7 +65,7 @@ public class PartComponentModule_Mining : PartComponentModule
 
     public override void OnUpdate(double universalTime, double deltaUniversalTime)
     {
-        _activeVessel ??= GameManager.Instance?.Game?.ViewController?.GetActiveVehicle(true)?.GetSimVessel(true);
+        _activeVessel ??= GameManager.Instance?.Game?.ViewController?.GetActiveVehicle()?.GetSimVessel();
         if (_dataMining.EnabledToggle.GetValue())
         {
             UpdateIngredients();
@@ -76,17 +77,24 @@ public class PartComponentModule_Mining : PartComponentModule
                 if (!_localDensities.ContainsKey(outputName) || !IsVesselLanded())
                 {
                     double rate = _dataMining.MiningFormulaDefinitions.OutputResources[i].Rate;
-                    float density = MyFirstWindowController.GetDensity(outputName, Game.ViewController.GetActiveSimVessel());
+                    float density = MyFirstWindowController.GetDensity(
+                        outputName,
+                        Game.ViewController.GetActiveSimVessel()
+                    );
                     _localDensities[outputName] = new OutputResource(rate, density);
                 }
             }
 
             if (_localDensities.ContainsKey("Nickel")) {
-                _dataMining.NickelRateTxt.SetValue(_localDensities["Nickel"].Rate * _localDensities["Nickel"].Density);
+                _dataMining.NickelRateTxt.SetValue(
+                    _localDensities["Nickel"].Rate * _localDensities["Nickel"].Density
+                );
             }
             if (_localDensities.ContainsKey("Regolith"))
             {
-                _dataMining.RegolithRateTxt.SetValue(_localDensities["Regolith"].Rate * _localDensities["Regolith"].Density);
+                _dataMining.RegolithRateTxt.SetValue(
+                    _localDensities["Regolith"].Rate * _localDensities["Regolith"].Density
+                );
             }
         }
         SetStatusTxt();
@@ -97,7 +105,7 @@ public class PartComponentModule_Mining : PartComponentModule
     **/
     public void SetStatusTxt()
     {
-        if (_dataMining.status == ResourceConversionStateMinig.InsufficientContainment.Description())
+        if (_dataMining.status == ResourceConversionStateMining.InsufficientContainment.Description())
         {
             _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(_dataMining.status)); // out of storage
         }
@@ -108,9 +116,9 @@ public class PartComponentModule_Mining : PartComponentModule
         {
             if (!_dataMining.PartIsDeployed)
             {
-                _dataMining.status = ResourceConversionStateMinig.NotDeployed.Description(); // not deployed
+                _dataMining.status = ResourceConversionStateMining.NotDeployed.Description(); // not deployed
                 _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(_dataMining.status));
-            } else if (_dataMining.status == ResourceConversionStateMinig.TooHigh.Description())
+            } else if (_dataMining.status == ResourceConversionStateMining.TooHigh.Description())
             {
                 _dataMining.statusTxt.SetValue(LocalizationManager.GetTranslation(_dataMining.status)); // too high
             }
@@ -140,7 +148,8 @@ public class PartComponentModule_Mining : PartComponentModule
             _currentIngredientUnits[i].units = _dataMining.MiningFormulaDefinitions.InputResources[i].Rate;
 
             // Remove ingredient from request if container empty
-            if (_containerGroup.GetResourceStoredUnits(_currentIngredientUnits[i].resourceID) < _dataMining.MiningFormulaDefinitions.AcceptanceThreshold)
+            if (_containerGroup.GetResourceStoredUnits(_currentIngredientUnits[i].resourceID) <
+                _dataMining.MiningFormulaDefinitions.AcceptanceThreshold)
             {
                 missingIngredient = inputName;
                 _dataMining.EnabledToggle.SetValue(false);
@@ -170,14 +179,18 @@ public class PartComponentModule_Mining : PartComponentModule
         }
         if (isEachProductOutOfStorage)
         {
-            _dataMining.status = ResourceConversionStateMinig.InsufficientContainment.Description();
+            _dataMining.status = ResourceConversionStateMining.InsufficientContainment.Description();
             _dataMining.EnabledToggle.SetValue(false);
         }
     }
 
-    private bool IsVesselLanded()
+    internal bool IsVesselLanded()
     {
-        if (_activeVessel == null) return false;
+        if (_activeVessel == null)
+        {
+            return false;
+        }
+        
         return VesselSituations.Landed.Equals(_activeVessel.Situation);
     }
 
@@ -186,7 +199,7 @@ public class PartComponentModule_Mining : PartComponentModule
      **/
     private void SendResourceRequest(double deltaTime)
     {
-        if (!this._dataMining.EnabledToggle.GetValue()) return; // if drill is inactive, do nothing
+        if (!_dataMining.EnabledToggle.GetValue()) return; // if drill is inactive, do nothing
 
         var inputCount = _dataMining.MiningFormulaDefinitions.InputResources.Count;
         var outputCount = _dataMining.MiningFormulaDefinitions.OutputResources.Count;
@@ -195,7 +208,13 @@ public class PartComponentModule_Mining : PartComponentModule
         if (_dataMining.status == ResourceConversionState.Operational.Description())
         {
             for (var i = 0; i < inputCount; ++i)
-                _containerGroup.RemoveResourceUnits(_currentIngredientUnits[i].resourceID, _currentIngredientUnits[i].units, deltaTime);
+            {
+                _containerGroup.RemoveResourceUnits(
+                    _currentIngredientUnits[i].resourceID,
+                    _currentIngredientUnits[i].units,
+                    deltaTime
+                );
+            }
         }
 
         // Products
@@ -204,10 +223,10 @@ public class PartComponentModule_Mining : PartComponentModule
             altitude = _activeVessel.AltitudeFromScenery;
         } else
         {
-            System.Diagnostics.Debug.Write("ISRU Ground Altitude not computable");
+            Debug.Write("ISRU Ground Altitude not computable");
         }
         if (altitude > 8.0 || !IsVesselLanded()) { // if drill is not on the ground, do nothing
-            _dataMining.status = ResourceConversionStateMinig.TooHigh.Description();
+            _dataMining.status = ResourceConversionStateMining.TooHigh.Description();
         }
         if (_dataMining.status == ResourceConversionState.Operational.Description()) {
             for (var i = 0; i < outputCount; ++i)
@@ -215,7 +234,11 @@ public class PartComponentModule_Mining : PartComponentModule
                 var outputName = _dataMining.MiningFormulaDefinitions.OutputResources[i].ResourceName;
                 double standardRate = _currentProductUnits[i].units;
                 float localDensity = _localDensities[outputName].Density;
-                _containerGroup.AddResourceUnits(_currentProductUnits[i].resourceID, standardRate * localDensity, deltaTime);
+                _containerGroup.AddResourceUnits(
+                    _currentProductUnits[i].resourceID,
+                    standardRate * localDensity,
+                    deltaTime
+                );
             }
         }
     }
@@ -227,7 +250,7 @@ public class PartComponentModule_Mining : PartComponentModule
     {
         if (_dataMining.MiningFormulaDefinitions == null)
         {
-            System.Diagnostics.Debug.Write("[ISRU] ERROR Unable to find MiningFormulaDefinitions.");
+            Debug.Write("[ISRU] ERROR Unable to find MiningFormulaDefinitions.");
             return;
         }
         var inputCount = _dataMining.MiningFormulaDefinitions.InputResources.Count;

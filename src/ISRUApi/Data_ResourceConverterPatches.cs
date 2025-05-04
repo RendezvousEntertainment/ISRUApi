@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using KSP.Modules;
-using KSP.Sim.ResourceSystem;
 
 namespace ISRUApi
 {
@@ -8,12 +7,12 @@ namespace ISRUApi
     {
         [HarmonyPatch(typeof(Data_ResourceConverter), nameof(Data_ResourceConverter.SetupResourceRequest))]
         [HarmonyPrefix]
-        static public void OnInitializePreFix(Data_ResourceConverter __instance)
+        public static void OnInitializePreFix(Data_ResourceConverter __instance)
         {
             if (__instance.SelectedFormula == -1)
-                {
-                    __instance.SelectedFormula = 0;
-                }
+            {
+                __instance.SelectedFormula = 0;
+            }
         }
     }
 }

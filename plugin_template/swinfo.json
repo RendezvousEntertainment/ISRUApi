@@ -6,7 +6,7 @@
   "description": "A Mod API for KSP 2 that adds resources and modules for ISRU parts and features.",
   "source": "https://github.com/Rendevouz-Entertainment/ISRUApi",
   "version": "0.0.1",
-  "version_check": "",
+  "version_check": "https://raw.githubusercontent.com/Rendevouz-Entertainment/ISRUApi/refs/heads/main/plugin_template/swinfo.json",
   "ksp2_version": {
     "min": "0.2.1",
     "max": "*"
@@ -40,5 +40,6 @@
         "max": "*"
       }
     }
-  ]
+  ],
+  "main-assembly": "ISRUApi.dll"
 }

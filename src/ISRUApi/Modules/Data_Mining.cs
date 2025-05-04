@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using I2.Loc;
 using KSP;
-using KSP.Api;
 using KSP.Modules;
 using KSP.Sim;
 using KSP.Sim.Definitions;
@@ -38,17 +37,17 @@ public class Data_Mining : ModuleData
     [PAMDisplayControl(SortIndex = 2)]
     [JsonIgnore]
     [HideInInspector]
-    public ModuleProperty<string> statusTxt = new(null, true, new ToStringDelegate(GetConversionStatusString));
+    public ModuleProperty<string> statusTxt = new(null, true, GetConversionStatusString);
 
     [LocalizedField("PartModules/Mining/NickelRate")]
     [PAMDisplayControl(SortIndex = 3)]
     [JsonIgnore]
-    public ModuleProperty<double> NickelRateTxt = new(0.0, true, new ToStringDelegate(GetOreRateOutputString));
+    public ModuleProperty<double> NickelRateTxt = new(0.0, true, GetOreRateOutputString);
 
     [LocalizedField("PartModules/Mining/RegolithRate")]
     [PAMDisplayControl(SortIndex = 4)]
     [JsonIgnore]
-    public ModuleProperty<double> RegolithRateTxt = new(0.0, true, new ToStringDelegate(GetOreRateOutputString));
+    public ModuleProperty<double> RegolithRateTxt = new(0.0, true, GetOreRateOutputString);
 
     [KSPDefinition]
     public ResourceConverterFormulaDefinition MiningFormulaDefinitions; // TODO turn into list like in Data_ResourceConverter
@@ -76,10 +75,21 @@ public class Data_Mining : ModuleData
     private List<OABPartData.PartInfoModuleSubEntry> GetInputStrings(ResourceConverterFormulaDefinition formula)
     {
         List<OABPartData.PartInfoModuleSubEntry> inputStrings = [];
-        for (int index = 0; index < formula.InputResources.Count<PartModuleResourceSetting>(); ++index)
+        for (int index = 0; index < formula.InputResources.Count(); ++index)
         {
-            ResourceDefinitionData definitionData = ModuleData.Game.ResourceDefinitionDatabase.GetDefinitionData(ModuleData.Game.ResourceDefinitionDatabase.GetResourceIDFromName(formula.InputResources[index].ResourceName));
-            inputStrings.Add(new OABPartData.PartInfoModuleSubEntry(string.Format(LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/ResourceRate", true, 0, true, false, (GameObject)null, (string)null, true), (object)definitionData.DisplayName, (object)Units.PrintFormattedRate((double)formula.InputResources[index].Rate, PartModuleTooltipLocalization.GetTooltipResourceUnits(definitionData.name), numDigits: 6))));
+            ResourceDefinitionData definitionData = Game.ResourceDefinitionDatabase.GetDefinitionData(
+                Game.ResourceDefinitionDatabase.GetResourceIDFromName(formula.InputResources[index].ResourceName)
+            );
+            
+            inputStrings.Add(new OABPartData.PartInfoModuleSubEntry(string.Format(
+                LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/ResourceRate"),
+                definitionData.DisplayName,
+                Units.PrintFormattedRate(
+                    formula.InputResources[index].Rate,
+                    PartModuleTooltipLocalization.GetTooltipResourceUnits(definitionData.name),
+                    numDigits: 6
+                )
+            )));
         }
         return inputStrings;
     }
@@ -87,10 +97,21 @@ public class Data_Mining : ModuleData
     private List<OABPartData.PartInfoModuleSubEntry> GetOutputStrings(ResourceConverterFormulaDefinition formula)
     {
         List<OABPartData.PartInfoModuleSubEntry> outputStrings = [];
-        for (int index = 0; index < formula.OutputResources.Count<PartModuleResourceSetting>(); ++index)
+        for (int index = 0; index < formula.OutputResources.Count(); ++index)
         {
-            ResourceDefinitionData definitionData = ModuleData.Game.ResourceDefinitionDatabase.GetDefinitionData(ModuleData.Game.ResourceDefinitionDatabase.GetResourceIDFromName(formula.OutputResources[index].ResourceName));
-            outputStrings.Add(new OABPartData.PartInfoModuleSubEntry(string.Format(LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/ResourceRate", true, 0, true, false, (GameObject)null, (string)null, true), (object)definitionData.DisplayName, (object)Units.PrintFormattedRate((double)formula.OutputResources[index].Rate, PartModuleTooltipLocalization.GetTooltipResourceUnits(definitionData.name), numDigits: 1))));
+            ResourceDefinitionData definitionData = Game.ResourceDefinitionDatabase.GetDefinitionData(
+                Game.ResourceDefinitionDatabase.GetResourceIDFromName(formula.OutputResources[index].ResourceName)
+            );
+            
+            outputStrings.Add(new OABPartData.PartInfoModuleSubEntry(string.Format(
+                LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/ResourceRate"),
+                definitionData.DisplayName,
+                Units.PrintFormattedRate(
+                    formula.OutputResources[index].Rate,
+                    PartModuleTooltipLocalization.GetTooltipResourceUnits(definitionData.name),
+                    numDigits: 1
+                )
+            )));
         }
         return outputStrings;
     }
@@ -99,37 +120,53 @@ public class Data_Mining : ModuleData
     {
         List<OABPartData.PartInfoModuleSubEntry> converterFormulas = [];
         //for (int index = 0; index < this.FormulaDefinitions.Count<ResourceConverterFormulaDefinition>(); ++index)
-            converterFormulas.Add(new OABPartData.PartInfoModuleSubEntry(LocalizationManager.GetTranslation(MiningFormulaDefinitions.FormulaLocalizationKey, true, 0, true, false, (GameObject)null, (string)null, true), this.GetConverterFormulaEntry(oabSituationStats, MiningFormulaDefinitions)));
+            converterFormulas.Add(new OABPartData.PartInfoModuleSubEntry(
+                LocalizationManager.GetTranslation(MiningFormulaDefinitions.FormulaLocalizationKey),
+                GetConverterFormulaEntry(oabSituationStats, MiningFormulaDefinitions)
+            ));
         return converterFormulas;
     }
 
 #pragma warning disable IDE0060 // Remove unused parameter
-    private List<OABPartData.PartInfoModuleSubEntry> GetConverterFormulaEntry(OABPartData.OABSituationStats oabSituationStats, ResourceConverterFormulaDefinition formula)
+    private List<OABPartData.PartInfoModuleSubEntry> GetConverterFormulaEntry(
+        OABPartData.OABSituationStats oabSituationStats,
+        ResourceConverterFormulaDefinition formula
+    )
 #pragma warning restore IDE0060 // Remove unused parameter
     {
         List<OABPartData.PartInfoModuleSubEntry> converterFormulaEntry =
         [
-            new OABPartData.PartInfoModuleSubEntry(LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/Inputs", true, 0, true, false, (GameObject)null, (string)null, true), this.GetInputStrings(formula)),
-            new OABPartData.PartInfoModuleSubEntry(LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/Outputs", true, 0, true, false, (GameObject)null, (string)null, true), this.GetOutputStrings(formula)),
+            new OABPartData.PartInfoModuleSubEntry(
+                LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/Inputs"),
+                GetInputStrings(formula)
+            ),
+            new OABPartData.PartInfoModuleSubEntry(
+                LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/Outputs"),
+                GetOutputStrings(formula)
+            ),
         ];
         return converterFormulaEntry;
     }
 
     public override List<OABPartData.PartInfoModuleEntry> GetPartInfoEntries(Type partBehaviourModuleType, List<OABPartData.PartInfoModuleEntry> delegateList)
     {
-        if (partBehaviourModuleType == this.ModuleType)
-            delegateList.Add(new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/ResourceConverter/Tooltip/Modes", true, 0, true, false, (GameObject)null, (string)null, true), new OABPartData.PartInfoModuleMultipleEntryValueDelegate(this.GetConverterFormulas)));
+        if (partBehaviourModuleType == ModuleType)
+            delegateList.Add(new OABPartData.PartInfoModuleEntry(
+                LocalizationManager.GetTranslation("PartModules/ResourceConverter/Tooltip/Modes"),
+                GetConverterFormulas
+            ));
         return delegateList;
     }
 
-    public static string GetOreRateOutputString(object valueObj) => string.Format("{0:F3} {1}/{2}", (object)Math.Abs((double)valueObj), (object)Units.SymbolTonne, (object)Units.SymbolSeconds);
+    public static string GetOreRateOutputString(object valueObj) =>
+        $"{Math.Abs((double)valueObj):F3} {Units.SymbolTonne}/{Units.SymbolSeconds}";
 
     private static string GetConversionStatusString(object valueObj) => (string)valueObj;
 
 }
 
 [Serializable]
-public enum ResourceConversionStateMinig : byte
+public enum ResourceConversionStateMining : byte
 {
     None,
     [Description("PartModules/Mining/TooHigh")] TooHigh,

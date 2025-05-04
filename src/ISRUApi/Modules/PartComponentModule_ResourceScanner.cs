@@ -1,4 +1,5 @@
-﻿using I2.Loc;
+﻿using System.Diagnostics;
+using I2.Loc;
 using ISRUApi.Managers;
 using KSP.Game;
 using KSP.Sim.Definitions;
@@ -24,12 +25,13 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
     {
         if (!DataModules.TryGetByType(out _dataResourceScanner))
         {
-            System.Diagnostics.Debug.Write("Unable to find a Data_Mining in the PartComponentModule for " + Part.PartName);
+            Debug.Write("Unable to find a Data_Mining in the PartComponentModule for " + Part.PartName);
             return;
         }
-        else if (GameManager.Instance.Game == null || GameManager.Instance.Game.ResourceDefinitionDatabase == null)
+
+        if (GameManager.Instance.Game == null || GameManager.Instance.Game.ResourceDefinitionDatabase == null)
         {
-            System.Diagnostics.Debug.Write("Unable to find a valid game with a resource definition database");
+            Debug.Write("Unable to find a valid game with a resource definition database");
             return;
         }
         _notificationManager = Game.Notifications;
@@ -45,7 +47,9 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
         for (var i = 0; i < _dataResourceScanner.RequiredResources.Count; ++i)
         {
             PartModuleResourceSetting moduleResourceSetting = _dataResourceScanner.RequiredResources[i];
-            ResourceDefinitionID resourceId = Game.ResourceDefinitionDatabase.GetResourceIDFromName(moduleResourceSetting.ResourceName);
+            ResourceDefinitionID resourceId = Game.ResourceDefinitionDatabase.GetResourceIDFromName(
+                moduleResourceSetting.ResourceName
+            );
 
             // Remove resource from request if container empty
             if (_containerGroup.GetResourceStoredUnits(resourceId) < moduleResourceSetting.AcceptanceThreshold)
@@ -101,7 +105,9 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
         for (var i = 0; i < _dataResourceScanner.RequiredResources.Count; ++i)
         {
             PartModuleResourceSetting moduleResourceSetting = _dataResourceScanner.RequiredResources[i];
-            ResourceDefinitionID resourceId = Game.ResourceDefinitionDatabase.GetResourceIDFromName(moduleResourceSetting.ResourceName);
+            ResourceDefinitionID resourceId = Game.ResourceDefinitionDatabase.GetResourceIDFromName(
+                moduleResourceSetting.ResourceName
+            );
 
             // Remove resource from request if container empty
             if (_containerGroup.GetResourceStoredUnits(resourceId) < moduleResourceSetting.AcceptanceThreshold)
@@ -110,8 +116,9 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
                 ResourceDefinitionData definitionData = Game.ResourceDefinitionDatabase.GetDefinitionData(resourceId);
                 string localizedResourceName = LocalizationManager.GetTranslation(definitionData.displayNameKey);
                 SetStatus(ResourceScannerStatus.OutOfResource, localizedResourceName);
-            } else
+            }
             // Send request otherwise
+            else
             {
                 _containerGroup.RemoveResourceUnits(resourceId, moduleResourceSetting.Rate, deltaTime);
             }
@@ -124,13 +131,20 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
         {
             Tier = NotificationTier.Alert,
             Importance = NotificationImportance.Low,
-            TimeStamp = Game.UniverseModel.Time.UniverseTime
+            TimeStamp = Game.UniverseModel.Time.UniverseTime,
+            AlertTitle =
+            {
+                LocKey = "Parts/Title/" + Part.Name
+            },
+            FirstLine =
+            {
+                LocKey = "Resource/Notifications/ScanComplete",
+                ObjectParams =
+                [
+                    Part.PartCelestialBody.Name
+                ]
+            }
         };
-        notificationData.AlertTitle.LocKey = "Parts/Title/" + Part.Name;
-        notificationData.FirstLine.LocKey = "Resource/Notifications/ScanComplete";
-        notificationData.FirstLine.ObjectParams = [
-            Part.PartCelestialBody.Name
-        ];
         _notificationManager.ProcessNotification(notificationData);
     }
 

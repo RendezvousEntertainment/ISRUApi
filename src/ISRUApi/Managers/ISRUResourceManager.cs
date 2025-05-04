@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ISRUApi.Modules;
+﻿using ISRUApi.Modules;
 using ISRUApi.UI;
 using KSP.Sim.Definitions;
 using UnityEngine;
@@ -10,12 +7,32 @@ namespace ISRUApi.Managers
 {
     public static class ISRUResourceManager
     {
-
         public static readonly Dictionary<string, List<CBResourceChart>> CbResourceList = new()
         {
-            { "Kerbin", new List<CBResourceChart>([new CBResourceChart("Methane"), new CBResourceChart("Carbon"), new CBResourceChart("Copper"), new CBResourceChart("Iron"), new CBResourceChart("Lithium")])},
-            { "Mun", new List<CBResourceChart>([new CBResourceChart("Nickel"), new CBResourceChart("Regolith"), new CBResourceChart("Water")])},
-            { "Minmus", new List<CBResourceChart>([new CBResourceChart("Iron"), new CBResourceChart("Nickel"), new CBResourceChart("Quartz")])},
+            {
+                "Kerbin",
+                [
+                    new CBResourceChart("Methane"),
+                    new CBResourceChart("Carbon"),
+                    new CBResourceChart("Copper"),
+                    new CBResourceChart("Iron"),
+                    new CBResourceChart("Lithium")
+                ]
+            },
+            {
+                "Mun", [
+                    new CBResourceChart("Nickel"),
+                    new CBResourceChart("Regolith"),
+                    new CBResourceChart("Water")
+                ]
+            },
+            {
+                "Minmus", [
+                    new CBResourceChart("Iron"),
+                    new CBResourceChart("Nickel"),
+                    new CBResourceChart("Quartz")
+                ]
+            },
         };
 
         public static readonly Dictionary<string, Color> ColorMap = new()
@@ -28,7 +45,10 @@ namespace ISRUApi.Managers
             {"Water", new Color(0, 156, 204, 1) }, // blue
         };
 
-        public static void MarkedCelestialBodyResourcesAsScanned(string celestialBodyName, List<PartComponentModule_ResourceScanner> partComponentResourceScannerList)
+        public static void MarkedCelestialBodyResourcesAsScanned(
+            string celestialBodyName,
+            List<PartComponentModule_ResourceScanner> partComponentResourceScannerList
+        )
         {
             List<string> scannableResourceList = [];
             List<CBResourceChart> availableResourceList = CbResourceList[celestialBodyName];

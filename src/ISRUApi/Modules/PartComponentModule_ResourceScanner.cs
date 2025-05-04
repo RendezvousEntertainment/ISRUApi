@@ -60,6 +60,39 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
         return true;
     }
 
+    private bool AreConditionsMet()
+    {
+        VesselComponent vessel = Game?.ViewController?.GetActiveSimVessel(); // warning, Part.SimulationObject.Vessel is null!
+
+        // Altitude condition
+        bool altitudeCondition = true;
+        if (_dataResourceScanner.minAltitude != -1 || _dataResourceScanner.maxAltitude != -1)
+        {
+;           double altitude = vessel.AltitudeFromSeaLevel;
+            if (_dataResourceScanner.minAltitude == -1)
+            {
+                altitudeCondition = (altitude <= _dataResourceScanner.maxAltitude);
+            }
+            else if (_dataResourceScanner.maxAltitude == -1)
+            {
+                altitudeCondition = (altitude >= _dataResourceScanner.minAltitude);
+            } else
+            {
+                altitudeCondition = (altitude <= _dataResourceScanner.maxAltitude) && (altitude >= _dataResourceScanner.minAltitude);
+            }
+        }
+
+        if (!altitudeCondition) SetStatus(ResourceScannerStatus.IncorrectAltitude);
+
+        // Inclination condition
+        double inclination = vessel.Orbit.inclination;
+        bool inclinationCondition = (_dataResourceScanner.minInclination <= inclination) && (_dataResourceScanner.maxInclination >= inclination);
+
+        if (!inclinationCondition) SetStatus(ResourceScannerStatus.IncorrectInclination);
+
+        return altitudeCondition && inclinationCondition;
+    }
+
     private void RequiredResourcesConsumptionUpdate(double deltaTime)
     {
         if (Game.SessionManager.IsDifficultyOptionEnabled("InfinitePower")) // TODO works only if EC is the only resource
@@ -132,6 +165,12 @@ public class PartComponentModule_ResourceScanner : PartComponentModule
         RequiredResourcesConsumptionUpdate(deltaUniversalTime);
 
         if (!HasEnoughResources()) return;
+
+        if (!AreConditionsMet())
+        {
+            _dataResourceScanner.EnabledToggle.SetValue(false);
+            return;
+        };
 
         double difference = Game.UniverseModel.Time.UniverseTime - _dataResourceScanner._startScanTimestamp;
         SetStatus(ResourceScannerStatus.Scanning, GetRemainingTime());

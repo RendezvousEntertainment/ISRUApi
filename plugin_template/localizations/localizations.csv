@@ -17,9 +17,14 @@ PartModules/ResourceScanner/Idle,Text,,Idle
 PartModules/ResourceScanner/Scanning,Text,,Scanning... {0}
 PartModules/ResourceScanner/Done,Text,,Done
 PartModules/ResourceScanner/OutOfResource,Text,,Out of {0}
+PartModules/ResourceScanner/IncorrectAltitude,Text,,Incorrect Altitude
+PartModules/ResourceScanner/IncorrectInclination,Text,,Incorrect Inclination
 
 PartModules/ResourceScanner/Tooltip/ScannableResources,Text,,Scannable Resources
 PartModules/ResourceScanner/Tooltip/ScanningRunTime,Text,,Scan Duration: {0} s
+PartModules/ResourceScanner/Tooltip/AltitudeRange,Text,,Altitude Range
+PartModules/ResourceScanner/Tooltip/InclinationRange,Text,,Inclination Range
+PartModules/ResourceScanner/Tooltip/NoCondition,Text,,No Condition
 
 Resource/Notifications/ScanComplete,Text,,{0} scan complete.
 

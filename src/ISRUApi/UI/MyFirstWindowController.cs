@@ -141,22 +141,6 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         return texture;
     }
 
-    private bool IsResourceScanned(String resourceName)
-    {
-        if (resourceName == null) return false;
-        List<CBResourceChart> availableResourceList = _cbResourceList[_celestialBodyName];
-
-        // Loop through all available resources on current celestial body
-        foreach (CBResourceChart availableResource in availableResourceList)
-        {
-            if (availableResource.ResourceName == resourceName)
-            {
-                return availableResource.IsScanned;
-            }
-        }
-        return false;
-    }
-
     private void InitializeFields()
     {
         // identity card
@@ -167,7 +151,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         for (int i = 0; i < _cbResourceList[_celestialBodyName].Count; i++)
         {
             CBResourceChart cbResource = _cbResourceList[_celestialBodyName][i];
-            if (IsResourceScanned(cbResource.ResourceName))
+            if (ISRUResourceManager.IsResourceScanned(cbResource.ResourceName, _celestialBodyName))
             {
                 _radioGroup[i].value = true; // the first radio button is checked by default
                 return;
@@ -184,7 +168,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
             // available resources list
             _rootElement.Q<VisualElement>("available-resource-" + (i + 1)).style.display = DisplayStyle.Flex;
             string label = LocalizationManager.GetTranslation("ISRU/UI/AvailableResources/Unknown");
-            if (IsResourceScanned(cbResource.ResourceName))
+            if (ISRUResourceManager.IsResourceScanned(cbResource.ResourceName, _celestialBodyName))
             {
                 label = cbResource.ResourceName;
                 // loading texture level maps
@@ -256,23 +240,9 @@ public class MyFirstWindowController : KerbalMonoBehaviour
         }
     }
 
-    private bool NoResourceWasScanned()
-    {
-        List<CBResourceChart> availableResourceList = _cbResourceList[_celestialBodyName];
-        // Loop through all available resources on current celestial body
-        foreach (CBResourceChart availableResource in availableResourceList)
-        {
-            if (availableResource.IsScanned)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private void UpdateWindowStatus()
     {
-        if (_displayOverlay && NoResourceWasScanned())
+        if (_displayOverlay && ISRUResourceManager.NoResourceWasScanned(_celestialBodyName))
         {
             _uiWindowStatus = UIResourceWindowStatus.NoResourceScanned;
             return;
@@ -311,7 +281,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
                 if (!_displayOverlay) break;
                 string resourceName = GetResourceNameSelectedRadioButton();
                 string[] options;
-                if (IsResourceScanned(resourceName))
+                if (ISRUResourceManager.IsResourceScanned(resourceName, _celestialBodyName))
                 {
                     options = ["Hmm, {0}"!, "{0}! {0} everywhere!", "{0} spotted!", "What a wonderful resource!", "Let's mine it all!", "For science! And the mining industry."];
                 } else
@@ -525,7 +495,7 @@ public class MyFirstWindowController : KerbalMonoBehaviour
 
         string resourceName = GetResourceNameSelectedRadioButton();
 
-        if (!IsResourceScanned(resourceName))
+        if (!ISRUResourceManager.IsResourceScanned(resourceName, _celestialBodyName))
         {
             System.Diagnostics.Debug.Write("ISRU DisplayResourceShader " + resourceName + " is not scanned");
             return;

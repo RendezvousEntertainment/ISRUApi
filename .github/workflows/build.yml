@@ -24,7 +24,7 @@ jobs:
           echo "artifact_name=ISRUApiRelease" >> $GITHUB_ENV
 
       - name: Upload zip artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.artifact_name }}
           path: ${{ env.zip }}

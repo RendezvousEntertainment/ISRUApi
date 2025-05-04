@@ -33,6 +33,14 @@ public class Data_ResourceScanner : ModuleData
     public List<PartModuleResourceSetting> ScannableResources;
     [KSPDefinition]
     public float TimeToComplete;
+    [KSPDefinition]
+    public double minAltitude;
+    [KSPDefinition]
+    public double maxAltitude;
+    [KSPDefinition]
+    public double minInclination;
+    [KSPDefinition]
+    public double maxInclination;
 
     private List<OABPartData.PartInfoModuleEntry> _cachedPartInfoEntries;
 
@@ -45,6 +53,7 @@ public class Data_ResourceScanner : ModuleData
 
     public override List<OABPartData.PartInfoModuleEntry> GetPartInfoEntries(Type partBehaviourModuleType, List<OABPartData.PartInfoModuleEntry> delegateList)
     {
+        CheckInclinationValues();
         if (partBehaviourModuleType == ModuleType)
         {
             if (_cachedPartInfoEntries == null || _cachedPartInfoEntries.Count == 0)
@@ -53,7 +62,9 @@ public class Data_ResourceScanner : ModuleData
                 [
                     new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/Resources", true, 0, true, false, null, null, true), new OABPartData.PartInfoModuleMultipleEntryValueDelegate(GetRequiredResourceStrings)),
                     new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/ScannableResources", true, 0, true, false, null, null, true), new OABPartData.PartInfoModuleMultipleEntryValueDelegate(GetScannableResourceStrings)),
-                    new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/ScanningRunTime", Units.FormatTimeString(TimeToComplete)), new OABPartData.PartInfoModuleEntryValueDelegate(GetTimeToCompleteString))
+                    new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/ScanningRunTime", Units.FormatTimeString(TimeToComplete)), new OABPartData.PartInfoModuleEntryValueDelegate(GetEmptyString)),
+                    new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/AltitudeRange"), new OABPartData.PartInfoModuleEntryValueDelegate(GetAltitudeRangeString)),
+                    new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/InclinationRange"), new OABPartData.PartInfoModuleEntryValueDelegate(GetInclinationRangeString)),
                 ];
             }
             delegateList.AddRange(_cachedPartInfoEntries);
@@ -62,7 +73,22 @@ public class Data_ResourceScanner : ModuleData
         return delegateList;
     }
 
-    private string GetTimeToCompleteString(OABPartData.OABSituationStats oabSituationStats) => string.Empty;
+    private string GetEmptyString(OABPartData.OABSituationStats oabSituationStats) => string.Empty;
+
+    private string GetAltitudeRangeString(OABPartData.OABSituationStats oabSituationStats)
+    {
+        string minAltitudeString = Units.PrintSI(minAltitude, Units.SymbolMeters);
+        string maxAltitudeString = Units.PrintSI(maxAltitude, Units.SymbolMeters);
+        if (minAltitude == -1 && maxAltitude == -1) return LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/NoCondition");
+        if (minAltitude == -1) return "< " + maxAltitudeString;
+        if (maxAltitude == -1) return "> " + minAltitudeString;
+        return minAltitudeString + ".." + maxAltitudeString;
+    }
+
+    private string GetInclinationRangeString(OABPartData.OABSituationStats oabSituationStats)
+    {
+        return Units.PrintSI(minInclination, Units.SymbolDegree) + ".." + Units.PrintSI(maxInclination, Units.SymbolDegree);
+    }
 
     private List<OABPartData.PartInfoModuleSubEntry> GetRequiredResourceStrings(OABPartData.OABSituationStats oabSituationStats)
     {
@@ -87,6 +113,22 @@ public class Data_ResourceScanner : ModuleData
     }
 
     private static string GetConversionStatusString(object valueObj) => (string)valueObj;
+
+    // Modifies the value to get it in the range [-180; 180]
+    private double GetRangedDegreeValue(double value)
+    {
+        //value %= 180.0;
+        //if (value > 90) value -= 180.0;
+        if (value < -180) return -180;
+        if (value > 180) return 180;
+        return value;
+    }
+
+    public void CheckInclinationValues()
+    {
+        minInclination = GetRangedDegreeValue(minInclination);
+        maxInclination = GetRangedDegreeValue(maxInclination);
+    }
 }
 
 [Serializable]
@@ -96,5 +138,7 @@ public enum ResourceScannerStatus : byte
     [Description("PartModules/ResourceScanner/Idle")] Idle,
     [Description("PartModules/ResourceScanner/Scanning")] Scanning,
     [Description("PartModules/ResourceScanner/OutOfResource")] OutOfResource,
+    [Description("PartModules/ResourceScanner/IncorrectAltitude")] IncorrectAltitude,
+    [Description("PartModules/ResourceScanner/IncorrectInclination")] IncorrectInclination,
 }
 

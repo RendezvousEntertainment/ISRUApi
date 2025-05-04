@@ -23,21 +23,38 @@ public class Module_ResourceScanner : PartBehaviourModule
     public override void OnInitialize()
     {
         base.OnInitialize();
+        
         if (PartBackingMode == PartBackingModes.Flight)
         {
-            _dataResourceScanner.EnabledToggle.OnChangedValue += new Action<bool>(OnToggleChangedValue);
+            _dataResourceScanner.EnabledToggle.OnChangedValue += OnToggleChangedValue;
         }
-        _dataResourceScanner.SetLabel(_dataResourceScanner.EnabledToggle, LocalizationManager.GetTermTranslation(_dataResourceScanner.ToggleName));
-        AddActionGroupAction(new Action(StartScanning), KSPActionGroup.None, LocalizationManager.GetTermTranslation(_dataResourceScanner.StartActionName));
-        AddActionGroupAction(new Action(StartScanning), KSPActionGroup.Custom01, LocalizationManager.GetTranslation(_dataResourceScanner.StartActionName)); // TODO in Redux create a ScanResource action group
+        
+        _dataResourceScanner.SetLabel(
+            _dataResourceScanner.EnabledToggle,
+            LocalizationManager.GetTermTranslation(_dataResourceScanner.ToggleName)
+        );
+        
+        AddActionGroupAction(
+            StartScanning,
+            KSPActionGroup.None,
+            LocalizationManager.GetTermTranslation(_dataResourceScanner.StartActionName)
+        );
+        AddActionGroupAction(
+            StartScanning,
+            KSPActionGroup.Custom01,
+            LocalizationManager.GetTranslation(_dataResourceScanner.StartActionName)
+        ); // TODO in Redux create a ScanResource action group
+        
         UpdatePAMVisibility();
-        _dataResourceScanner.statusTxt.SetValue(LocalizationManager.GetTranslation(ResourceScannerStatus.Idle.Description()));
+        _dataResourceScanner.statusTxt.SetValue(LocalizationManager.GetTranslation(
+            ResourceScannerStatus.Idle.Description()
+        ));
         
     }
     public override void OnShutdown()
     {
         base.OnShutdown();
-        _dataResourceScanner.EnabledToggle.OnChangedValue -= new Action<bool>(OnToggleChangedValue);
+        _dataResourceScanner.EnabledToggle.OnChangedValue -= OnToggleChangedValue;
     }
 
     public override void OnModuleFixedUpdate(float fixedDeltaTime)

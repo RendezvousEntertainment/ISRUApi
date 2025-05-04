@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using I2.Loc;
 using KSP;
-using KSP.Api;
 using KSP.Sim;
 using KSP.Sim.Definitions;
 using KSP.Sim.ResourceSystem;
@@ -25,7 +24,7 @@ public class Data_ResourceScanner : ModuleData
     [PAMDisplayControl(SortIndex = 2)]
     [JsonIgnore]
     [HideInInspector]
-    public ModuleProperty<string> statusTxt = new(null, true, new ToStringDelegate(GetConversionStatusString));
+    public ModuleProperty<string> statusTxt = new(null, true, GetConversionStatusString);
 
     [KSPDefinition]
     public List<PartModuleResourceSetting> RequiredResources;
@@ -41,47 +40,80 @@ public class Data_ResourceScanner : ModuleData
     [KSPDefinition]
     public string StartActionName = "PartModules/ResourceScanner/StartScanning";
 
-    public double _startScanTimestamp = 0;
+    public double _startScanTimestamp;
 
-    public override List<OABPartData.PartInfoModuleEntry> GetPartInfoEntries(Type partBehaviourModuleType, List<OABPartData.PartInfoModuleEntry> delegateList)
+    public override List<OABPartData.PartInfoModuleEntry> GetPartInfoEntries(
+        Type partBehaviourModuleType,
+        List<OABPartData.PartInfoModuleEntry> delegateList
+    )
     {
-        if (partBehaviourModuleType == ModuleType)
+        if (partBehaviourModuleType != ModuleType)
         {
-            if (_cachedPartInfoEntries == null || _cachedPartInfoEntries.Count == 0)
-            {
-                _cachedPartInfoEntries =
-                [
-                    new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/Resources", true, 0, true, false, null, null, true), new OABPartData.PartInfoModuleMultipleEntryValueDelegate(GetRequiredResourceStrings)),
-                    new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/ScannableResources", true, 0, true, false, null, null, true), new OABPartData.PartInfoModuleMultipleEntryValueDelegate(GetScannableResourceStrings)),
-                    new OABPartData.PartInfoModuleEntry(LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/ScanningRunTime", Units.FormatTimeString(TimeToComplete)), new OABPartData.PartInfoModuleEntryValueDelegate(GetTimeToCompleteString))
-                ];
-            }
-            delegateList.AddRange(_cachedPartInfoEntries);
-
+            return delegateList;
         }
+        
+        if (_cachedPartInfoEntries == null || _cachedPartInfoEntries.Count == 0)
+        {
+            _cachedPartInfoEntries =
+            [
+                new OABPartData.PartInfoModuleEntry(
+                    LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/Resources"),
+                    GetRequiredResourceStrings
+                ),
+                new OABPartData.PartInfoModuleEntry(
+                    LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/ScannableResources"),
+                    GetScannableResourceStrings
+                ),
+                new OABPartData.PartInfoModuleEntry(
+                    LocalizationManager.GetTranslation(
+                        "PartModules/ResourceScanner/Tooltip/ScanningRunTime",
+                        Units.FormatTimeString(TimeToComplete)
+                    ),
+                    GetTimeToCompleteString
+                )
+            ];
+        }
+        delegateList.AddRange(_cachedPartInfoEntries);
         return delegateList;
     }
 
     private string GetTimeToCompleteString(OABPartData.OABSituationStats oabSituationStats) => string.Empty;
 
-    private List<OABPartData.PartInfoModuleSubEntry> GetRequiredResourceStrings(OABPartData.OABSituationStats oabSituationStats)
+    private List<OABPartData.PartInfoModuleSubEntry> GetRequiredResourceStrings(
+        OABPartData.OABSituationStats oabSituationStats
+    )
     {
         List<OABPartData.PartInfoModuleSubEntry> resourceStrings = [];
         for (int index = 0; index < RequiredResources.Count; ++index)
         {
-            ResourceDefinitionData definitionData = Game.ResourceDefinitionDatabase.GetDefinitionData(Game.ResourceDefinitionDatabase.GetResourceIDFromName(RequiredResources[index].ResourceName));
-            resourceStrings.Add(new OABPartData.PartInfoModuleSubEntry(string.Format(LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/ResourceRateMax", true, 0, true, false, null, null, true), definitionData.DisplayName, PartModuleTooltipLocalization.FormatResourceRate(RequiredResources[index].Rate, PartModuleTooltipLocalization.GetTooltipResourceUnits(RequiredResources[index].ResourceName)))));
+            ResourceDefinitionData definitionData = Game.ResourceDefinitionDatabase.GetDefinitionData(
+                Game.ResourceDefinitionDatabase.GetResourceIDFromName(RequiredResources[index].ResourceName)
+            );
+            resourceStrings.Add(new OABPartData.PartInfoModuleSubEntry(string.Format(
+                LocalizationManager.GetTranslation("PartModules/Generic/Tooltip/ResourceRateMax"),
+                definitionData.DisplayName,
+                PartModuleTooltipLocalization.FormatResourceRate(
+                    RequiredResources[index].Rate,
+                    PartModuleTooltipLocalization.GetTooltipResourceUnits(RequiredResources[index].ResourceName))
+                )
+            ));
         }
         return resourceStrings;
     }
 
-    private List<OABPartData.PartInfoModuleSubEntry> GetScannableResourceStrings(OABPartData.OABSituationStats oabSituationStats)
+    private List<OABPartData.PartInfoModuleSubEntry> GetScannableResourceStrings(
+        OABPartData.OABSituationStats oabSituationStats
+    )
     {
         List<OABPartData.PartInfoModuleSubEntry> resourceStrings = [];
         for (int index = 0; index < ScannableResources.Count; ++index)
         {
-            ResourceDefinitionData definitionData = Game.ResourceDefinitionDatabase.GetDefinitionData(Game.ResourceDefinitionDatabase.GetResourceIDFromName(ScannableResources[index].ResourceName));
-            resourceStrings.Add(new OABPartData.PartInfoModuleSubEntry(LocalizationManager.GetTranslation(definitionData.displayNameKey, true, 0, true, false, null, null, true)));
+            ResourceDefinitionData definitionData = Game.ResourceDefinitionDatabase.GetDefinitionData(
+                Game.ResourceDefinitionDatabase.GetResourceIDFromName(ScannableResources[index].ResourceName)
+            );
+            resourceStrings.Add(new OABPartData.PartInfoModuleSubEntry(
+                LocalizationManager.GetTranslation(definitionData.displayNameKey)
+            ));
         }
         return resourceStrings;
     }

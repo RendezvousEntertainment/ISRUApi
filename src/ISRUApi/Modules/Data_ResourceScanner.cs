@@ -74,8 +74,9 @@ public class Data_ResourceScanner : ModuleData
                     GetScannableResourceStrings
                 ),
                 new OABPartData.PartInfoModuleEntry(
-                    LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/ScanningRunTime",
-                        Units.FormatTimeString(TimeToComplete)), GetEmptyString),
+                    LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/ScanningRunTime", Units.FormatTimeString(TimeToComplete)),
+                    GetEmptyString
+                ),
                 new OABPartData.PartInfoModuleEntry(
                     LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/AltitudeRange"),
                     GetAltitudeRangeString

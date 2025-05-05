@@ -218,14 +218,7 @@ public class PartComponentModule_Mining : PartComponentModule
         }
 
         // Products
-        double altitude = 0.0;
-        if (_activeVessel != null) {
-            altitude = _activeVessel.AltitudeFromScenery;
-        } else
-        {
-            Debug.Write("ISRU Ground Altitude not computable");
-        }
-        if (altitude > 8.0 || !IsVesselLanded()) { // if drill is not on the ground, do nothing
+        if (!IsVesselLanded()) { // if drill is not landed, do nothing
             _dataMining.status = ResourceConversionStateMining.TooHigh.Description();
         }
         if (_dataMining.status == ResourceConversionState.Operational.Description()) {

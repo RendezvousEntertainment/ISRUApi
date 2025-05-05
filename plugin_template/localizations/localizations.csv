@@ -27,6 +27,7 @@ PartModules/ResourceScanner/Tooltip/InclinationRange,Text,,Inclination Range
 PartModules/ResourceScanner/Tooltip/NoCondition,Text,,No Condition
 
 Resource/Notifications/ScanComplete,Text,,{0} scan complete.
+Resource/Notifications/TooHigh,Text,,Your mining gear is too far from the ground.
 
 PartModules/Convertotron/Enabled,Text,,Convert-O-Tron Enabled
 PartModules/Convertotron/Start,Text,,Start Convert-O-Tron

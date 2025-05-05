@@ -1,5 +1,6 @@
 ﻿using I2.Loc;
 using KSP.Game;
+using KSP.Iteration.UI.Binding;
 using KSP.Sim;
 using KSP.Sim.Definitions;
 using UnityEngine;
@@ -98,6 +99,10 @@ public class Module_Mining : PartBehaviourModule
                 {
                     LocKey = "PartModules/Mining/TooHigh"
                 },
+                FirstLine =
+                {
+                    LocKey = "Resource/Notifications/TooHigh"
+                }
             });
         }
         

@@ -119,7 +119,7 @@ public class Module_Mining : PartBehaviourModule
             drillDirection.normalized,
             out _,
             drillLength,
-            LayerMask.NameToLayer("Local.Scenery")
+            LayerMask.GetMask("Physx.Terrain")
         );
     }
 

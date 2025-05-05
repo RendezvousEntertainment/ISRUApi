@@ -84,7 +84,7 @@ public class Data_ResourceScanner : ModuleData
                 new OABPartData.PartInfoModuleEntry(
                     LocalizationManager.GetTranslation("PartModules/ResourceScanner/Tooltip/InclinationRange"),
                     GetInclinationRangeString
-                )
+                ),
             ];
         }
         delegateList.AddRange(_cachedPartInfoEntries);
